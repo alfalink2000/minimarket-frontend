@@ -1,0 +1,178 @@
+/* SearchBar.css - STICKY MEJORADO */
+
+.search-bar {
+  position: relative;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+/* Estado normal */
+.search-bar:not(.search-bar--sticky) {
+  margin-bottom: 1rem;
+}
+
+/* Estado sticky - cuando se hace scroll */
+.search-bar--sticky {
+  position: fixed;
+  top: 70px; /* Altura del header */
+  left: 0;
+  right: 0;
+  z-index: 90;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.9);
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+  animation: searchBarSlideDown 0.3s ease-out;
+  margin-bottom: 0;
+}
+
+@keyframes searchBarSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.search-bar__icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-400);
+  width: 1.25rem;
+  height: 1.25rem;
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+/* Cuando está sticky, el icono mantiene su posición */
+.search-bar--sticky .search-bar__icon {
+  color: var(--gray-500); /* Color ligeramente más oscuro, no azul */
+  transform: translateY(-50%); /* Sin escala para mantener alineación */
+  left: calc(1rem + 0.75rem); /* 1rem padding + 0.75rem posición original */
+}
+
+.search-bar__input {
+  width: 100%;
+  padding: 0.75rem 0.75rem 0.75rem 2.75rem;
+  background-color: var(--white);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  font-size: 0.875rem;
+  color: var(--gray-800);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  font-family: inherit;
+}
+
+.search-bar__input::placeholder {
+  color: var(--gray-400);
+}
+
+.search-bar__input:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  transform: translateY(-1px);
+}
+
+.search-bar__input:hover {
+  border-color: var(--gray-300);
+}
+
+/* Input cuando está sticky - MANTIENE COLORES ORIGINALES */
+.search-bar--sticky .search-bar__input {
+  border-color: var(--gray-200); /* Mantiene el gris original */
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08); /* Sombra más suave */
+  background: var(--white); /* Fondo sólido, no translúcido */
+  padding-left: 2.75rem; /* Mantiene el padding original */
+}
+
+/* Solo cambia el borde al focus, incluso en sticky */
+.search-bar--sticky .search-bar__input:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Efecto de "scroll indicator" más sutil */
+.search-bar--sticky::before {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    rgba(156, 163, 175, 0.6),
+    rgba(107, 114, 128, 0.6),
+    rgba(156, 163, 175, 0.6)
+  );
+  border-radius: 3px;
+  opacity: 0.7;
+}
+
+/* Efecto de desvanecimiento en los bordes laterales */
+.search-bar--sticky::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    transparent 10%,
+    transparent 90%,
+    rgba(255, 255, 255, 0.9) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+  .search-bar--sticky {
+    top: 60px; /* Header más pequeño en móviles */
+    padding: 0.75rem 1rem; /* Padding consistente */
+  }
+
+  .search-bar__input {
+    padding: 0.75rem 0.75rem 0.75rem 2.75rem; /* Padding consistente */
+    font-size: 0.875rem;
+  }
+
+  .search-bar__icon {
+    left: calc(1rem + 0.75rem); /* Misma lógica que en desktop */
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* Ajuste para pantallas muy pequeñas */
+  @media (max-width: 480px) {
+    .search-bar--sticky {
+      padding: 0.625rem 0.875rem;
+    }
+
+    .search-bar__icon {
+      left: calc(0.875rem + 0.625rem);
+    }
+  }
+}
+
+/* Asegurar que el contenido no se solape cuando el search es sticky */
+.client-interface__content:has(.search-bar--sticky) {
+  padding-top: 60px;
+}
+
+/* Transición suave para el espacio del sticky */
+.client-interface__content {
+  transition: padding-top 0.3s ease;
+}

@@ -1,0 +1,60 @@
+.category-filter {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  /* padding: 1rem 0; */
+  padding: 3px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  /* background-color: aqua; */
+  padding-bottom: 4px;
+}
+
+.category-filter::-webkit-scrollbar {
+  display: none;
+}
+
+.category-filter__container {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 1rem;
+}
+
+.category-filter__button {
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+  background-color: var(--white);
+  color: var(--gray-700);
+  border: 1px solid var(--gray-200);
+}
+
+.category-filter__button:hover {
+  background-color: var(--gray-50);
+  border-color: var(--gray-300);
+  transform: translateY(-1px);
+}
+
+.category-filter__button--active {
+  background: linear-gradient(
+    135deg,
+    var(--primary-blue) 0%,
+    var(--primary-green) 100%
+  );
+  color: var(--white);
+  border: none;
+  box-shadow: var(--shadow);
+}
+
+.category-filter__button--active:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}

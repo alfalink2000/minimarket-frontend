@@ -1,0 +1,580 @@
+/* components/client/ClientInterface/ClientInterface.desktop.css */
+
+/* ===== MEDIA QUERIES PARA DESKTOP ===== */
+@media (min-width: 1024px) {
+  .client-interface {
+    background: linear-gradient(
+      135deg,
+      var(--gray-50) 0%,
+      var(--white) 20%,
+      var(--gray-100) 100%
+    );
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Header adjustments for desktop */
+  .header {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 5px 2rem;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.97) 0%,
+      rgba(248, 250, 252, 0.97) 100%
+    );
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  }
+
+  .header__container {
+    max-width: none;
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  /* Desktop Navigation Styles - VERSIÓN PROFESIONAL */
+  .desktop-navigation {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  /* Botones de acción del header */
+  .header-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header-action::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
+    transition: left 0.5s;
+  }
+
+  .header-action:hover::before {
+    left: 100%;
+  }
+
+  /* Botones con icono solo */
+  .header-action--icon {
+    background: rgba(248, 250, 252, 0.8);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    color: var(--gray-600);
+    width: 48px;
+    height: 48px;
+  }
+
+  .header-action--icon:hover {
+    background: var(--white);
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+  }
+
+  /* Botón de administración */
+  .header-action--admin {
+    background: linear-gradient(135deg, #fef3c7, #f59e0b);
+    color: #92400e;
+    padding: 0.75rem 1.25rem;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+
+  .header-action--admin:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+
+  .header-action__icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .header-action__text {
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* Separador en header actions */
+  .header-separator {
+    width: 1px;
+    height: 24px;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(148, 163, 184, 0.3) 50%,
+      transparent 100%
+    );
+    margin: 0 0.25rem;
+  }
+
+  /* Estados activos para botones que cambian secciones */
+  .header-action--icon.active {
+    background: linear-gradient(
+      135deg,
+      var(--primary-blue),
+      var(--accent-teal)
+    );
+    color: var(--white);
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+
+  .header-title-with-icon {
+    justify-content: flex-start;
+  }
+
+  .header-main-title {
+    font-size: 1.2rem;
+    pointer-events: none;
+  }
+
+  .header-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .header-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  /* Layout principal para desktop */
+  .desktop-layout {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 1rem;
+    grid-template-areas:
+      "search search"
+      "sidebar main";
+    align-items: start;
+    /* CORREGIDO: Eliminar altura fija que causa problemas */
+    min-height: calc(100vh - 80px);
+    height: auto;
+  }
+
+  .desktop-search {
+    grid-area: search;
+    margin-bottom: 0;
+    padding: 0 0 1rem 0;
+  }
+
+  .desktop-sidebar {
+    grid-area: sidebar;
+    position: sticky;
+    top: 2rem;
+    /* display: flex; */
+    flex-direction: column;
+    gap: 2rem;
+    /* SCROLL INDEPENDIENTE PARA TODA LA ZONA IZQUIERDA */
+    height: calc(100vh - 185px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 1rem 1rem 0;
+    /* Estilos de scroll personalizados */
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300) var(--gray-100);
+  }
+
+  /* Scrollbar personalizado para Webkit (Chrome, Safari, Edge) */
+  .desktop-sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .desktop-sidebar::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 10px;
+  }
+
+  .desktop-sidebar::-webkit-scrollbar-thumb {
+    background: var(--gray-300);
+    border-radius: 10px;
+  }
+
+  .desktop-sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400);
+  }
+
+  /* CORREGIR: Contenido principal con altura flexible */
+  .desktop-main-content {
+    grid-area: main;
+    /* CORREGIDO: Altura automática en lugar de fija */
+    height: auto;
+    min-height: 60vh;
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 2rem 2rem 1rem;
+  }
+
+  /* Scrollbar personalizado para el contenido principal */
+  .desktop-main-content::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .desktop-main-content::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 10px;
+  }
+
+  .desktop-main-content::-webkit-scrollbar-thumb {
+    background: var(--gray-300);
+    border-radius: 10px;
+  }
+
+  .desktop-main-content::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400);
+  }
+
+  /* Navegación de secciones en desktop - SIN SCROLL INTERNO */
+  .desktop-sections-nav {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    /* Asegurar que no hay overflow interno */
+    overflow: visible;
+  }
+
+  .desktop-section-button {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    border: none;
+    border-radius: var(--radius-lg);
+    background: transparent;
+    color: var(--gray-600);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-align: left;
+  }
+
+  .desktop-section-button:hover {
+    /* background: var(--gray-50); */
+    transform: translateX(4px);
+  }
+
+  .desktop-section-button--active {
+    background: linear-gradient(
+      135deg,
+      var(--primary-blue),
+      var(--accent-teal)
+    );
+    color: var(--white);
+    box-shadow: var(--shadow-md);
+  }
+
+  .desktop-section-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .desktop-section-text {
+    flex: 1;
+    font-size: 0.9rem;
+  }
+
+  .desktop-section-badge {
+    background: var(--gray-100);
+    color: var(--gray-600);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .desktop-section-button--active .desktop-section-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--white);
+  }
+
+  /* Filtros en desktop - SIN SCROLL INTERNO */
+  .desktop-filters {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    /* Asegurar altura del contenido */
+    height: fit-content;
+  }
+
+  .desktop-filters-header {
+    padding: 1rem 1rem;
+    border-bottom: 2px solid var(--gray-200);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--gray-50);
+  }
+
+  .desktop-filters-header .filters-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--gray-600);
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .desktop-filters-header .products-count {
+    font-size: 0.65rem;
+    font-weight: 900;
+    width: 150px;
+    color: var(--gray-500);
+    background: var(--white);
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--gray-300);
+  }
+
+  .desktop-category-filter {
+    padding: 1rem 1.5rem;
+    /* Sin overflow interno, el scroll lo maneja el sidebar */
+  }
+
+  .desktop-category-filter .category-filter {
+    flex-direction: column;
+    overflow-x: visible;
+    /* Quitar overflow-y ya que el scroll es del sidebar */
+    overflow-y: visible;
+  }
+
+  .desktop-category-filter .category-filter__container {
+    flex-direction: column;
+    padding: 0;
+    gap: 0.5rem;
+  }
+
+  .desktop-category-filter .category-filter__button {
+    text-align: left;
+    padding: 0.875rem 1rem;
+    border-radius: var(--radius-lg);
+    font-size: 0.9rem;
+    width: 100%;
+    transition: all 0.2s ease;
+  }
+
+  .desktop-category-filter .category-filter__button:hover {
+    transform: translateX(4px);
+    /* background: var(--gray-50); */
+  }
+
+  /* Secciones de contenido */
+  .desktop-products-section {
+    margin-top: 1rem;
+    /* Asegurar que ocupe solo el espacio necesario */
+    min-height: 0;
+    flex: 1;
+  }
+
+  .popular-section,
+  .offers-section,
+  .contact-section {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .section-header {
+    align-items: flex-start;
+  }
+
+  .section-title {
+    gap: 1rem;
+  }
+
+  .section-title h2 {
+    font-size: 1.75rem;
+  }
+
+  .section-icon {
+    font-size: 2.5rem;
+  }
+
+  .title-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .stats-container {
+    flex-direction: row;
+    gap: 1rem;
+  }
+
+  .offer-features {
+    gap: 0.75rem;
+  }
+
+  /* Grid de productos en desktop */
+  .product-grid {
+    max-width: none;
+    padding: 0;
+    /* Prevenir crecimiento excesivo */
+    height: fit-content;
+  }
+
+  .product-grid__container {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+    /* Asegurar que no crezca más de lo necesario */
+    height: fit-content;
+  }
+
+  /* Mejoras específicas para ProductCard en desktop */
+  .product-card {
+    transition: all 0.3s ease;
+  }
+
+  .product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .product-card__image-container {
+    height: 180px;
+  }
+
+  .product-card__name {
+    font-size: 1.1rem;
+  }
+
+  .product-card__price {
+    font-size: 1.25rem;
+  }
+
+  .product-card__description {
+    -webkit-line-clamp: 2;
+  }
+
+  .product-card__whatsapp-btn {
+    font-size: 0.9rem;
+  }
+
+  /* Ocultar layout móvil en desktop */
+  .mobile-layout {
+    display: none;
+  }
+
+  /* Bottom Navigation - Ocultar en desktop */
+  .bottom-nav {
+    display: none;
+  }
+}
+
+/* ===== DESKTOP GRANDE ===== */
+@media (min-width: 1440px) {
+  .desktop-layout {
+    max-width: 100%;
+    grid-template-columns: 350px 1fr;
+    gap: 2rem; /* REDUCIDO gap */
+    /* CORREGIDO: Altura flexible */
+    min-height: calc(100vh - 80px);
+    height: auto;
+  }
+
+  .header {
+    max-width: 100%;
+  }
+
+  .product-grid__container {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Ajustado */
+    gap: 1.25rem;
+  }
+
+  .desktop-sidebar {
+    max-height: calc(100vh - 180px);
+    padding: 0 1rem 1rem 0; /* REDUCIDO padding-bottom */
+  }
+
+  .desktop-main-content {
+    max-height: calc(100vh - 180px);
+    padding: 0 0 1rem 0; /* REDUCIDO padding-bottom */
+  }
+}
+
+/* ===== TRANSICIONES SUAVES ===== */
+@media (min-width: 1024px) {
+  .desktop-layout > * {
+    animation: fadeInUp 0.6s ease-out;
+  }
+  .product-grid__container {
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(180px, 1fr)
+    ); /* Reducido de 200px */
+    gap: 1rem; /* Reducido de 1.5rem */
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* ===== ESTILOS PARA MÓVIL ===== */
+@media (max-width: 1023px) {
+  .desktop-layout {
+    display: none !important;
+  }
+
+  .desktop-navigation {
+    display: none;
+  }
+
+  .mobile-layout {
+    display: block;
+  }
+}
+
+/* NUEVO: Clase para eliminar completamente el espacio blanco */
+.desktop-layout--no-bottom-space {
+  padding-bottom: 0 !important;
+}
+
+.desktop-main-content--no-bottom-space {
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}

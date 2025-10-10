@@ -1,0 +1,442 @@
+/* components/admin/AppConfigManager/AppConfigManager.css */
+.app-config-manager {
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.config-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.config-icon {
+  font-size: 2rem;
+  color: var(--primary-blue);
+}
+
+.config-header h2 {
+  margin: 0;
+  color: var(--gray-800);
+  font-weight: 700;
+}
+
+.config-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--gray-200);
+  padding-bottom: 1rem;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--gray-600);
+  font-weight: 500;
+}
+
+.tab:hover {
+  background: var(--gray-50);
+  color: var(--gray-800);
+}
+
+.tab.active {
+  background: var(--primary-blue);
+  color: var(--white);
+}
+
+.config-form {
+  max-width: 600px;
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--gray-700);
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 0.75rem;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.color-picker-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.color-picker {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.color-picker input[type="color"] {
+  width: 60px;
+  height: 40px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.color-picker span {
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.color-preview {
+  padding: 1.5rem;
+  background: var(--gray-50);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+}
+
+.color-preview h4 {
+  margin: 0 0 1rem 0;
+  color: var(--gray-700);
+}
+
+.preview-elements {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.preview-primary,
+.preview-secondary {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.preview-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.preview-btn,
+.reset-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  background: var(--white);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+}
+
+.preview-btn:hover {
+  background: var(--primary-blue);
+  color: var(--white);
+  border-color: var(--primary-blue);
+}
+
+.reset-btn:hover {
+  background: var(--gray-100);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, var(--primary-blue), var(--accent-teal));
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+@media (max-width: 768px) {
+  .app-config-manager {
+    padding: 1rem;
+  }
+
+  .config-tabs {
+    flex-direction: column;
+  }
+
+  .preview-elements {
+    flex-direction: column;
+  }
+}
+/* components/admin/AppConfigManager/AppConfigManager.css - Añadir */
+.theme-selection {
+  padding: 1rem 0;
+}
+
+.theme-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 0.5rem;
+}
+
+.theme-subtitle {
+  color: var(--gray-600);
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.theme-card {
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--gray-300);
+}
+
+.theme-card.selected {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px var(--primary-blue-light);
+}
+
+.theme-card.previewing {
+  border-color: var(--success);
+  box-shadow: 0 0 0 3px var(--success-light);
+}
+
+.theme-preview {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  height: 60px;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.theme-primary,
+.theme-accent,
+.theme-success {
+  flex: 1;
+  transition: transform 0.3s ease;
+}
+
+.theme-card:hover .theme-primary,
+.theme-card:hover .theme-accent,
+.theme-card:hover .theme-success {
+  transform: scale(1.05);
+}
+
+.theme-info {
+  text-align: center;
+}
+
+.theme-name {
+  font-weight: 600;
+  color: var(--gray-800);
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+.theme-description {
+  color: var(--gray-600);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.theme-selected-indicator {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 24px;
+  height: 24px;
+  background: var(--primary-blue);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.check-icon {
+  color: white;
+  font-size: 0.875rem;
+}
+
+.theme-preview-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.preview-btn,
+.reset-btn {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--radius);
+  background: var(--white);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.preview-btn {
+  background: var(--primary-blue);
+  color: var(--white);
+  border-color: var(--primary-blue);
+}
+
+.preview-btn:hover {
+  background: var(--primary-blue-dark);
+}
+
+.reset-btn {
+  background: var(--gray-100);
+  color: var(--gray-700);
+}
+
+.reset-btn:hover {
+  background: var(--gray-200);
+}
+
+.preview-notice {
+  padding: 1rem;
+  background: var(--warning-light);
+  border: 1px solid var(--warning);
+  border-radius: var(--radius);
+  color: var(--gray-700);
+  font-weight: 500;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .theme-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .theme-preview-actions {
+    flex-direction: column;
+  }
+
+  .preview-btn,
+  .reset-btn {
+    width: 100%;
+  }
+}
+
+/* components/admin/AppConfigManager/AppConfigManager.css - AÑADIDOS */
+.help-text {
+  color: var(--gray-500);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.preview-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Mejoras responsive */
+@media (max-width: 640px) {
+  .config-tabs {
+    flex-direction: column;
+  }
+
+  .tab {
+    justify-content: center;
+  }
+
+  .theme-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .theme-preview-actions {
+    flex-direction: column;
+  }
+
+  .preview-btn,
+  .reset-btn {
+    width: 100%;
+  }
+}
+
+/* Estados de loading */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.save-btn:disabled {
+  animation: pulse 1.5s infinite;
+}
