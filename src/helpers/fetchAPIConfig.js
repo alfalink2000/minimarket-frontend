@@ -1,12 +1,15 @@
-// helpers/fetchAPIConfig.js - VERSIÓN MEJORADA PARA PRODUCCIÓN
-
 // ✅ URL base dinámica para desarrollo/producción
 const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
-console.log("🔧 Configuración API:", {
-  baseUrl,
-  environment: import.meta.env.VITE_NODE_ENV || "development",
-});
+// ✅ Solo logs en desarrollo
+const isDevelopment = import.meta.env.VITE_NODE_ENV === "development";
+
+if (isDevelopment) {
+  console.log("🔧 Configuración API:", {
+    baseUrl,
+    environment: import.meta.env.VITE_NODE_ENV || "development",
+  });
+}
 
 export const fetchAPIConfig = (
   endpoint,
@@ -17,7 +20,9 @@ export const fetchAPIConfig = (
   const url = `${baseUrl}/${endpoint}`;
   const token = localStorage.getItem("token") || "";
 
-  console.log("🌐 Realizando petición a:", url);
+  if (isDevelopment) {
+    console.log("🌐 Realizando petición a:", url);
+  }
 
   const config = {
     method,
@@ -26,20 +31,23 @@ export const fetchAPIConfig = (
     },
   };
 
-  // ✅ NUEVO: Timeout para producción
+  // ✅ Timeout para producción
   const timeout = 15000; // 15 segundos
 
-  const fetchPromise = fetch(url, config);
-
-  const timeoutPromise = new Promise((_, reject) =>
-    setTimeout(
-      () => reject(new Error("Timeout: La petición tardó demasiado")),
-      timeout
-    )
-  );
-
   if (method === "GET") {
-    return Promise.race([fetchPromise, timeoutPromise]);
+    const fetchPromise = fetch(url, config);
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(
+        () => reject(new Error("Timeout: La petición tardó demasiado")),
+        timeout
+      )
+    );
+
+    return Promise.race([fetchPromise, timeoutPromise]).then((response) => {
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+      return response.json(); // ✅ Parsear respuesta
+    });
   } else {
     if (isFormData) {
       // Para FormData - NO establecer Content-Type
@@ -50,6 +58,18 @@ export const fetchAPIConfig = (
       config.body = JSON.stringify(data);
     }
 
-    return Promise.race([fetch(url, config), timeoutPromise]);
+    const fetchPromise = fetch(url, config);
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(
+        () => reject(new Error("Timeout: La petición tardó demasiado")),
+        timeout
+      )
+    );
+
+    return Promise.race([fetchPromise, timeoutPromise]).then((response) => {
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+      return response.json(); // ✅ Parsear respuesta
+    });
   }
 };

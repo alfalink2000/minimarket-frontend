@@ -1,8 +1,6 @@
-// helpers/fetchPublic.js - VERSIÓN OPTIMIZADA PARA PRODUCCIÓN
-
 const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
-// ✅ NUEVO: Solo mostrar logs en desarrollo
+// ✅ Solo mostrar logs en desarrollo
 const isDevelopment = import.meta.env.VITE_NODE_ENV === "development";
 
 export const fetchPublic = (endpoint, data, method = "GET") => {
@@ -13,13 +11,11 @@ export const fetchPublic = (endpoint, data, method = "GET") => {
     console.log("🔧 [DEBUG] Método:", method);
   }
 
-  // ✅ NUEVO: Configuración mejorada
   const config = {
     method,
     headers: {
       "Content-type": "application/json",
     },
-    // ✅ NUEVO: Timeout para producción
     signal: AbortSignal.timeout(10000), // 10 segundos timeout
   };
 
@@ -37,7 +33,7 @@ export const fetchPublic = (endpoint, data, method = "GET") => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      return response;
+      return response.json(); // ✅ IMPORTANTE: agregar .json() para parsear la respuesta
     })
     .catch((error) => {
       if (isDevelopment) {
