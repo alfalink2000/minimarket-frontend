@@ -1,19 +1,13 @@
-// actions/productsActions.js
 import { fetchAPIConfig } from "../helpers/fetchAPIConfig";
 import { fetchPublic } from "../helpers/fetchPublic";
 import { types } from "../types/types";
 import Swal from "sweetalert2";
 
-// actions/productsActions.js
 export const getProducts = (forceRefresh = false) => {
   return async (dispatch, getState) => {
-    // ✅ SOLUCIÓN: Solo evitar refresh si NO es forceRefresh y hay productos
     if (!forceRefresh && getState().products.products.length > 0) {
-      // Pero aún así, verificar si necesitamos actualizar por cambios recientes
       const lastUpdate = getState().products.lastUpdate;
       const now = Date.now();
-
-      // Si han pasado más de 10 segundos desde la última actualización, forzar refresh
       if (lastUpdate && now - lastUpdate < 10000) {
         return;
       }
@@ -22,14 +16,7 @@ export const getProducts = (forceRefresh = false) => {
     dispatch(startLoading());
 
     try {
-      const resp = await fetchPublic("products/getProducts");
-
-      if (!resp.ok) {
-        console.error("Error HTTP cargando productos:", resp.status);
-        return;
-      }
-
-      const body = await resp.json();
+      const body = await fetchPublic("products/getProducts");
 
       if (body.ok) {
         dispatch(loadProducts(body.products));
@@ -56,8 +43,7 @@ export const insertProduct = (formData) => {
         },
       });
 
-      const resp = await fetchAPIConfig("products/new", formData, "POST", true);
-      const body = await resp.json();
+      const body = await fetchAPIConfig("products/new", formData, "POST", true);
 
       Swal.close();
 
@@ -78,8 +64,6 @@ export const insertProduct = (formData) => {
   };
 };
 
-// actions/productsActions.js
-// actions/productsActions.js (solo la parte de updateProduct)
 export const updateProduct = (formData) => {
   return async (dispatch) => {
     try {
@@ -94,22 +78,19 @@ export const updateProduct = (formData) => {
 
       const productId = formData.get("id");
 
-      // ✅ DEBUG: Ver datos que se envían
       console.log("🚀 Enviando al servidor:", {
         id: productId,
         status: formData.get("status"),
         stock_quantity: formData.get("stock_quantity"),
       });
 
-      const resp = await fetchAPIConfig(
+      const body = await fetchAPIConfig(
         `products/update/${productId}`,
         formData,
         "PUT",
         true
       );
-      const body = await resp.json();
 
-      // ✅ DEBUG: Ver respuesta
       console.log("📥 Respuesta del servidor:", body);
 
       Swal.close();
@@ -117,7 +98,6 @@ export const updateProduct = (formData) => {
       if (body.ok) {
         dispatch(updateProductAction(body.product));
 
-        // ✅ FORZAR REFRESH INMEDIATO con timeout para asegurar
         setTimeout(() => {
           console.log("🔄 Forzando refresh de productos...");
           dispatch(getProducts(true));
@@ -147,7 +127,6 @@ export const refreshProductsIfNeeded = () => {
     const lastUpdate = getState().products.lastUpdate;
     const now = Date.now();
 
-    // Si han pasado más de 30 segundos desde la última actualización
     if (!lastUpdate || now - lastUpdate > 30000) {
       dispatch(getProducts());
     }
@@ -156,8 +135,7 @@ export const refreshProductsIfNeeded = () => {
 
 export const deleteProduct = (id) => {
   return async (dispatch) => {
-    const resp = await fetchAPIConfig(`products/delete/${id}`, {}, "DELETE");
-    const body = await resp.json();
+    const body = await fetchAPIConfig(`products/delete/${id}`, {}, "DELETE");
 
     if (body.ok) {
       dispatch(deleteProductAction(id));

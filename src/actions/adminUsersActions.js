@@ -1,4 +1,3 @@
-// actions/adminUsersActions.js
 import { fetchAPIConfig } from "../helpers/fetchAPIConfig";
 import { types } from "../types/types";
 import Swal from "sweetalert2";
@@ -6,8 +5,7 @@ import Swal from "sweetalert2";
 export const getAdminUsers = () => {
   return async (dispatch) => {
     try {
-      const resp = await fetchAPIConfig("auth/getUsers", {}, "GET");
-      const body = await resp.json();
+      const body = await fetchAPIConfig("auth/getUsers", {}, "GET");
 
       if (body.ok) {
         dispatch(loadAdminUsers(body.usuarios));
@@ -33,10 +31,8 @@ export const updateAdminUser = (userData) => {
         },
       });
 
-      // ✅ DEBUG: Ver qué datos se envían
       console.log("🚀 Enviando datos al servidor:", userData);
 
-      // Preparar los datos para el backend
       const updateData = {
         id: userData.id,
         username: userData.username,
@@ -44,7 +40,6 @@ export const updateAdminUser = (userData) => {
         full_name: userData.full_name,
       };
 
-      // Solo incluir campos de contraseña si se proporcionaron
       if (userData.password_user && userData.new_password) {
         updateData.password_user = userData.password_user;
         updateData.new_password = userData.new_password;
@@ -53,12 +48,8 @@ export const updateAdminUser = (userData) => {
         console.log("🔓 Actualizando solo datos básicos (sin contraseña)");
       }
 
-      const resp = await fetchAPIConfig("auth/update", updateData, "PUT");
+      const body = await fetchAPIConfig("auth/update", updateData, "PUT");
 
-      // ✅ DEBUG: Ver respuesta del servidor
-      console.log("📡 Respuesta del servidor:", resp.status, resp.statusText);
-
-      const body = await resp.json();
       console.log("📦 Body de respuesta:", body);
 
       Swal.close();
@@ -96,7 +87,6 @@ export const toggleUserStatus = (userId, currentStatus) => {
       const { adminUsers } = getState();
       const newStatus = !currentStatus;
 
-      // Verificar en el frontend también que no sea el último usuario activo
       if (!newStatus) {
         const activeUsersCount = adminUsers.users.filter(
           (user) => user.is_active
@@ -111,19 +101,11 @@ export const toggleUserStatus = (userId, currentStatus) => {
         }
       }
 
-      const resp = await fetchAPIConfig(
-        `auth/toggle-status/${userId}`, // ← Cambiar la ruta
+      const body = await fetchAPIConfig(
+        `auth/toggle-status/${userId}`,
         { is_active: newStatus },
         "PUT"
       );
-
-      // Verificar si la respuesta es OK
-      if (!resp.ok) {
-        const errorText = await resp.text();
-        throw new Error(`Error HTTP: ${resp.status} - ${errorText}`);
-      }
-
-      const body = await resp.json();
 
       if (body.ok) {
         dispatch(toggleUserStatusAction(userId, newStatus));
@@ -151,7 +133,6 @@ export const deleteAdminUser = (userId) => {
   return async (dispatch, getState) => {
     const { adminUsers } = getState();
 
-    // Verificar en el frontend que no sea el último usuario
     if (adminUsers.users.length <= 1) {
       Swal.fire("Error", "No se puede eliminar el último usuario", "error");
       return false;
@@ -171,19 +152,7 @@ export const deleteAdminUser = (userId) => {
     if (!result.isConfirmed) return false;
 
     try {
-      const resp = await fetchAPIConfig(
-        `auth/delete/${userId}`, // ← Cambiar la ruta
-        {},
-        "DELETE"
-      );
-
-      // Verificar si la respuesta es OK
-      if (!resp.ok) {
-        const errorText = await resp.text();
-        throw new Error(`Error HTTP: ${resp.status} - ${errorText}`);
-      }
-
-      const body = await resp.json();
+      const body = await fetchAPIConfig(`auth/delete/${userId}`, {}, "DELETE");
 
       if (body.ok) {
         dispatch(deleteAdminUserAction(userId));

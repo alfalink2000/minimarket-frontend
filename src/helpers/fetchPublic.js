@@ -24,11 +24,14 @@ export const fetchPublic = (endpoint, data, method = "GET") => {
   }
 
   return fetch(url, config)
-    .then((response) => {
+    .then(async (response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      return response.json();
+
+      // ✅ DEVOLVER DIRECTAMENTE el JSON parseado
+      const result = await response.json();
+      return result;
     })
     .catch((error) => {
       if (isDevelopment) {

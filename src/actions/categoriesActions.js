@@ -1,4 +1,3 @@
-// actions/categoriesActions.js
 import { fetchAPIConfig } from "../helpers/fetchAPIConfig";
 import { fetchPublic } from "../helpers/fetchPublic";
 import { types } from "../types/types";
@@ -7,15 +6,7 @@ import Swal from "sweetalert2";
 export const getCategories = () => {
   return async (dispatch) => {
     try {
-      // ✅ USAR fetchPublic PARA DATOS PÚBLICOS (sin token)
-      const resp = await fetchPublic("categories/getCategories");
-
-      if (!resp.ok) {
-        console.error("Error HTTP cargando categorías:", resp.status);
-        return;
-      }
-
-      const body = await resp.json();
+      const body = await fetchPublic("categories/getCategories");
 
       if (body.ok) {
         dispatch(loadCategories(body.categories));
@@ -30,12 +21,11 @@ export const getCategories = () => {
 
 export const insertCategory = (categoryName) => {
   return async (dispatch) => {
-    const resp = await fetchAPIConfig(
+    const body = await fetchAPIConfig(
       "categories/new",
       { name: categoryName },
       "POST"
     );
-    const body = await resp.json();
 
     if (body.ok) {
       dispatch(addNewCategory(body.category));
@@ -52,12 +42,11 @@ export const insertCategory = (categoryName) => {
 
 export const updateCategory = (oldName, newName) => {
   return async (dispatch) => {
-    const resp = await fetchAPIConfig(
+    const body = await fetchAPIConfig(
       "categories/update",
       { oldName, newName },
       "PUT"
     );
-    const body = await resp.json();
 
     if (body.ok) {
       dispatch(updateCategoryAction({ oldName, newName }));
@@ -74,12 +63,11 @@ export const updateCategory = (oldName, newName) => {
 
 export const deleteCategory = (categoryName) => {
   return async (dispatch) => {
-    const resp = await fetchAPIConfig(
+    const body = await fetchAPIConfig(
       `categories/delete/${categoryName}`,
       {},
       "DELETE"
     );
-    const body = await resp.json();
 
     if (body.ok) {
       dispatch(deleteCategoryAction(categoryName));

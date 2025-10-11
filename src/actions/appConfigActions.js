@@ -1,9 +1,8 @@
-// actions/appConfigActions.js
 import { fetchAPIConfig } from "../helpers/fetchAPIConfig";
 import { fetchPublic } from "../helpers/fetchPublic";
 import { types } from "../types/types";
 import { applyTheme } from "../utils/themeManager";
-import Swal from "sweetalert2"; // ✅ Importar SweetAlert2
+import Swal from "sweetalert2";
 
 // Cargar configuración
 export const loadAppConfig = () => {
@@ -11,25 +10,16 @@ export const loadAppConfig = () => {
     try {
       console.log("🔄 Cargando configuración de la app...");
 
-      const resp = await fetchPublic("app-config/public");
-
-      if (!resp.ok) {
-        console.error("Error cargando configuración:", resp.status);
-        return;
-      }
-
-      const body = await resp.json();
+      const body = await fetchPublic("app-config/public");
 
       if (body.ok) {
         console.log("✅ Configuración cargada:", body.config);
 
-        // Primero dispatch la configuración
         dispatch({
           type: types.appConfigLoad,
           payload: body.config,
         });
 
-        // Luego aplicar el tema
         applyTheme(body.config.theme);
       } else {
         console.error("Error en respuesta de configuración:", body.msg);
@@ -46,7 +36,6 @@ export const updateAppConfig = (configData) => {
     try {
       console.log("💾 Actualizando configuración...", configData);
 
-      // ✅ Mostrar loading
       Swal.fire({
         title: "Guardando configuración...",
         text: "Por favor espera",
@@ -56,22 +45,13 @@ export const updateAppConfig = (configData) => {
         },
       });
 
-      const resp = await fetchAPIConfig("app-config", configData, "PUT");
+      const body = await fetchAPIConfig("app-config", configData, "PUT");
 
-      if (!resp.ok) {
-        console.error("Error HTTP actualizando configuración:", resp.status);
-        Swal.fire("Error", "Error al guardar la configuración", "error");
-        return false;
-      }
-
-      const body = await resp.json();
-
-      Swal.close(); // ✅ Cerrar loading
+      Swal.close();
 
       if (body.ok) {
         console.log("✅ Configuración actualizada exitosamente");
 
-        // ✅ Mostrar éxito
         await Swal.fire({
           icon: "success",
           title: "¡Configuración guardada!",
@@ -80,13 +60,11 @@ export const updateAppConfig = (configData) => {
           timer: 2000,
         });
 
-        // Dispatch la acción de actualización
         dispatch({
           type: types.appConfigUpdate,
           payload: body.config,
         });
 
-        // Aplicar el tema
         applyTheme(body.config.theme);
 
         return true;
@@ -128,7 +106,7 @@ export const resetTheme = () => {
   };
 };
 
-// Action sincrónica para setear configuración (para casos específicos)
+// Action sincrónica para setear configuración
 export const setAppConfig = (config) => ({
   type: types.appConfigLoad,
   payload: config,

@@ -37,11 +37,14 @@ export const fetchAPIConfig = (
       )
     );
 
-    return Promise.race([fetchPromise, timeoutPromise]).then((response) => {
-      if (!response.ok)
-        throw new Error(`HTTP error! status: ${response.status}`);
-      return response.json();
-    });
+    return Promise.race([fetchPromise, timeoutPromise]).then(
+      async (response) => {
+        if (!response.ok)
+          throw new Error(`HTTP error! status: ${response.status}`);
+        // ✅ DEVOLVER JSON directamente
+        return await response.json();
+      }
+    );
   } else {
     if (isFormData) {
       config.body = data;
@@ -58,10 +61,13 @@ export const fetchAPIConfig = (
       )
     );
 
-    return Promise.race([fetchPromise, timeoutPromise]).then((response) => {
-      if (!response.ok)
-        throw new Error(`HTTP error! status: ${response.status}`);
-      return response.json();
-    });
+    return Promise.race([fetchPromise, timeoutPromise]).then(
+      async (response) => {
+        if (!response.ok)
+          throw new Error(`HTTP error! status: ${response.status}`);
+        // ✅ DEVOLVER JSON directamente
+        return await response.json();
+      }
+    );
   }
 };

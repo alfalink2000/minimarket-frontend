@@ -10,7 +10,7 @@ export const StartLogin = (username, password) => {
   return async (dispatch) => {
     console.log("🔐 Enviando login:", { username });
     try {
-      const resp = await fetchSinToken(
+      const body = await fetchSinToken(
         "auth",
         {
           username,
@@ -19,20 +19,6 @@ export const StartLogin = (username, password) => {
         "POST"
       );
 
-      console.log("📡 Respuesta status:", resp.status);
-
-      // ✅ Manejar errores de servidor que devuelven HTML
-      const contentType = resp.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        const textResponse = await resp.text();
-        console.error(
-          "❌ El servidor devolvió HTML:",
-          textResponse.substring(0, 500)
-        );
-        throw new Error("Error del servidor: respuesta no es JSON");
-      }
-
-      const body = await resp.json();
       console.log("📦 Body completo:", body);
 
       if (body.ok) {
@@ -87,18 +73,9 @@ export const StartChecking = () => {
         return;
       }
 
-      const resp = await fetchConToken("auth/renew");
+      const body = await fetchConToken("auth/renew");
 
-      if (resp.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("token-init-date");
-        dispatch(checkingFinish());
-        return;
-      }
-
-      const body = await resp.json();
-
-      if (body.ok) {
+      if (body && body.ok) {
         localStorage.setItem("token", body.token);
         localStorage.setItem("token-init-date", new Date().getTime());
 
@@ -109,10 +86,14 @@ export const StartChecking = () => {
           })
         );
       } else {
+        localStorage.removeItem("token");
+        localStorage.removeItem("token-init-date");
         dispatch(checkingFinish());
       }
     } catch (error) {
       console.error("Error en verificación de token:", error);
+      localStorage.removeItem("token");
+      localStorage.removeItem("token-init-date");
       dispatch(checkingFinish());
     }
   };
