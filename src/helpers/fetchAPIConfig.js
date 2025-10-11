@@ -1,15 +1,9 @@
 // ✅ URL base dinámica para desarrollo/producción
-const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+const baseUrl =
+  (import.meta.env.VITE_API_URL || "http://localhost:4000") + "/api";
 
 // ✅ Solo logs en desarrollo
 const isDevelopment = import.meta.env.VITE_NODE_ENV === "development";
-
-if (isDevelopment) {
-  console.log("🔧 Configuración API:", {
-    baseUrl,
-    environment: import.meta.env.VITE_NODE_ENV || "development",
-  });
-}
 
 export const fetchAPIConfig = (
   endpoint,
@@ -32,7 +26,7 @@ export const fetchAPIConfig = (
   };
 
   // ✅ Timeout para producción
-  const timeout = 15000; // 15 segundos
+  const timeout = 15000;
 
   if (method === "GET") {
     const fetchPromise = fetch(url, config);
@@ -46,14 +40,12 @@ export const fetchAPIConfig = (
     return Promise.race([fetchPromise, timeoutPromise]).then((response) => {
       if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
-      return response.json(); // ✅ Parsear respuesta
+      return response.json();
     });
   } else {
     if (isFormData) {
-      // Para FormData - NO establecer Content-Type
       config.body = data;
     } else {
-      // Para JSON normal
       config.headers["Content-Type"] = "application/json";
       config.body = JSON.stringify(data);
     }
@@ -69,7 +61,7 @@ export const fetchAPIConfig = (
     return Promise.race([fetchPromise, timeoutPromise]).then((response) => {
       if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
-      return response.json(); // ✅ Parsear respuesta
+      return response.json();
     });
   }
 };

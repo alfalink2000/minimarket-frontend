@@ -1,4 +1,5 @@
-const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+const baseUrl =
+  (import.meta.env.VITE_API_URL || "http://localhost:4000") + "/api";
 
 // ✅ Solo mostrar logs en desarrollo
 const isDevelopment = import.meta.env.VITE_NODE_ENV === "development";
@@ -8,7 +9,6 @@ export const fetchPublic = (endpoint, data, method = "GET") => {
 
   if (isDevelopment) {
     console.log("🌐 [DEBUG] Intentando conectar a:", url);
-    console.log("🔧 [DEBUG] Método:", method);
   }
 
   const config = {
@@ -16,7 +16,7 @@ export const fetchPublic = (endpoint, data, method = "GET") => {
     headers: {
       "Content-type": "application/json",
     },
-    signal: AbortSignal.timeout(10000), // 10 segundos timeout
+    signal: AbortSignal.timeout(10000),
   };
 
   if (method !== "GET") {
@@ -25,15 +25,10 @@ export const fetchPublic = (endpoint, data, method = "GET") => {
 
   return fetch(url, config)
     .then((response) => {
-      if (isDevelopment) {
-        console.log("✅ [DEBUG] Response status:", response.status);
-      }
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      return response.json(); // ✅ IMPORTANTE: agregar .json() para parsear la respuesta
+      return response.json();
     })
     .catch((error) => {
       if (isDevelopment) {
