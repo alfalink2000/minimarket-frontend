@@ -149,6 +149,19 @@ const App = () => {
       </div>
     );
   }
+  // Agrega este script en tu frontend (React)
+  useEffect(() => {
+    const keepAlive = () => {
+      fetch("https://minimarket-backend-6z9m.onrender.com/api/health")
+        .then(() => console.log("✅ Ping enviado"))
+        .catch(() => console.log("❌ Error en ping"));
+    };
+
+    // Ping cada 10 minutos
+    const interval = setInterval(keepAlive, 10 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // ✅ RENDERIZAR INTERFAZ PRINCIPAL
   return (
