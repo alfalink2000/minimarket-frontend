@@ -16,7 +16,7 @@ export const finishLoading = () => ({
 
 export const StartLogin = (username, password) => {
   return async (dispatch) => {
-    dispatch(startLoading()); // ✅ Iniciar loading
+    dispatch(startLoading());
 
     console.log("🔐 Enviando login:", { username });
 
@@ -30,7 +30,12 @@ export const StartLogin = (username, password) => {
         "POST"
       );
 
-      console.log("📦 Body completo:", body);
+      console.log("📦 Body completo recibido:", body);
+
+      // ✅ VERIFICAR SI LA RESPUESTA ES VÁLIDA
+      if (!body) {
+        throw new Error("El servidor no respondió correctamente");
+      }
 
       if (body.ok) {
         Swal.fire({
@@ -53,20 +58,20 @@ export const StartLogin = (username, password) => {
           })
         );
       } else {
-        // ✅ MEJOR MANEJO DE ERRORES ESPECÍFICOS
-        let errorMessage = "Credenciales incorrectas";
+        // ✅ MEJOR MANEJO DE ERRORES - EL BACKEND YA DEVUELVE body.msg
+        let errorMessage = body.msg || "Credenciales incorrectas";
 
-        if (body.msg) {
-          // Mapear mensajes del backend a mensajes más amigables
-          const errorMessages = {
-            "Usuario no encontrado": "El usuario no existe en el sistema",
-            "Contraseña incorrecta": "La contraseña es incorrecta",
-            "Usuario inactivo": "La cuenta está desactivada",
-            "Credenciales inválidas": "Usuario o contraseña incorrectos",
-          };
+        // Mapear mensajes del backend a mensajes más amigables
+        const errorMessages = {
+          "Usuario no encontrado": "El usuario no existe en el sistema",
+          "Contraseña incorrecta": "La contraseña es incorrecta",
+          "Usuario inactivo": "La cuenta está desactivada",
+          "Credenciales inválidas": "Usuario o contraseña incorrectos",
+          "Usuario y contraseña son requeridos": "Completa todos los campos",
+          "Usuario o contraseña incorrecta": "Usuario o contraseña incorrectos",
+        };
 
-          errorMessage = errorMessages[body.msg] || body.msg;
-        }
+        errorMessage = errorMessages[errorMessage] || errorMessage;
 
         Swal.fire({
           icon: "error",
@@ -78,7 +83,7 @@ export const StartLogin = (username, password) => {
         });
       }
     } catch (error) {
-      console.error("Error en login:", error);
+      console.error("❌ Error completo en login:", error);
 
       let errorMessage = "Ha ocurrido un error inesperado";
       let errorTitle = "Error";
@@ -109,7 +114,7 @@ export const StartLogin = (username, password) => {
         iconColor: "#dc2626",
       });
     } finally {
-      dispatch(finishLoading()); // ✅ Finalizar loading siempre
+      dispatch(finishLoading());
     }
   };
 };
