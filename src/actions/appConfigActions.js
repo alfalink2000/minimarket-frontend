@@ -23,13 +23,46 @@ export const loadAppConfig = () => {
         applyTheme(body.config.theme);
       } else {
         console.error("Error en respuesta de configuración:", body.msg);
+
+        // ✅ USAR CONFIGURACIÓN POR DEFECTO EN CASO DE ERROR
+        const defaultConfig = {
+          app_name: "Minimarket Digital",
+          app_description: "Tu tienda de confianza",
+          theme: "blue",
+          whatsapp_number: "+5491112345678",
+          business_hours: "Lun-Vie: 8:00 - 20:00",
+          business_address: "Av. Principal 123",
+        };
+
+        dispatch({
+          type: types.appConfigLoad,
+          payload: defaultConfig,
+        });
+
+        applyTheme(defaultConfig.theme);
       }
     } catch (error) {
       console.error("Error de conexión cargando configuración:", error);
+
+      // ✅ CONFIGURACIÓN POR DEFECTO EN CASO DE ERROR DE RED
+      const defaultConfig = {
+        app_name: "Minimarket Digital",
+        app_description: "Tu tienda de confianza",
+        theme: "blue",
+        whatsapp_number: "+5491112345678",
+        business_hours: "Lun-Vie: 8:00 - 20:00",
+        business_address: "Av. Principal 123",
+      };
+
+      dispatch({
+        type: types.appConfigLoad,
+        payload: defaultConfig,
+      });
+
+      applyTheme(defaultConfig.theme);
     }
   };
 };
-
 // Actualizar configuración
 export const updateAppConfig = (configData) => {
   return async (dispatch) => {
