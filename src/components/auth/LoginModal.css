@@ -297,3 +297,90 @@
     font-size: 1.125rem;
   }
 }
+/* Estados de loading mejorados */
+.login-modal__submit--loading {
+  position: relative;
+  color: transparent !important;
+}
+
+.login-modal__spinner {
+  animation: spin 1s linear infinite;
+  margin-right: 0.5rem;
+}
+
+.login-modal__submit:disabled:not(.login-modal__cancel) {
+  position: relative;
+}
+
+.login-modal__submit:disabled:not(.login-modal__cancel)::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Mejoras visuales para estados de loading */
+.login-modal__submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.login-modal__submit:disabled {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Feedback visual durante el loading */
+.login-modal__input:disabled {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+/* ✅ AGREGAR ESTOS ESTILOS PARA EL LOADING */
+.login-modal__submit:disabled {
+  position: relative;
+  color: transparent;
+}
+
+.login-modal__submit:disabled::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

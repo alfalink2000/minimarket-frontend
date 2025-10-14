@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { User, Lock, Shield, Eye, EyeOff } from "lucide-react";
-import { sanitizeInput, isStrongPassword } from "../../helpers/securityUtils";
+import { User, Lock, Shield, Eye, EyeOff, Loader2 } from "lucide-react";
+import { sanitizeInput } from "../../helpers/securityUtils";
 import "./LoginModal.css";
 
 const LoginModal = ({ onLogin, onClose, isLoading }) => {
@@ -10,6 +10,7 @@ const LoginModal = ({ onLogin, onClose, isLoading }) => {
   const [attempts, setAttempts] = useState(0);
   const [isLocked, setIsLocked] = useState(false);
   const [lockTime, setLockTime] = useState(0);
+  const [localLoading, setLocalLoading] = useState(false);
 
   // Bloquear después de 3 intentos fallidos
   useEffect(() => {
@@ -33,10 +34,10 @@ const LoginModal = ({ onLogin, onClose, isLoading }) => {
     }
   }, [attempts]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (isLocked) return;
+    if (isLocked || isLoading) return; // ✅ QUITAR localLoading de aquí
 
     // Sanitizar inputs
     const sanitizedUsername = sanitizeInput(username);
@@ -48,9 +49,11 @@ const LoginModal = ({ onLogin, onClose, isLoading }) => {
       return;
     }
 
+    // ✅ ELIMINAR todo el bloque de localLoading
+    // Solo llamar a onLogin directamente
     onLogin(sanitizedUsername, sanitizedPassword);
 
-    // Incrementar intentos (esto se debería resetear en éxito)
+    // ✅ MANTENER el contador de intentos
     setAttempts((prev) => prev + 1);
   };
 
@@ -59,6 +62,10 @@ const LoginModal = ({ onLogin, onClose, isLoading }) => {
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
+
+  // ✅ ACTUALIZAR las variables de estado
+  const isSubmitDisabled = isLocked || isLoading || !username || !password;
+  const isVerifying = isLoading; // ✅ QUITAR localLoading de aquí
 
   return (
     <div className="login-modal-overlay">
@@ -90,7 +97,7 @@ const LoginModal = ({ onLogin, onClose, isLoading }) => {
                 placeholder="Ingresa tu usuario"
                 autoComplete="username"
                 required
-                disabled={isLocked || isLoading}
+                disabled={isLocked || isVerifying}
                 maxLength={20}
                 pattern="[a-zA-Z0-9_]+"
                 title="Solo letras, números y guiones bajos"
@@ -110,14 +117,14 @@ const LoginModal = ({ onLogin, onClose, isLoading }) => {
                 placeholder="Ingresa tu contraseña"
                 autoComplete="current-password"
                 required
-                disabled={isLocked || isLoading}
+                disabled={isLocked || isVerifying}
                 minLength={8}
               />
               <button
                 type="button"
                 className="password-toggle"
                 onClick={() => setShowPassword(!showPassword)}
-                disabled={isLocked || isLoading}
+                disabled={isLocked || isVerifying}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
@@ -127,16 +134,25 @@ const LoginModal = ({ onLogin, onClose, isLoading }) => {
           <div className="login-modal__actions">
             <button
               type="submit"
-              className="login-modal__submit"
-              disabled={isLocked || isLoading || !username || !password}
+              className={`login-modal__submit ${
+                isVerifying ? "login-modal__submit--loading" : ""
+              }`}
+              disabled={isSubmitDisabled}
             >
-              {isLoading ? "Verificando..." : "Iniciar Sesión"}
+              {isVerifying ? (
+                <>
+                  <Loader2 className="login-modal__spinner" />
+                  Verificando...
+                </>
+              ) : (
+                "Iniciar Sesión"
+              )}
             </button>
             <button
               type="button"
               onClick={onClose}
               className="login-modal__cancel"
-              disabled={isLoading}
+              disabled={isVerifying}
             >
               Cancelar
             </button>

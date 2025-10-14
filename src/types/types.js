@@ -3,6 +3,8 @@ export const types = {
   // Auth
   authLogin: "[auth] Login",
   authLogout: "[auth] Logout",
+  authStartLoading: "[auth] Start Loading",
+  authFinishLoading: "[auth] Finish Loading",
   authCheckingFinish: "[auth] Finish checking login state",
 
   // Admin Users

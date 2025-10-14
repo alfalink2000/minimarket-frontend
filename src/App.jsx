@@ -25,6 +25,9 @@ const App = () => {
   const appConfig = useSelector((state) => state.appConfig.config);
   const loadingStartTime = useRef(Date.now());
 
+  // ✅ AGREGAR ESTE SELECTOR PARA EL LOADING DEL AUTH
+  const authLoading = useSelector((state) => state.auth.loading);
+
   // Agrega este script en tu frontend (React)
   useEffect(() => {
     const keepAlive = () => {
@@ -185,12 +188,12 @@ const App = () => {
         <LoginModal
           onLogin={handleLogin}
           onClose={() => setShowLoginForm(false)}
-          isLoading={auth.loading}
+          isLoading={authLoading} // ✅ CAMBIAR AQUÍ: usar authLoading en lugar de auth.loading
         />
       )}
 
       {/* Estado de carga global (opcional) */}
-      {auth.loading && (
+      {authLoading && ( // ✅ CAMBIAR AQUÍ: usar authLoading en lugar de auth.loading
         <div className="fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
           <div className="flex items-center gap-2">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
