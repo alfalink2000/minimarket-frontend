@@ -3,59 +3,22 @@ import { types } from "../types/types";
 
 const initialState = {
   products: [],
-  activeProduct: null,
-  loading: false,
-  lastUpdate: null, // 🔄 NUEVO: trackear última actualización
   featuredProducts: {
-    popular: [], // IDs de productos populares
-    onSale: [], // IDs de productos en oferta
+    popular: [],
+    onSale: [],
   },
+  loading: false,
+  lastUpdate: null,
 };
 
 export const productsReducer = (state = initialState, action) => {
   switch (action.type) {
+    // ✅ Manejar acciones básicas de productos
     case types.productsLoad:
       return {
         ...state,
         products: [...action.payload],
-        lastUpdate: Date.now(), // 🔄 ACTUALIZAR TIMESTAMP
-      };
-
-    case types.productAddNew:
-      return {
-        ...state,
-        products: [...state.products, action.payload],
-      };
-
-    case types.productUpdated:
-      return {
-        ...state,
-        products: state.products.map((product) =>
-          product.id === action.payload.id ? action.payload : product
-        ),
         lastUpdate: Date.now(),
-      };
-
-    case types.productDeleted:
-      return {
-        ...state,
-        products: state.products.filter(
-          (product) => product.id !== action.payload
-        ),
-        featuredProducts: {
-          popular: state.featuredProducts.popular.filter(
-            (id) => id !== action.payload
-          ),
-          onSale: state.featuredProducts.onSale.filter(
-            (id) => id !== action.payload
-          ),
-        },
-      };
-
-    case types.productSetActive:
-      return {
-        ...state,
-        activeProduct: action.payload,
       };
 
     case types.productStartLoading:
@@ -70,7 +33,35 @@ export const productsReducer = (state = initialState, action) => {
         loading: false,
       };
 
-    // Nuevos casos para productos destacados
+    case types.productAddNew:
+      return {
+        ...state,
+        products: [...state.products, action.payload],
+      };
+
+    case types.productUpdated:
+      return {
+        ...state,
+        products: state.products.map((product) =>
+          product.id === action.payload.id ? action.payload : product
+        ),
+      };
+
+    case types.productDeleted:
+      return {
+        ...state,
+        products: state.products.filter(
+          (product) => product.id !== action.payload
+        ),
+      };
+
+    case types.productSetActive:
+      return {
+        ...state,
+        activeProduct: action.payload,
+      };
+
+    // ✅ Manejar acciones de featured products (aunque no las uses)
     case types.productSetPopular:
       return {
         ...state,
@@ -90,32 +81,30 @@ export const productsReducer = (state = initialState, action) => {
       };
 
     case types.productTogglePopular:
-      const productId = action.payload;
-      const isCurrentlyPopular =
-        state.featuredProducts.popular.includes(productId);
-
+      const isPopular = state.featuredProducts.popular.includes(action.payload);
       return {
         ...state,
         featuredProducts: {
           ...state.featuredProducts,
-          popular: isCurrentlyPopular
-            ? state.featuredProducts.popular.filter((id) => id !== productId)
-            : [...state.featuredProducts.popular, productId],
+          popular: isPopular
+            ? state.featuredProducts.popular.filter(
+                (id) => id !== action.payload
+              )
+            : [...state.featuredProducts.popular, action.payload],
         },
       };
 
     case types.productToggleOnSale:
-      const saleProductId = action.payload;
-      const isCurrentlyOnSale =
-        state.featuredProducts.onSale.includes(saleProductId);
-
+      const isOnSale = state.featuredProducts.onSale.includes(action.payload);
       return {
         ...state,
         featuredProducts: {
           ...state.featuredProducts,
-          onSale: isCurrentlyOnSale
-            ? state.featuredProducts.onSale.filter((id) => id !== saleProductId)
-            : [...state.featuredProducts.onSale, saleProductId],
+          onSale: isOnSale
+            ? state.featuredProducts.onSale.filter(
+                (id) => id !== action.payload
+              )
+            : [...state.featuredProducts.onSale, action.payload],
         },
       };
 
