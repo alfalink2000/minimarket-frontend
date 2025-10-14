@@ -1,3 +1,4 @@
+// actions/categories.js - VERSIÓN CON DEBUG
 import { fetchAPIConfig } from "../helpers/fetchAPIConfig";
 import { fetchPublic } from "../helpers/fetchPublic";
 import { types } from "../types/types";
@@ -6,79 +7,133 @@ import Swal from "sweetalert2";
 export const getCategories = () => {
   return async (dispatch) => {
     try {
+      console.log("🔄 [DEBUG] getCategories - Iniciando...");
       const body = await fetchPublic("categories/getCategories");
+      console.log("📦 [DEBUG] getCategories - Respuesta:", body);
 
       if (body.ok) {
+        console.log(
+          "✅ [DEBUG] getCategories - Éxito, categorías:",
+          body.categories
+        );
         dispatch(loadCategories(body.categories));
       } else {
-        console.error("Error en respuesta de categorías:", body.msg);
+        console.error(
+          "❌ [DEBUG] getCategories - Error en respuesta:",
+          body.msg
+        );
       }
     } catch (error) {
-      console.error("Error de conexión en getCategories:", error);
+      console.error("❌ [DEBUG] getCategories - Error de conexión:", error);
     }
   };
 };
 
 export const insertCategory = (categoryName) => {
   return async (dispatch) => {
-    const body = await fetchAPIConfig(
-      "categories/new",
-      { name: categoryName },
-      "POST"
-    );
+    try {
+      console.log(
+        "🔄 [DEBUG] insertCategory - Intentando crear:",
+        categoryName
+      );
 
-    if (body.ok) {
-      dispatch(addNewCategory(body.category));
-      Swal.fire({
-        icon: "success",
-        title: "¡Categoría agregada!",
-        text: "Categoría creada correctamente",
-      });
-    } else {
-      Swal.fire("Error", body.msg, "error");
+      const body = await fetchAPIConfig(
+        "categories/new",
+        { name: categoryName },
+        "POST"
+      );
+
+      console.log("📦 [DEBUG] insertCategory - Respuesta:", body);
+
+      if (body.ok) {
+        console.log(
+          "✅ [DEBUG] insertCategory - Éxito, categoría creada:",
+          body.category
+        );
+        dispatch(addNewCategory(body.category));
+        Swal.fire({
+          icon: "success",
+          title: "¡Categoría agregada!",
+          text: "Categoría creada correctamente",
+        });
+      } else {
+        console.error("❌ [DEBUG] insertCategory - Error:", body.msg);
+        Swal.fire("Error", body.msg, "error");
+      }
+    } catch (error) {
+      console.error("❌ [DEBUG] insertCategory - Error de conexión:", error);
+      Swal.fire("Error", "Error de conexión al crear categoría", "error");
     }
   };
 };
 
 export const updateCategory = (oldName, newName) => {
   return async (dispatch) => {
-    const body = await fetchAPIConfig(
-      "categories/update",
-      { oldName, newName },
-      "PUT"
-    );
-
-    if (body.ok) {
-      dispatch(updateCategoryAction({ oldName, newName }));
-      Swal.fire({
-        icon: "success",
-        title: "¡Categoría actualizada!",
-        text: "Categoría renombrada correctamente",
+    try {
+      console.log("🔄 [DEBUG] updateCategory - Intentando actualizar:", {
+        oldName,
+        newName,
       });
-    } else {
-      Swal.fire("Error", body.msg, "error");
+
+      const body = await fetchAPIConfig(
+        "categories/update",
+        { oldName, newName },
+        "PUT"
+      );
+
+      console.log("📦 [DEBUG] updateCategory - Respuesta:", body);
+
+      if (body.ok) {
+        console.log("✅ [DEBUG] updateCategory - Éxito, categoría actualizada");
+        dispatch(updateCategoryAction({ oldName, newName }));
+        Swal.fire({
+          icon: "success",
+          title: "¡Categoría actualizada!",
+          text: "Categoría renombrada correctamente",
+        });
+      } else {
+        console.error("❌ [DEBUG] updateCategory - Error:", body.msg);
+        Swal.fire("Error", body.msg, "error");
+      }
+    } catch (error) {
+      console.error("❌ [DEBUG] updateCategory - Error de conexión:", error);
+      Swal.fire("Error", "Error de conexión al actualizar categoría", "error");
     }
   };
 };
 
 export const deleteCategory = (categoryName) => {
   return async (dispatch) => {
-    const body = await fetchAPIConfig(
-      `categories/delete/${categoryName}`,
-      {},
-      "DELETE"
-    );
+    try {
+      console.log(
+        "🔄 [DEBUG] deleteCategory - Intentando eliminar:",
+        categoryName
+      );
 
-    if (body.ok) {
-      dispatch(deleteCategoryAction(categoryName));
-      Swal.fire("Eliminada", "Categoría eliminada correctamente", "success");
-    } else {
-      Swal.fire("Error", body.msg, "error");
+      const body = await fetchAPIConfig(
+        `categories/delete/${categoryName}`,
+        {},
+        "DELETE"
+      );
+
+      console.log("📦 [DEBUG] deleteCategory - Respuesta:", body);
+
+      if (body.ok) {
+        console.log("✅ [DEBUG] deleteCategory - Éxito, categoría eliminada");
+        dispatch(deleteCategoryAction(categoryName));
+        Swal.fire("Eliminada", "Categoría eliminada correctamente", "success");
+      } else {
+        console.error("❌ [DEBUG] deleteCategory - Error:", body.msg);
+        Swal.fire("Error", body.msg, "error");
+      }
+    } catch (error) {
+      console.error("❌ [DEBUG] deleteCategory - Error de conexión:", error);
+      Swal.fire("Error", "Error de conexión al eliminar categoría", "error");
     }
   };
 };
 
-// Action creators sincrónicos
+// Action creators sincrónicos (sin cambios)
 const loadCategories = (categories) => ({
   type: types.categoriesLoad,
   payload: categories,

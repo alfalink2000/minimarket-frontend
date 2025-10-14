@@ -1,4 +1,4 @@
-// components/admin/CategoryManager/CategoryManager.jsx
+// components/admin/CategoryManager/CategoryManager.jsx - VERSIÓN CON DEBUG
 import { useState, useMemo } from "react";
 import { Plus, Trash2, Edit, Save, X } from "lucide-react";
 import SearchFilter from "../SearchFilter/SearchFilter";
@@ -15,6 +15,13 @@ const CategoryManager = ({
   const [editValue, setEditValue] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
+  console.log("🔍 [DEBUG] CategoryManager - Props recibidas:", {
+    categories,
+    hasAdd: !!onAddCategory,
+    hasUpdate: !!onUpdateCategory,
+    hasDelete: !!onDeleteCategory,
+  });
+
   // Filtrar categorías
   const filteredCategories = useMemo(() => {
     return categories.filter((category) =>
@@ -23,18 +30,30 @@ const CategoryManager = ({
   }, [categories, searchTerm]);
 
   const handleAddCategory = () => {
+    console.log("🔄 [DEBUG] handleAddCategory - Llamado con:", newCategory);
+
     if (newCategory.trim() && !categories.includes(newCategory.trim())) {
       onAddCategory(newCategory.trim());
       setNewCategory("");
+    } else {
+      console.warn(
+        "⚠️ [DEBUG] handleAddCategory - Categoría inválida o duplicada"
+      );
     }
   };
 
   const handleStartEdit = (category) => {
+    console.log("🔄 [DEBUG] handleStartEdit - Editando:", category);
     setEditingCategory(category);
     setEditValue(category);
   };
 
   const handleSaveEdit = () => {
+    console.log("🔄 [DEBUG] handleSaveEdit - Guardando:", {
+      editingCategory,
+      editValue,
+    });
+
     if (editValue.trim() && editValue.trim() !== editingCategory) {
       onUpdateCategory(editingCategory, editValue.trim());
     }
@@ -43,8 +62,14 @@ const CategoryManager = ({
   };
 
   const handleCancelEdit = () => {
+    console.log("🔄 [DEBUG] handleCancelEdit - Cancelando edición");
     setEditingCategory(null);
     setEditValue("");
+  };
+
+  const handleDeleteCategory = (category) => {
+    console.log("🔄 [DEBUG] handleDeleteCategory - Eliminando:", category);
+    onDeleteCategory(category);
   };
 
   const handleKeyPress = (e) => {
@@ -134,7 +159,7 @@ const CategoryManager = ({
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => onDeleteCategory(category)}
+                      onClick={() => handleDeleteCategory(category)}
                       className="category-manager__delete-button"
                     >
                       <Trash2 className="w-4 h-4" />
