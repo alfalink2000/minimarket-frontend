@@ -1,15 +1,12 @@
-// store/store.js - CONFIGURACIÓN CORRECTA PARA VITE
+// store/store.js - CON DEBUG EXTENDIDO
 import { createStore, combineReducers, applyMiddleware, compose } from "redux";
 import { thunk } from "redux-thunk";
-
-// Importa todos tus reducers
 import { productsReducer } from "../reducers/productsReducer";
 import { categoriesReducer } from "../reducers/categoriesReducer";
 import { authReducer } from "../reducers/authReducer";
 import { adminUsersReducer } from "../reducers/adminUsersReducer";
 import { appConfigReducer } from "../reducers/appConfigReducer";
 
-// Combina los reducers
 const reducers = combineReducers({
   products: productsReducer,
   categories: categoriesReducer,
@@ -18,19 +15,33 @@ const reducers = combineReducers({
   appConfig: appConfigReducer,
 });
 
-// ✅ CONFIGURACIÓN CORRECTA para Redux DevTools con Vite
+// ✅ MIDDLEWARE DE DEBUG PARA ENCONTRAR LA ACCIÓN PROBLEMÁTICA
+const debugMiddleware = (store) => (next) => (action) => {
+  // Capturar TODAS las acciones para debug
+  console.group("🔍 REDUX ACTION DISPATCHED");
+  console.log("Action Type:", action.type);
+  console.log("Action Payload:", action.payload);
+  console.trace("Stack trace:"); // Esto te dirá exactamente de dónde viene
+  console.groupEnd();
+
+  try {
+    return next(action);
+  } catch (error) {
+    console.error("❌ ERROR en reducer para acción:", action.type, error);
+    throw error;
+  }
+};
+
 const composeEnhancers =
   (typeof window !== "undefined" &&
     window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
   compose;
 
-// Crea el store
 export const store = createStore(
   reducers,
-  composeEnhancers(applyMiddleware(thunk))
+  composeEnhancers(applyMiddleware(thunk, debugMiddleware))
 );
 
-// ✅ Para desarrollo - expone el store globalmente
 if (import.meta.env.MODE === "development") {
   window.store = store;
 }

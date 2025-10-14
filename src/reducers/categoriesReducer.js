@@ -1,4 +1,4 @@
-// reducers/categoriesReducer.js
+// reducers/categoriesReducer.js - CON CATCH ALL
 import { types } from "../types/types";
 
 const initialState = {
@@ -38,6 +38,8 @@ export const categoriesReducer = (state = initialState, action) => {
       };
 
     default:
+      // ✅ CAPTURA CUALQUIER ACCIÓN NO MANEJADA SIN ERROR
+      console.warn("⚠️ Action no manejada en categoriesReducer:", action.type);
       return state;
   }
 };

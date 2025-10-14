@@ -1,10 +1,11 @@
+// types.js - VERIFICACIÓN COMPLETA
 export const types = {
-  // Auth - VERIFICAR QUE ESTOS NOMBRES COINCIDAN EXACTAMENTE
+  // Auth
   authLogin: "[auth] Login",
   authLogout: "[auth] Logout",
   authCheckingFinish: "[auth] Finish checking login state",
 
-  // Admin Users Types
+  // Admin Users
   adminUsersLoad: "[Admin Users] Load users",
   adminUserSetActive: "[Admin Users] Set active user",
   adminUserClearActive: "[Admin Users] Clear active user",
@@ -21,19 +22,22 @@ export const types = {
   productDeleted: "[products] Delete product",
   productSetActive: "[products] Set active product",
 
-  // Productos destacados
+  // Featured Products - ✅ AÑADE ESTOS SI FALTAN
   productSetPopular: "[Products] Set Popular Products",
   productSetOnSale: "[Products] Set On Sale Products",
   productTogglePopular: "[Products] Toggle Popular Product",
   productToggleOnSale: "[Products] Toggle On Sale Product",
 
-  // Categories
+  // Categories - ✅ VERIFICA QUE ESTÉN EXACTAMENTE ASÍ
   categoriesLoad: "[categories] Load categories",
-  categoriesStartLoading: "[categories] Start loading",
-  categoriesFinishLoading: "[categories] Finish loading",
+  categoryAddNew: "[categories] Add new category",
+  categoryUpdated: "[categories] Update category",
+  categoryDeleted: "[categories] Delete category",
+  categoriesStartLoading: "[categories] Start loading", // ← ¿Usas este?
+  categoriesFinishLoading: "[categories] Finish loading", // ← ¿Usas este?
 
   // App Config
   appConfigLoad: "[App Config] Load config",
   appConfigUpdate: "[App Config] Update config",
-  appConfigSetColors: "[App Config] Set colors",
+  appConfigSetColors: "[App Config] Set colors", // ← ¿Usas este?
 };
