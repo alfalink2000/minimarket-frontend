@@ -78,33 +78,10 @@ const CategoryManager = ({
     setEditValue("");
   };
 
+  // En tu componente - VERSIÓN SIN CONFIRMACIÓN
   const handleDeleteCategory = (category) => {
-    console.log(
-      "🔄 [DEBUG] handleDeleteCategory - Confirmar eliminación:",
-      category
-    );
-
-    Swal.fire({
-      title: "¿Estás seguro?",
-      text: `¿Deseas eliminar la categoría "${category.name}"? Esta acción no se puede deshacer.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Sí, eliminar",
-      cancelButtonText: "Cancelar",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        console.log(
-          "✅ [DEBUG] handleDeleteCategory - Confirmado, eliminando..."
-        );
-        onDeleteCategory(category.name); // ✅ Solo se elimina si confirma
-      } else {
-        console.log(
-          "❌ [DEBUG] handleDeleteCategory - Cancelado por el usuario"
-        );
-      }
-    });
+    console.log("🔄 [DEBUG] handleDeleteCategory - Eliminando:", category);
+    onDeleteCategory(category.name); // ✅ La confirmación está en la action
   };
 
   const handleKeyPress = (e) => {

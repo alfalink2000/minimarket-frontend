@@ -103,13 +103,28 @@ export const updateCategory = (oldName, newName) => {
 };
 
 // actions/categories.js - ELIMINAR LA CONFIRMACIÓN DUPLICADA
+// actions/categories.js - CONFIRMACIÓN EN LA ACTION
 export const deleteCategory = (categoryName) => {
   return async (dispatch) => {
+    // ✅ La confirmación va aquí
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: `¿Deseas eliminar la categoría "${categoryName}"? Esta acción no se puede deshacer.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!result.isConfirmed) {
+      console.log("❌ [DEBUG] deleteCategory - Cancelado por el usuario");
+      return;
+    }
+
     try {
-      console.log(
-        "🔄 [DEBUG] deleteCategory - Intentando eliminar:",
-        categoryName
-      );
+      console.log("🔄 [DEBUG] deleteCategory - Eliminando:", categoryName);
 
       const body = await fetchAPIConfig(
         `categories/delete/${categoryName}`,
@@ -122,15 +137,7 @@ export const deleteCategory = (categoryName) => {
       if (body.ok) {
         console.log("✅ [DEBUG] deleteCategory - Éxito, categoría eliminada");
         dispatch(deleteCategoryAction(categoryName));
-
-        // ✅ SOLO mostrar éxito - NO pedir confirmación aquí
-        Swal.fire({
-          icon: "success",
-          title: "¡Categoría eliminada!",
-          text: "Categoría eliminada correctamente",
-          timer: 2000,
-          showConfirmButton: false,
-        });
+        Swal.fire("Eliminada", "Categoría eliminada correctamente", "success");
       } else {
         console.error("❌ [DEBUG] deleteCategory - Error:", body.msg);
         Swal.fire("Error", body.msg, "error");
