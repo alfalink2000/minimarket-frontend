@@ -5,7 +5,7 @@ import {
   toggleProductOnSale,
   saveFeaturedProducts,
   getFeaturedProducts,
-} from "../../../actions/featuredProducts";
+} from "../../../actions/featuredProductsActions";
 import SearchFilter from "../SearchFilter/SearchFilter";
 import "./FeaturedProductsManager.css";
 
