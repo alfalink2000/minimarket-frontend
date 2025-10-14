@@ -1,11 +1,11 @@
-// components/admin/FeaturedProductsManager/FeaturedProductsManager.js
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   toggleProductPopular,
   toggleProductOnSale,
   saveFeaturedProducts,
-} from "../../../actions/featuredProductsActions";
+  getFeaturedProducts,
+} from "../../../actions/featuredProducts";
 import SearchFilter from "../SearchFilter/SearchFilter";
 import "./FeaturedProductsManager.css";
 
@@ -19,6 +19,12 @@ const FeaturedProductsManager = () => {
   const [activeTab, setActiveTab] = useState("popular");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
+  const [saving, setSaving] = useState(false);
+
+  // Cargar productos destacados al iniciar
+  useEffect(() => {
+    dispatch(getFeaturedProducts());
+  }, [dispatch]);
 
   // Obtener categorías únicas
   const categories = useMemo(() => {
@@ -55,22 +61,46 @@ const FeaturedProductsManager = () => {
     dispatch(toggleProductOnSale(productId));
   };
 
-  const handleSave = () => {
-    dispatch(
-      saveFeaturedProducts({
-        popular: featuredProducts.popular,
-        onSale: featuredProducts.onSale,
-      })
-    );
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await dispatch(
+        saveFeaturedProducts({
+          popular: featuredProducts.popular,
+          onSale: featuredProducts.onSale,
+        })
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <div className="featured-products-manager">
       <div className="featured-header">
         <h3>Productos Destacados</h3>
-        <button className="save-featured-btn" onClick={handleSave}>
-          Guardar Cambios
+        <button
+          className="save-featured-btn"
+          onClick={handleSave}
+          disabled={saving}
+        >
+          {saving ? "Guardando..." : "Guardar Cambios"}
         </button>
+      </div>
+
+      <div className="stats-bar">
+        <div className="stat-item">
+          <span className="stat-number">{featuredProducts.popular.length}</span>
+          <span className="stat-label">Populares</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-number">{featuredProducts.onSale.length}</span>
+          <span className="stat-label">En Oferta</span>
+        </div>
+        <div className="stat-item">
+          <span className="stat-number">{products.length}</span>
+          <span className="stat-label">Total Productos</span>
+        </div>
       </div>
 
       <div className="featured-tabs">
@@ -121,14 +151,17 @@ const FeaturedProductsManager = () => {
                   onClick={() => handleTogglePopular(product.id)}
                 >
                   <img
-                    src={product.image_url}
+                    src={product.image_url || "/default-product.png"}
                     alt={product.name}
                     className="product-image"
+                    onError={(e) => {
+                      e.target.src = "/default-product.png";
+                    }}
                   />
                   <div className="product-info">
                     <span className="product-name">{product.name}</span>
                     <span className="product-category">
-                      {product.category?.name}
+                      {product.category?.name || "Sin categoría"}
                     </span>
                     <span className="product-price">${product.price}</span>
                   </div>
@@ -162,14 +195,17 @@ const FeaturedProductsManager = () => {
                   onClick={() => handleToggleOnSale(product.id)}
                 >
                   <img
-                    src={product.image_url}
+                    src={product.image_url || "/default-product.png"}
                     alt={product.name}
                     className="product-image"
+                    onError={(e) => {
+                      e.target.src = "/default-product.png";
+                    }}
                   />
                   <div className="product-info">
                     <span className="product-name">{product.name}</span>
                     <span className="product-category">
-                      {product.category?.name}
+                      {product.category?.name || "Sin categoría"}
                     </span>
                     <span className="product-price">${product.price}</span>
                   </div>

@@ -3,10 +3,12 @@ import { fetchPublic } from "../helpers/fetchPublic";
 import { types } from "../types/types";
 import Swal from "sweetalert2";
 
-// Obtener productos destacados del backend
+// Obtener productos destacados del backend (RUTA PROTEGIDA - ADMIN)
 export const getFeaturedProducts = () => {
   return async (dispatch) => {
     try {
+      console.log("🔄 Cargando productos destacados (admin)...");
+
       const body = await fetchAPIConfig("featured-products");
 
       if (body.ok) {
@@ -44,10 +46,11 @@ export const saveFeaturedProducts = (featuredData) => {
         },
       });
 
+      // ✅ CORREGIDO: Usar POST para guardar
       const body = await fetchAPIConfig(
         "featured-products",
         featuredData,
-        "POST"
+        "POST" // ✅ Cambiado a POST
       );
 
       Swal.close();
@@ -61,10 +64,16 @@ export const saveFeaturedProducts = (featuredData) => {
           showConfirmButton: false,
         });
 
-        dispatch(setPopularProducts(body.popular));
-        dispatch(setOnSaleProducts(body.onSale));
+        // ✅ Actualizar el estado con la respuesta del servidor
+        dispatch(setPopularProducts(body.popular || []));
+        dispatch(setOnSaleProducts(body.onSale || []));
+
+        console.log("✅ Productos destacados guardados:", {
+          popular: body.popular?.length,
+          onSale: body.onSale?.length,
+        });
       } else {
-        Swal.fire("Error", body.msg, "error");
+        Swal.fire("Error", body.msg || "Error al guardar", "error");
       }
     } catch (error) {
       console.error("Error guardando productos destacados:", error);
@@ -128,16 +137,16 @@ export const setOnSaleProducts = (productIds) => ({
   payload: productIds,
 });
 
-// CARGAR productos destacados desde el backend (RUTA PÚBLICA)
+// CARGAR productos destacados desde el backend (RUTA PÚBLICA - para tienda pública)
 export const loadFeaturedProducts = () => {
   return async (dispatch) => {
     try {
-      console.log("🔄 Cargando productos destacados desde el backend...");
+      console.log("🔄 Cargando productos destacados (público)...");
 
       const body = await fetchPublic("featured-products/public");
 
       if (body.ok) {
-        console.log("✅ Productos destacados cargados:", {
+        console.log("✅ Productos destacados cargados (público):", {
           popular: body.popular.length,
           onSale: body.onSale.length,
         });
