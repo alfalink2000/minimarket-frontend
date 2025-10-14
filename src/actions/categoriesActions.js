@@ -102,6 +102,7 @@ export const updateCategory = (oldName, newName) => {
   };
 };
 
+// actions/categories.js - ELIMINAR LA CONFIRMACIÓN DUPLICADA
 export const deleteCategory = (categoryName) => {
   return async (dispatch) => {
     try {
@@ -121,7 +122,15 @@ export const deleteCategory = (categoryName) => {
       if (body.ok) {
         console.log("✅ [DEBUG] deleteCategory - Éxito, categoría eliminada");
         dispatch(deleteCategoryAction(categoryName));
-        Swal.fire("Eliminada", "Categoría eliminada correctamente", "success");
+
+        // ✅ SOLO mostrar éxito - NO pedir confirmación aquí
+        Swal.fire({
+          icon: "success",
+          title: "¡Categoría eliminada!",
+          text: "Categoría eliminada correctamente",
+          timer: 2000,
+          showConfirmButton: false,
+        });
       } else {
         console.error("❌ [DEBUG] deleteCategory - Error:", body.msg);
         Swal.fire("Error", body.msg, "error");
