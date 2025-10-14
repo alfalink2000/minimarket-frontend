@@ -1,3 +1,4 @@
+// actions/authActions.js - VERSIÓN MODIFICADA (usando types existentes)
 import { fetchConToken, fetchSinToken } from "../helpers/fetchAdmin";
 import { types } from "../types/types";
 import Swal from "sweetalert2";
@@ -6,12 +7,14 @@ export const checkingFinish = () => ({
   type: types.authCheckingFinish,
 });
 
+// ✅ USAR authStartLogin EN LUGAR DE authStartLoading
 export const startLoading = () => ({
-  type: types.authStartLoading,
+  type: types.authStartLogin,
 });
 
+// ✅ USAR authCheckingFinish EN LUGAR DE authFinishLoading
 export const finishLoading = () => ({
-  type: types.authFinishLoading,
+  type: types.authCheckingFinish,
 });
 
 export const StartLogin = (username, password) => {
