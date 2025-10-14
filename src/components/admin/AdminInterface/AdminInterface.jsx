@@ -167,7 +167,7 @@ const AdminInterface = ({ onLogout }) => {
           <div className="admin-section">
             <h2 className="admin-section__title">Gestión de Categorías</h2>
             <CategoryManager
-              categories={categoryNames}
+              categories={categories}
               onAddCategory={handleAddCategory}
               onUpdateCategory={handleUpdateCategory}
               onDeleteCategory={handleDeleteCategory}

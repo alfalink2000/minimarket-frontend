@@ -1,11 +1,11 @@
-// components/admin/CategoryManager/CategoryManager.jsx - VERSIÓN CON DEBUG
+// components/admin/CategoryManager/CategoryManager.jsx - VERSIÓN CORREGIDA
 import { useState, useMemo } from "react";
 import { Plus, Trash2, Edit, Save, X } from "lucide-react";
 import SearchFilter from "../SearchFilter/SearchFilter";
 import "./CategoryManager.css";
 
 const CategoryManager = ({
-  categories,
+  categories, // ✅ Ahora espera array de objetos: {id, name, ...}
   onAddCategory,
   onUpdateCategory,
   onDeleteCategory,
@@ -22,30 +22,40 @@ const CategoryManager = ({
     hasDelete: !!onDeleteCategory,
   });
 
-  // Filtrar categorías
+  // ✅ CORREGIDO: Convertir array de objetos a array de strings para el render
+  const categoryNames = useMemo(() => {
+    return categories.map((cat) => cat.name);
+  }, [categories]);
+
+  // ✅ CORREGIDO: Filtrar por nombres de categorías
   const filteredCategories = useMemo(() => {
     return categories.filter((category) =>
-      category.toLowerCase().includes(searchTerm.toLowerCase())
+      category.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [categories, searchTerm]);
 
   const handleAddCategory = () => {
     console.log("🔄 [DEBUG] handleAddCategory - Llamado con:", newCategory);
 
-    if (newCategory.trim() && !categories.includes(newCategory.trim())) {
+    // ✅ CORREGIDO: Verificar duplicados usando los nombres
+    if (newCategory.trim() && !categoryNames.includes(newCategory.trim())) {
       onAddCategory(newCategory.trim());
       setNewCategory("");
     } else {
       console.warn(
         "⚠️ [DEBUG] handleAddCategory - Categoría inválida o duplicada"
       );
+      // Opcional: Mostrar alerta al usuario
+      if (categoryNames.includes(newCategory.trim())) {
+        alert("Ya existe una categoría con ese nombre");
+      }
     }
   };
 
   const handleStartEdit = (category) => {
     console.log("🔄 [DEBUG] handleStartEdit - Editando:", category);
     setEditingCategory(category);
-    setEditValue(category);
+    setEditValue(category.name); // ✅ CORREGIDO: Usar category.name
   };
 
   const handleSaveEdit = () => {
@@ -54,8 +64,8 @@ const CategoryManager = ({
       editValue,
     });
 
-    if (editValue.trim() && editValue.trim() !== editingCategory) {
-      onUpdateCategory(editingCategory, editValue.trim());
+    if (editValue.trim() && editValue.trim() !== editingCategory.name) {
+      onUpdateCategory(editingCategory.name, editValue.trim());
     }
     setEditingCategory(null);
     setEditValue("");
@@ -69,7 +79,7 @@ const CategoryManager = ({
 
   const handleDeleteCategory = (category) => {
     console.log("🔄 [DEBUG] handleDeleteCategory - Eliminando:", category);
-    onDeleteCategory(category);
+    onDeleteCategory(category.name); // ✅ CORREGIDO: Pasar el nombre
   };
 
   const handleKeyPress = (e) => {
@@ -120,10 +130,12 @@ const CategoryManager = ({
       {/* Lista de categorías */}
       <div className="category-manager__list">
         {filteredCategories
-          .filter((cat) => cat !== "Todos")
+          .filter((cat) => cat.name !== "Todos") // ✅ CORREGIDO: Usar cat.name
           .map((category) => (
-            <div key={category} className="category-manager__item">
-              {editingCategory === category ? (
+            <div key={category.id} className="category-manager__item">
+              {" "}
+              {/* ✅ CORREGIDO: Usar category.id como key */}
+              {editingCategory?.id === category.id ? ( // ✅ CORREGIDO: Comparar por ID
                 <>
                   <input
                     type="text"
@@ -150,7 +162,8 @@ const CategoryManager = ({
                 </>
               ) : (
                 <>
-                  <span>{category}</span>
+                  <span>{category.name}</span>{" "}
+                  {/* ✅ CORREGIDO: Mostrar category.name */}
                   <div className="category-manager__actions">
                     <button
                       onClick={() => handleStartEdit(category)}
@@ -174,6 +187,12 @@ const CategoryManager = ({
       {filteredCategories.length === 0 && categories.length > 0 && (
         <div className="category-manager__empty">
           <p>No se encontraron categorías con el término de búsqueda</p>
+        </div>
+      )}
+
+      {categories.length === 0 && (
+        <div className="category-manager__empty">
+          <p>No hay categorías disponibles. Agrega una nueva categoría.</p>
         </div>
       )}
     </div>

@@ -1,12 +1,15 @@
-// store/store.js - Versión para Vite
+// store/store.js - CONFIGURACIÓN CORRECTA PARA VITE
 import { createStore, combineReducers, applyMiddleware, compose } from "redux";
 import { thunk } from "redux-thunk";
+
+// Importa todos tus reducers
 import { productsReducer } from "../reducers/productsReducer";
 import { categoriesReducer } from "../reducers/categoriesReducer";
 import { authReducer } from "../reducers/authReducer";
 import { adminUsersReducer } from "../reducers/adminUsersReducer";
 import { appConfigReducer } from "../reducers/appConfigReducer";
 
+// Combina los reducers
 const reducers = combineReducers({
   products: productsReducer,
   categories: categoriesReducer,
@@ -15,18 +18,19 @@ const reducers = combineReducers({
   appConfig: appConfigReducer,
 });
 
-// ✅ Configuración compatible con Vite
+// ✅ CONFIGURACIÓN CORRECTA para Redux DevTools con Vite
 const composeEnhancers =
-  (import.meta.env.MODE === "development" &&
+  (typeof window !== "undefined" &&
     window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
   compose;
 
+// Crea el store
 export const store = createStore(
   reducers,
   composeEnhancers(applyMiddleware(thunk))
 );
 
-// ✅ Para desarrollo en Vite
+// ✅ Para desarrollo - expone el store globalmente
 if (import.meta.env.MODE === "development") {
   window.store = store;
 }
