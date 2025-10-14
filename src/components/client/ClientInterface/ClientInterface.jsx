@@ -15,7 +15,6 @@ import {
   HiOutlineSearch,
   HiOutlineStar,
   HiOutlineCog,
-  HiOutlineInformationCircle,
 } from "react-icons/hi";
 import { useDispatch } from "react-redux";
 import Header from "../../common/Header/Header";
@@ -57,10 +56,22 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
 
   const dispatch = useDispatch();
 
+  // ✅ VERIFICAR QUE TENEMOS DATOS ANTES DE RENDERIZAR
+  const products = useSelector(selectProducts);
+  const categories = useSelector(selectCategories);
+  const popularProducts = useSelector(selectPopularProducts);
+  const offerProducts = useSelector(selectOfferProducts);
+  const categoryOptions = useSelector(selectCategoryOptions);
+  const featuredProducts = useSelector(selectFeaturedProducts);
+  const appConfig = useSelector((state) => state.appConfig.config);
+
+  // ✅ EFECTO PARA CARGAR DATOS ADICIONALES (SOLO SI NO EXISTEN)
   useEffect(() => {
-    dispatch(loadFeaturedProducts());
-    dispatch(loadAppConfig());
-  }, [dispatch]);
+    if (products.length === 0 || categories.length === 0) {
+      console.log("🔄 ClientInterface: Cargando datos adicionales...");
+      dispatch(loadFeaturedProducts());
+    }
+  }, [dispatch, products.length, categories.length]);
 
   // ✅ EFECTO PARA DETECTAR TAMAÑO DE PANTALLA
   useEffect(() => {
@@ -92,15 +103,6 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isDesktop]);
-
-  // ✅ USAR SELECTORES MEMOIZADOS
-  const products = useSelector(selectProducts);
-  const categories = useSelector(selectCategories);
-  const popularProducts = useSelector(selectPopularProducts);
-  const offerProducts = useSelector(selectOfferProducts);
-  const categoryOptions = useSelector(selectCategoryOptions);
-  const featuredProducts = useSelector(selectFeaturedProducts);
-  const appConfig = useSelector((state) => state.appConfig.config);
 
   // ✅ NUEVO: Manejar click en búsqueda desde Bottom Navigation
   const handleSearchClick = () => {
@@ -614,6 +616,21 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
       )}
     </div>
   );
+
+  // ✅ VERIFICACIÓN DE DATOS - MOSTRAR LOADING SI FALTAN DATOS
+  if (!appConfig || products.length === 0 || categories.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Preparando interfaz...</p>
+          <p className="text-sm text-gray-500 mt-2">
+            {appConfig?.app_name || "Cargando..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // ✅ Si hay un producto seleccionado, mostrar la vista detallada
   if (selectedProduct) {

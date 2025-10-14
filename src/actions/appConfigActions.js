@@ -1,3 +1,4 @@
+// actions/appConfigActions.js - MEJORADO
 import { fetchAPIConfig } from "../helpers/fetchAPIConfig";
 import { fetchPublic } from "../helpers/fetchPublic";
 import { types } from "../types/types";
@@ -21,10 +22,11 @@ export const loadAppConfig = () => {
         });
 
         applyTheme(body.config.theme);
+        return Promise.resolve();
       } else {
-        console.error("Error en respuesta de configuración:", body.msg);
+        console.error("❌ Error en respuesta de configuración:", body.msg);
 
-        // ✅ USAR CONFIGURACIÓN POR DEFECTO EN CASO DE ERROR
+        // ✅ USAR CONFIGURACIÓN POR DEFECTO PERO MARCAR COMO ERROR
         const defaultConfig = {
           app_name: "Minimarket Digital",
           app_description: "Tu tienda de confianza",
@@ -40,9 +42,10 @@ export const loadAppConfig = () => {
         });
 
         applyTheme(defaultConfig.theme);
+        return Promise.reject(new Error("Configuración por defecto cargada"));
       }
     } catch (error) {
-      console.error("Error de conexión cargando configuración:", error);
+      console.error("❌ Error de conexión cargando configuración:", error);
 
       // ✅ CONFIGURACIÓN POR DEFECTO EN CASO DE ERROR DE RED
       const defaultConfig = {
@@ -54,15 +57,19 @@ export const loadAppConfig = () => {
         business_address: "Av. Principal 123",
       };
 
+      console.log("🔄 Usando configuración local:", defaultConfig.app_name);
+
       dispatch({
         type: types.appConfigLoad,
         payload: defaultConfig,
       });
 
       applyTheme(defaultConfig.theme);
+      return Promise.reject(error);
     }
   };
 };
+
 // Actualizar configuración
 export const updateAppConfig = (configData) => {
   return async (dispatch) => {

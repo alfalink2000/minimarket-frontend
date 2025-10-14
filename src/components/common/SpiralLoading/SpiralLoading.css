@@ -138,14 +138,14 @@
 }
 
 /* Texto de carga profesional */
-.loading-text {
+/* .loading-text {
   display: flex;
   gap: 2px;
   font-size: 1.3rem;
   font-weight: 600;
   color: #374151;
   letter-spacing: 0.5px;
-}
+} */
 
 .text-char {
   animation: textWave 1.2s ease-in-out infinite;

@@ -1,3 +1,4 @@
+// actions/productsActions.js - MEJORADO
 import { fetchAPIConfig } from "../helpers/fetchAPIConfig";
 import { fetchPublic } from "../helpers/fetchPublic";
 import { types } from "../types/types";
@@ -5,26 +6,37 @@ import Swal from "sweetalert2";
 
 export const getProducts = (forceRefresh = false) => {
   return async (dispatch, getState) => {
+    // ✅ SI YA TENEMOS PRODUCTOS Y NO ES FORZADO, NO RECARGAR
     if (!forceRefresh && getState().products.products.length > 0) {
       const lastUpdate = getState().products.lastUpdate;
       const now = Date.now();
       if (lastUpdate && now - lastUpdate < 10000) {
-        return;
+        console.log("🔄 Productos ya cargados recientemente, omitiendo...");
+        return Promise.resolve();
       }
     }
 
+    console.log("📦 Cargando productos...");
     dispatch(startLoading());
 
     try {
       const body = await fetchPublic("products/getProducts");
 
       if (body.ok) {
+        console.log(
+          `✅ ${body.products.length} productos cargados exitosamente`
+        );
         dispatch(loadProducts(body.products));
+        return Promise.resolve();
       } else {
-        console.error("Error en respuesta de productos:", body.msg);
+        console.error("❌ Error en respuesta de productos:", body.msg);
+        return Promise.reject(
+          new Error(body.msg || "Error cargando productos")
+        );
       }
     } catch (error) {
-      console.error("Error de conexión en getProducts:", error);
+      console.error("❌ Error de conexión en getProducts:", error);
+      return Promise.reject(error);
     } finally {
       dispatch(finishLoading());
     }

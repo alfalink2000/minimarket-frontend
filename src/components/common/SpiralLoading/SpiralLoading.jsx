@@ -20,20 +20,7 @@ const SpiralLoading = ({ fadeOut = false }) => {
           <div className="spiral-core"></div>
         </div>
 
-        {/* Texto con efecto de aparición */}
-        <div className="loading-text">
-          <span className="text-char">C</span>
-          <span className="text-char">a</span>
-          <span className="text-char">r</span>
-          <span className="text-char">g</span>
-          <span className="text-char">a</span>
-          <span className="text-char">n</span>
-          <span className="text-char">d</span>
-          <span className="text-char">o</span>
-          <span className="text-char">.</span>
-          <span className="text-char">.</span>
-          <span className="text-char">.</span>
-        </div>
+        {/* Texto con efecto de aparición - DESCOMENTADO Y MEJORADO */}
 
         {/* Partículas flotantes */}
         <div className="floating-particles">
