@@ -665,7 +665,11 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
 
   return (
     <div className="client-interface">
-      <Header title={<TitleWithIcon />}>
+      <Header
+        title={<TitleWithIcon />}
+        onInfoClick={() => setShowInfoModal(true)}
+        showInfoButton={!isDesktop}
+      >
         <DesktopNavigation />
       </Header>
       <InitialInfoModal
