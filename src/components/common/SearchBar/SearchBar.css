@@ -181,6 +181,12 @@
     padding: 0.75rem 1rem;
   }
 
+  /* 🔥 NUEVO: Resetear el max-width para móvil */
+  .search-bar__input-container {
+    max-width: 100% !important;
+    flex: 1 !important;
+  }
+
   .search-bar__input {
     padding: 0.75rem 0.75rem 0.75rem 2.75rem;
     font-size: 0.875rem;
