@@ -1,12 +1,11 @@
-// components/admin/CategoryManager/CategoryManager.jsx - VERSIÓN CORREGIDA
+// components/admin/CategoryManager/CategoryManager.jsx - VERSIÓN MEJORADA
 import { useState, useMemo } from "react";
 import { Plus, Trash2, Edit, Save, X } from "lucide-react";
 import SearchFilter from "../SearchFilter/SearchFilter";
-import Swal from "sweetalert2";
 import "./CategoryManager.css";
 
 const CategoryManager = ({
-  categories, // ✅ Ahora espera array de objetos: {id, name, ...}
+  categories,
   onAddCategory,
   onUpdateCategory,
   onDeleteCategory,
@@ -15,13 +14,6 @@ const CategoryManager = ({
   const [editingCategory, setEditingCategory] = useState(null);
   const [editValue, setEditValue] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-
-  console.log("🔍 [DEBUG] CategoryManager - Props recibidas:", {
-    categories,
-    hasAdd: !!onAddCategory,
-    hasUpdate: !!onUpdateCategory,
-    hasDelete: !!onDeleteCategory,
-  });
 
   // ✅ CORREGIDO: Convertir array de objetos a array de strings para el render
   const categoryNames = useMemo(() => {
@@ -36,59 +28,82 @@ const CategoryManager = ({
   }, [categories, searchTerm]);
 
   const handleAddCategory = () => {
-    console.log("🔄 [DEBUG] handleAddCategory - Llamado con:", newCategory);
+    const trimmedName = newCategory.trim();
 
-    // ✅ CORREGIDO: Verificar duplicados usando los nombres
-    if (newCategory.trim() && !categoryNames.includes(newCategory.trim())) {
-      onAddCategory(newCategory.trim());
-      setNewCategory("");
-    } else {
-      console.warn(
-        "⚠️ [DEBUG] handleAddCategory - Categoría inválida o duplicada"
-      );
-      // Opcional: Mostrar alerta al usuario
-      if (categoryNames.includes(newCategory.trim())) {
-        alert("Ya existe una categoría con ese nombre");
-      }
+    if (!trimmedName) {
+      return;
     }
+
+    // ✅ VERIFICAR DUPLICADOS
+    if (categoryNames.includes(trimmedName)) {
+      alert("Ya existe una categoría con ese nombre");
+      return;
+    }
+
+    // ✅ VERIFICAR LONGITUD
+    if (trimmedName.length > 100) {
+      alert("El nombre de la categoría no puede tener más de 100 caracteres");
+      return;
+    }
+
+    onAddCategory(trimmedName);
+    setNewCategory("");
   };
 
   const handleStartEdit = (category) => {
-    console.log("🔄 [DEBUG] handleStartEdit - Editando:", category);
     setEditingCategory(category);
-    setEditValue(category.name); // ✅ CORREGIDO: Usar category.name
+    setEditValue(category.name);
   };
 
   const handleSaveEdit = () => {
-    console.log("🔄 [DEBUG] handleSaveEdit - Guardando:", {
-      editingCategory,
-      editValue,
-    });
+    const trimmedValue = editValue.trim();
 
-    if (editValue.trim() && editValue.trim() !== editingCategory.name) {
-      onUpdateCategory(editingCategory.name, editValue.trim());
+    if (!trimmedValue) {
+      alert("El nombre de la categoría no puede estar vacío");
+      return;
     }
+
+    if (trimmedValue === editingCategory.name) {
+      setEditingCategory(null);
+      setEditValue("");
+      return;
+    }
+
+    // ✅ VERIFICAR DUPLICADOS AL EDITAR
+    if (
+      categoryNames.includes(trimmedValue) &&
+      trimmedValue !== editingCategory.name
+    ) {
+      alert("Ya existe una categoría con ese nombre");
+      return;
+    }
+
+    onUpdateCategory(editingCategory.name, trimmedValue);
     setEditingCategory(null);
     setEditValue("");
   };
 
   const handleCancelEdit = () => {
-    console.log("🔄 [DEBUG] handleCancelEdit - Cancelando edición");
     setEditingCategory(null);
     setEditValue("");
   };
 
-  // En tu componente - VERSIÓN SIN CONFIRMACIÓN
   const handleDeleteCategory = (category) => {
-    console.log("🔄 [DEBUG] handleDeleteCategory - Eliminando:", category);
-    onDeleteCategory(category.name); // ✅ La confirmación está en la action
+    // ✅ LA CONFIRMACIÓN Y VALIDACIÓN ESTÁ EN LA ACTION
+    onDeleteCategory(category.name);
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e, action) => {
     if (e.key === "Enter") {
-      handleSaveEdit();
+      if (action === "add") {
+        handleAddCategory();
+      } else if (action === "edit") {
+        handleSaveEdit();
+      }
     } else if (e.key === "Escape") {
-      handleCancelEdit();
+      if (action === "edit") {
+        handleCancelEdit();
+      }
     }
   };
 
@@ -109,13 +124,15 @@ const CategoryManager = ({
           type="text"
           value={newCategory}
           onChange={(e) => setNewCategory(e.target.value)}
-          placeholder="Nueva categoría"
+          placeholder="Nueva categoría (máx. 100 caracteres)"
           className="category-manager__input"
-          onKeyPress={(e) => e.key === "Enter" && handleAddCategory()}
+          onKeyPress={(e) => handleKeyPress(e, "add")}
+          maxLength={100}
         />
         <button
           onClick={handleAddCategory}
           className="category-manager__add-button"
+          disabled={!newCategory.trim()}
         >
           <Plus className="w-4 h-4" />
           Agregar
@@ -127,30 +144,35 @@ const CategoryManager = ({
         <span className="category-manager__count">
           {filteredCategories.length} de {categories.length} categorías
         </span>
+        {searchTerm && (
+          <span className="category-manager__search-term">
+            Buscando: "{searchTerm}"
+          </span>
+        )}
       </div>
 
       {/* Lista de categorías */}
       <div className="category-manager__list">
         {filteredCategories
-          .filter((cat) => cat.name !== "Todos") // ✅ CORREGIDO: Usar cat.name
+          .filter((cat) => cat.name !== "Todos")
           .map((category) => (
             <div key={category.id} className="category-manager__item">
-              {" "}
-              {/* ✅ CORREGIDO: Usar category.id como key */}
-              {editingCategory?.id === category.id ? ( // ✅ CORREGIDO: Comparar por ID
+              {editingCategory?.id === category.id ? (
                 <>
                   <input
                     type="text"
                     value={editValue}
                     onChange={(e) => setEditValue(e.target.value)}
-                    onKeyDown={handleKeyPress}
+                    onKeyDown={(e) => handleKeyPress(e, "edit")}
                     className="category-manager__edit-input"
                     autoFocus
+                    maxLength={100}
                   />
                   <div className="category-manager__edit-actions">
                     <button
                       onClick={handleSaveEdit}
                       className="category-manager__save-button"
+                      disabled={!editValue.trim()}
                     >
                       <Save className="w-4 h-4" />
                     </button>
@@ -164,18 +186,21 @@ const CategoryManager = ({
                 </>
               ) : (
                 <>
-                  <span>{category.name}</span>{" "}
-                  {/* ✅ CORREGIDO: Mostrar category.name */}
+                  <span className="category-manager__name">
+                    {category.name}
+                  </span>
                   <div className="category-manager__actions">
                     <button
                       onClick={() => handleStartEdit(category)}
                       className="category-manager__edit-button"
+                      title="Editar categoría"
                     >
                       <Edit className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteCategory(category)}
                       className="category-manager__delete-button"
+                      title="Eliminar categoría"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
