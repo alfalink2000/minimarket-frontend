@@ -1,4 +1,3 @@
-// reducers/appConfigReducer.js - CORREGIDO
 import { types } from "../types/types";
 
 const initialState = {
@@ -9,6 +8,8 @@ const initialState = {
     whatsapp_number: "+5491112345678",
     business_hours: "Lun-Vie: 8:00 - 20:00",
     business_address: "Av. Principal 123",
+    initialinfo:
+      "Bienvenido a nuestro minimarket. Ofrecemos productos de calidad con el mejor servicio. ¡Estamos aquí para ayudarte!", // ✅ NUEVO CAMPO
     logo_url: null,
   },
   loading: false,

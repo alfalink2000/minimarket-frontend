@@ -1,4 +1,3 @@
-// actions/appConfigActions.js - MEJORADO
 import { fetchAPIConfig } from "../helpers/fetchAPIConfig";
 import { fetchPublic } from "../helpers/fetchPublic";
 import { types } from "../types/types";
@@ -34,6 +33,8 @@ export const loadAppConfig = () => {
           whatsapp_number: "+5491112345678",
           business_hours: "Lun-Vie: 8:00 - 20:00",
           business_address: "Av. Principal 123",
+          initialinfo:
+            "Bienvenido a nuestro minimarket. Ofrecemos productos de calidad con el mejor servicio. ¡Estamos aquí para ayudarte!", // ✅ NUEVO CAMPO
         };
 
         dispatch({
@@ -55,6 +56,8 @@ export const loadAppConfig = () => {
         whatsapp_number: "+5491112345678",
         business_hours: "Lun-Vie: 8:00 - 20:00",
         business_address: "Av. Principal 123",
+        initialinfo:
+          "Bienvenido a nuestro minimarket. Ofrecemos productos de calidad con el mejor servicio. ¡Estamos aquí para ayudarte!", // ✅ NUEVO CAMPO
       };
 
       console.log("🔄 Usando configuración local:", defaultConfig.app_name);

@@ -1,7 +1,8 @@
 // components/client/ClientInterface/ClientInterface.jsx
 import { useState, useMemo, useEffect } from "react";
-import { loadAppConfig } from "../../../actions/appConfigActions";
 import { useProductsSync } from "../../../hooks/useProductsSync";
+import { HiOutlineInformationCircle } from "react-icons/hi"; // ✅ NUEVO ICONO
+import InitialInfoModal from "../../common/InitialInfoModal/InitialInfoModal"; // ✅ NUEVO MODAL
 import { useSelector } from "react-redux";
 
 import {
@@ -48,6 +49,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
   const [activeSection, setActiveSection] = useState("todos");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false); // ✅ NUEVO ESTADO
 
   const dispatch = useDispatch();
 
@@ -79,6 +81,17 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
 
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
+
+  // ✅ NUEVO: Componente de información
+  const InfoButton = () => (
+    <button
+      className="header-action header-action--icon"
+      title="Información de la tienda"
+      onClick={() => setShowInfoModal(true)}
+    >
+      <HiOutlineInformationCircle className="header-action__icon" />
+    </button>
+  );
 
   // ✅ Manejar click en búsqueda desde Bottom Navigation
   const handleSearchClick = () => {
@@ -143,6 +156,8 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
   // ✅ Navegación para desktop que va dentro del Header
   const DesktopNavigation = () => (
     <div className="desktop-navigation">
+      {/* Botón de información - NUEVO */}
+      <InfoButton />
       {/* Botón de búsqueda avanzada */}
       <button
         className="header-action header-action--icon"
@@ -653,7 +668,11 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
       <Header title={<TitleWithIcon />}>
         <DesktopNavigation />
       </Header>
-
+      <InitialInfoModal
+        isOpen={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
+        initialInfo={appConfig.initialinfo}
+      />
       {/* Renderizar layout según el dispositivo */}
       {isDesktop ? renderDesktopLayout() : renderMobileLayout()}
 
