@@ -12,7 +12,7 @@ import {
   HiOutlineShieldCheck,
   HiOutlineUserCircle,
 } from "react-icons/hi";
-import Header from "../../common/Header/Header";
+import AdminHeader from "../AdminHeader/AdminHeader";
 import DashboardStats from "../DashboardStats/DashboardStats";
 import ProductList from "../ProductList/ProductList";
 import ProductForm from "../ProductForm/ProductForm";
@@ -209,7 +209,7 @@ const AdminInterface = ({ onLogout }) => {
   return (
     <div className="admin-interface">
       {/* Header Mejorado */}
-      <Header>
+      <AdminHeader>
         <div className="admin-header__content">
           {/* Lado izquierdo - Brand y título */}
           <div className="admin-header__left">
@@ -245,7 +245,7 @@ const AdminInterface = ({ onLogout }) => {
             </button>
           </div>
         </div>
-      </Header>
+      </AdminHeader>
 
       <div className="admin-interface__layout">
         {/* Sidebar Navigation */}
