@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   HiOutlineChartBar,
@@ -11,21 +11,22 @@ import {
   HiOutlineX,
   HiOutlineShieldCheck,
   HiOutlineUserCircle,
+  HiOutlineUsers,
 } from "react-icons/hi";
+
+// Components
 import AdminHeader from "../AdminHeader/AdminHeader";
 import DashboardStats from "../DashboardStats/DashboardStats";
 import ProductList from "../ProductList/ProductList";
 import ProductForm from "../ProductForm/ProductForm";
-import "./AdminInterface.css";
 import CategoryManager from "../CategoryManager/CategoryManager";
 import FeaturedProductsManager from "../FeaturedProductsManager/FeaturedProductsManager";
-import { getFeaturedProducts } from "../../../actions/featuredProductsActions";
-
-import { HiOutlineUsers } from "react-icons/hi";
 import AdminUsersManager from "../AdminUsersManager/AdminUsersManager";
-import { getAdminUsers } from "../../../actions/adminUsersActions";
 import AppConfigManager from "../AppConfigManager/AppConfigManager";
 
+// Actions
+import { getFeaturedProducts } from "../../../actions/featuredProductsActions";
+import { getAdminUsers } from "../../../actions/adminUsersActions";
 import {
   insertProduct,
   updateProduct,
@@ -38,6 +39,18 @@ import {
 } from "../../../actions/categoriesActions";
 import { startLogout } from "../../../actions/authActions";
 
+import "./AdminInterface.css";
+
+// Constantes para evitar recreación de objetos
+const MENU_ITEMS = [
+  { id: "dashboard", label: "Dashboard", icon: HiOutlineChartBar },
+  { id: "products", label: "Productos", icon: HiOutlineCube },
+  { id: "categories", label: "Categorías", icon: HiOutlineTag },
+  { id: "featured", label: "Destacados", icon: HiOutlineStar },
+  { id: "users", label: "Usuarios Admin", icon: HiOutlineUsers },
+  { id: "config", label: "Configuración App", icon: HiOutlineCog },
+];
+
 const AdminInterface = ({ onLogout }) => {
   const [activeSection, setActiveSection] = useState("dashboard");
   const [showAddForm, setShowAddForm] = useState(false);
@@ -46,92 +59,115 @@ const AdminInterface = ({ onLogout }) => {
 
   const dispatch = useDispatch();
 
+  // Selectores optimizados con selectores específicos
+  const products = useSelector((state) => state.products.products);
+  const categories = useSelector((state) => state.categories.categories);
+  const adminUsers = useSelector((state) => state.adminUsers.users);
+
+  // Efectos agrupados
   useEffect(() => {
     dispatch(getFeaturedProducts());
     dispatch(getAdminUsers());
   }, [dispatch]);
 
-  // Selectores
-  const products = useSelector((state) => state.products.products);
-  const categories = useSelector((state) => state.categories.categories);
-  const adminUsers = useSelector((state) => state.adminUsers.users);
+  // Memoizar valores derivados
+  const categoryNames = useMemo(
+    () =>
+      Array.isArray(categories)
+        ? categories.map((cat) => cat.name).filter(Boolean)
+        : [],
+    [categories]
+  );
 
-  const categoryNames = Array.isArray(categories)
-    ? categories.map((cat) => cat.name).filter(Boolean)
-    : [];
+  // Handlers optimizados con useCallback
+  const handleSubmit = useCallback(
+    (formData) => {
+      if (editingProduct) {
+        formData.append("id", editingProduct.id);
+        dispatch(updateProduct(formData));
+      } else {
+        dispatch(insertProduct(formData));
+      }
+      setShowAddForm(false);
+      setEditingProduct(null);
+    },
+    [editingProduct, dispatch]
+  );
 
-  // Handlers
-  const handleSubmit = (formData) => {
-    if (editingProduct) {
-      formData.append("id", editingProduct.id);
-      dispatch(updateProduct(formData));
-    } else {
-      dispatch(insertProduct(formData));
-    }
-    setShowAddForm(false);
-    setEditingProduct(null);
-  };
-
-  const handleEdit = (product) => {
+  const handleEdit = useCallback((product) => {
     setEditingProduct(product);
     setShowAddForm(true);
-  };
+  }, []);
 
-  const handleDelete = (productId) => {
-    if (
-      window.confirm("¿Estás seguro de que quieres eliminar este producto?")
-    ) {
-      dispatch(deleteProduct(productId));
-    }
-  };
+  const handleDelete = useCallback(
+    (productId) => {
+      if (
+        window.confirm("¿Estás seguro de que quieres eliminar este producto?")
+      ) {
+        dispatch(deleteProduct(productId));
+      }
+    },
+    [dispatch]
+  );
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setShowAddForm(false);
     setEditingProduct(null);
-  };
+  }, []);
 
-  const handleAddCategory = (categoryName) => {
-    dispatch(insertCategory(categoryName));
-  };
+  const handleAddCategory = useCallback(
+    (categoryName) => {
+      dispatch(insertCategory(categoryName));
+    },
+    [dispatch]
+  );
 
-  const handleUpdateCategory = (oldName, newName) => {
-    dispatch(updateCategory(oldName, newName));
-  };
+  const handleUpdateCategory = useCallback(
+    (oldName, newName) => {
+      dispatch(updateCategory(oldName, newName));
+    },
+    [dispatch]
+  );
 
-  const handleDeleteCategory = (categoryName) => {
-    if (
-      window.confirm(
-        `¿Estás seguro de que quieres eliminar la categoría "${categoryName}"?`
-      )
-    ) {
-      dispatch(deleteCategory(categoryName));
-    }
-  };
+  const handleDeleteCategory = useCallback(
+    (categoryName) => {
+      if (
+        window.confirm(
+          `¿Estás seguro de que quieres eliminar la categoría "${categoryName}"?`
+        )
+      ) {
+        dispatch(deleteCategory(categoryName));
+      }
+    },
+    [dispatch]
+  );
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     dispatch(startLogout());
     onLogout();
-  };
+  }, [dispatch, onLogout]);
 
-  const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: HiOutlineChartBar },
-    { id: "products", label: "Productos", icon: HiOutlineCube },
-    { id: "categories", label: "Categorías", icon: HiOutlineTag },
-    { id: "featured", label: "Destacados", icon: HiOutlineStar },
-    { id: "users", label: "Usuarios Admin", icon: HiOutlineUsers },
-    { id: "config", label: "Configuración App", icon: HiOutlineCog },
-  ];
+  const handleSectionChange = useCallback((sectionId) => {
+    setActiveSection(sectionId);
+    setIsMobileMenuOpen(false);
+  }, []);
 
-  const renderContent = () => {
+  // Renderizado de contenido optimizado
+  const renderContent = useMemo(() => {
+    const sectionProps = {
+      className: "admin-section",
+      titleClass: "admin-section__title",
+    };
+
     switch (activeSection) {
       case "dashboard":
         return <DashboardStats products={products} />;
 
       case "products":
         return (
-          <div className="admin-section">
+          <div {...sectionProps}>
             <div className="admin-section__header">
-              <h2 className="admin-section__title">Gestión de Productos</h2>
+              <h2 className={sectionProps.titleClass}>Gestión de Productos</h2>
               <button
                 onClick={() => setShowAddForm(true)}
                 className="admin-section__add-button"
@@ -164,8 +200,8 @@ const AdminInterface = ({ onLogout }) => {
 
       case "categories":
         return (
-          <div className="admin-section">
-            <h2 className="admin-section__title">Gestión de Categorías</h2>
+          <div {...sectionProps}>
+            <h2 className={sectionProps.titleClass}>Gestión de Categorías</h2>
             <CategoryManager
               categories={categories}
               onAddCategory={handleAddCategory}
@@ -177,16 +213,16 @@ const AdminInterface = ({ onLogout }) => {
 
       case "featured":
         return (
-          <div className="admin-section">
-            <h2 className="admin-section__title">Productos Destacados</h2>
+          <div {...sectionProps}>
+            <h2 className={sectionProps.titleClass}>Productos Destacados</h2>
             <FeaturedProductsManager />
           </div>
         );
 
       case "users":
         return (
-          <div className="admin-section">
-            <h2 className="admin-section__title">
+          <div {...sectionProps}>
+            <h2 className={sectionProps.titleClass}>
               Gestión de Usuarios Administradores
             </h2>
             <AdminUsersManager users={adminUsers} />
@@ -195,8 +231,8 @@ const AdminInterface = ({ onLogout }) => {
 
       case "config":
         return (
-          <div className="admin-section">
-            <h2 className="admin-section__title">Configuración de la App</h2>
+          <div {...sectionProps}>
+            <h2 className={sectionProps.titleClass}>Configuración de la App</h2>
             <AppConfigManager />
           </div>
         );
@@ -204,14 +240,22 @@ const AdminInterface = ({ onLogout }) => {
       default:
         return <DashboardStats products={products} />;
     }
-  };
+  }, [
+    activeSection,
+    products,
+    categories,
+    adminUsers,
+    handleEdit,
+    handleDelete,
+    handleAddCategory,
+    handleUpdateCategory,
+    handleDeleteCategory,
+  ]);
 
   return (
     <div className="admin-interface">
-      {/* Header Mejorado */}
       <AdminHeader>
         <div className="admin-header__content">
-          {/* Lado izquierdo - Brand y título */}
           <div className="admin-header__left">
             <div className="admin-header__brand">
               <div className="admin-header__icon-wrapper">
@@ -226,7 +270,6 @@ const AdminInterface = ({ onLogout }) => {
             </div>
           </div>
 
-          {/* Lado derecho - Acciones y usuario */}
           <div className="admin-header__right">
             <div className="admin-header__user-info">
               <HiOutlineUserCircle className="admin-header__user-icon" />
@@ -248,7 +291,6 @@ const AdminInterface = ({ onLogout }) => {
       </AdminHeader>
 
       <div className="admin-interface__layout">
-        {/* Sidebar Navigation */}
         <nav
           className={`admin-sidebar ${
             isMobileMenuOpen ? "admin-sidebar--open" : ""
@@ -259,15 +301,12 @@ const AdminInterface = ({ onLogout }) => {
           </div>
 
           <div className="admin-sidebar__menu">
-            {menuItems.map((item) => {
+            {MENU_ITEMS.map((item) => {
               const Icon = item.icon;
               return (
                 <button
                   key={item.id}
-                  onClick={() => {
-                    setActiveSection(item.id);
-                    setIsMobileMenuOpen(false);
-                  }}
+                  onClick={() => handleSectionChange(item.id)}
                   className={`admin-sidebar__item ${
                     activeSection === item.id
                       ? "admin-sidebar__item--active"
@@ -280,7 +319,6 @@ const AdminInterface = ({ onLogout }) => {
               );
             })}
 
-            {/* Botón de Cerrar Sesión en el sidebar */}
             <button
               onClick={handleLogout}
               className="admin-sidebar__item admin-sidebar__item--logout"
@@ -291,13 +329,11 @@ const AdminInterface = ({ onLogout }) => {
           </div>
         </nav>
 
-        {/* Main Content */}
         <main className="admin-main">
-          <div className="admin-main__content">{renderContent()}</div>
+          <div className="admin-main__content">{renderContent}</div>
         </main>
       </div>
 
-      {/* Product Form Modal */}
       {showAddForm && (
         <ProductForm
           product={editingProduct}

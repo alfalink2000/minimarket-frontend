@@ -1,5 +1,4 @@
-// components/admin/CategoryManager/CategoryManager.jsx - VERSIÓN MEJORADA
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Plus, Trash2, Edit, Save, X } from "lucide-react";
 import SearchFilter from "../SearchFilter/SearchFilter";
 import "./CategoryManager.css";
@@ -15,32 +14,32 @@ const CategoryManager = ({
   const [editValue, setEditValue] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // ✅ CORREGIDO: Convertir array de objetos a array de strings para el render
-  const categoryNames = useMemo(() => {
-    return categories.map((cat) => cat.name);
-  }, [categories]);
+  // Memoizar categorías como strings
+  const categoryNames = useMemo(
+    () => categories.map((cat) => cat.name),
+    [categories]
+  );
 
-  // ✅ CORREGIDO: Filtrar por nombres de categorías
-  const filteredCategories = useMemo(() => {
-    return categories.filter((category) =>
-      category.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [categories, searchTerm]);
+  // Memoizar categorías filtradas
+  const filteredCategories = useMemo(
+    () =>
+      categories.filter((category) =>
+        category.name.toLowerCase().includes(searchTerm.toLowerCase())
+      ),
+    [categories, searchTerm]
+  );
 
-  const handleAddCategory = () => {
+  // Handlers optimizados
+  const handleAddCategory = useCallback(() => {
     const trimmedName = newCategory.trim();
 
-    if (!trimmedName) {
-      return;
-    }
+    if (!trimmedName) return;
 
-    // ✅ VERIFICAR DUPLICADOS
     if (categoryNames.includes(trimmedName)) {
       alert("Ya existe una categoría con ese nombre");
       return;
     }
 
-    // ✅ VERIFICAR LONGITUD
     if (trimmedName.length > 100) {
       alert("El nombre de la categoría no puede tener más de 100 caracteres");
       return;
@@ -48,14 +47,14 @@ const CategoryManager = ({
 
     onAddCategory(trimmedName);
     setNewCategory("");
-  };
+  }, [newCategory, categoryNames, onAddCategory]);
 
-  const handleStartEdit = (category) => {
+  const handleStartEdit = useCallback((category) => {
     setEditingCategory(category);
     setEditValue(category.name);
-  };
+  }, []);
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = useCallback(() => {
     const trimmedValue = editValue.trim();
 
     if (!trimmedValue) {
@@ -69,7 +68,6 @@ const CategoryManager = ({
       return;
     }
 
-    // ✅ VERIFICAR DUPLICADOS AL EDITAR
     if (
       categoryNames.includes(trimmedValue) &&
       trimmedValue !== editingCategory.name
@@ -81,44 +79,41 @@ const CategoryManager = ({
     onUpdateCategory(editingCategory.name, trimmedValue);
     setEditingCategory(null);
     setEditValue("");
-  };
+  }, [editValue, editingCategory, categoryNames, onUpdateCategory]);
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = useCallback(() => {
     setEditingCategory(null);
     setEditValue("");
-  };
+  }, []);
 
-  const handleDeleteCategory = (category) => {
-    // ✅ LA CONFIRMACIÓN Y VALIDACIÓN ESTÁ EN LA ACTION
-    onDeleteCategory(category.name);
-  };
+  const handleDeleteCategory = useCallback(
+    (category) => {
+      onDeleteCategory(category.name);
+    },
+    [onDeleteCategory]
+  );
 
-  const handleKeyPress = (e, action) => {
-    if (e.key === "Enter") {
-      if (action === "add") {
-        handleAddCategory();
-      } else if (action === "edit") {
-        handleSaveEdit();
-      }
-    } else if (e.key === "Escape") {
-      if (action === "edit") {
+  const handleKeyPress = useCallback(
+    (e, action) => {
+      if (e.key === "Enter") {
+        action === "add" ? handleAddCategory() : handleSaveEdit();
+      } else if (e.key === "Escape" && action === "edit") {
         handleCancelEdit();
       }
-    }
-  };
+    },
+    [handleAddCategory, handleSaveEdit, handleCancelEdit]
+  );
 
   return (
     <div className="category-manager">
       <h3 className="category-manager__title">Gestión de Categorías</h3>
 
-      {/* Filtro de búsqueda */}
       <SearchFilter
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         placeholder="Buscar categorías..."
       />
 
-      {/* Agregar nueva categoría */}
       <div className="category-manager__add">
         <input
           type="text"
@@ -139,7 +134,6 @@ const CategoryManager = ({
         </button>
       </div>
 
-      {/* Contador de resultados */}
       <div className="category-manager__info">
         <span className="category-manager__count">
           {filteredCategories.length} de {categories.length} categorías
@@ -151,7 +145,6 @@ const CategoryManager = ({
         )}
       </div>
 
-      {/* Lista de categorías */}
       <div className="category-manager__list">
         {filteredCategories
           .filter((cat) => cat.name !== "Todos")

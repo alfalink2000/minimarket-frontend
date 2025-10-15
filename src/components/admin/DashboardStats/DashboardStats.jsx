@@ -1,345 +1,302 @@
-import "./DashboardStats.css";
+import { useMemo } from "react";
 import { useSelector } from "react-redux";
+import "./DashboardStats.css";
 
 const DashboardStats = ({ products }) => {
-  // ✅ OBTENER PRODUCTOS DESTACADOS DEL REDUCER
   const featuredProducts = useSelector(
     (state) => state.products.featuredProducts
   );
 
-  // MÉTRICAS BÁSICAS
-  const totalProducts = products.length;
-  const outOfStockCount = products.filter(
-    (p) => p.status === "outOfStock"
-  ).length;
-  const inStockCount = totalProducts - outOfStockCount;
+  // Todas las métricas en un solo useMemo para evitar cálculos repetidos
+  const metrics = useMemo(() => {
+    const totalProducts = products.length;
+    const outOfStockCount = products.filter(
+      (p) => p.status === "outOfStock"
+    ).length;
+    const inStockCount = totalProducts - outOfStockCount;
 
-  // ✅ MÉTRICAS CORREGIDAS - USAR DATOS DEL REDUCER
-  const featuredProductsCount = featuredProducts?.popular?.length || 0;
-  const offerProductsCount = featuredProducts?.onSale?.length || 0;
+    const featuredProductsCount = featuredProducts?.popular?.length || 0;
+    const offerProductsCount = featuredProducts?.onSale?.length || 0;
 
-  // MÉTRICAS DE CATEGORÍAS
-  const productsByCategory = products.reduce((acc, product) => {
-    const category = product.category?.name || "Sin categoría";
-    acc[category] = (acc[category] || 0) + 1;
-    return acc;
-  }, {});
+    // Agrupar cálculos de categorías
+    const productsByCategory = products.reduce((acc, product) => {
+      const category = product.category?.name || "Sin categoría";
+      acc[category] = (acc[category] || 0) + 1;
+      return acc;
+    }, {});
 
-  const topCategory = Object.entries(productsByCategory).sort(
-    ([, a], [, b]) => b - a
-  )[0] || ["Sin categorías", 0];
+    const topCategory = Object.entries(productsByCategory).sort(
+      ([, a], [, b]) => b - a
+    )[0] || ["Sin categorías", 0];
+    const totalCategories = Object.keys(productsByCategory).length;
 
-  const totalCategories = Object.keys(productsByCategory).length;
+    // Agrupar cálculos de inventario
+    const totalInventoryValue = products.reduce((total, product) => {
+      const price = parseFloat(product.price) || 0;
+      const stock = parseInt(product.stock) || 0;
+      return total + price * stock;
+    }, 0);
 
-  // MÉTRICAS DE INVENTARIO
-  const totalInventoryValue = products.reduce((total, product) => {
-    const price = parseFloat(product.price) || 0;
-    const stock = parseInt(product.stock) || 0;
-    return total + price * stock;
-  }, 0);
+    const productsWithImages = products.filter(
+      (p) => p.image && p.image !== ""
+    ).length;
+    const productsWithoutImages = totalProducts - productsWithImages;
 
-  // MÉTRICAS DE ESTADO
-  const productsWithImages = products.filter(
-    (p) => p.image && p.image !== ""
-  ).length;
-  const productsWithoutImages = totalProducts - productsWithImages;
+    const recentProducts = products.filter((product) => {
+      const productDate = new Date(product.createdAt || product.updatedAt);
+      const monthAgo = new Date();
+      monthAgo.setDate(monthAgo.getDate() - 30);
+      return productDate >= monthAgo;
+    }).length;
 
-  // PRODUCTOS RECIENTES (últimos 30 días)
-  const recentProducts = products.filter((product) => {
-    const productDate = new Date(product.createdAt || product.updatedAt);
-    const monthAgo = new Date();
-    monthAgo.setDate(monthAgo.getDate() - 30);
-    return productDate >= monthAgo;
-  }).length;
+    // Calcular porcentajes una sola vez
+    const stockPercentage = totalProducts
+      ? Math.round((inStockCount / totalProducts) * 100)
+      : 0;
+    const imagesPercentage = totalProducts
+      ? Math.round((productsWithImages / totalProducts) * 100)
+      : 0;
+    const outOfStockPercentage = totalProducts
+      ? Math.round((outOfStockCount / totalProducts) * 100)
+      : 0;
+    const featuredPercentage = totalProducts
+      ? Math.round((featuredProductsCount / totalProducts) * 100)
+      : 0;
 
-  // PORCENTAJES
-  const stockPercentage = totalProducts
-    ? Math.round((inStockCount / totalProducts) * 100)
-    : 0;
-  const imagesPercentage = totalProducts
-    ? Math.round((productsWithImages / totalProducts) * 100)
-    : 0;
-  const outOfStockPercentage = totalProducts
-    ? Math.round((outOfStockCount / totalProducts) * 100)
-    : 0;
-  const featuredPercentage = totalProducts
-    ? Math.round((featuredProductsCount / totalProducts) * 100)
-    : 0;
+    return {
+      totalProducts,
+      outOfStockCount,
+      inStockCount,
+      featuredProductsCount,
+      offerProductsCount,
+      topCategory,
+      totalCategories,
+      totalInventoryValue,
+      productsWithImages,
+      productsWithoutImages,
+      recentProducts,
+      stockPercentage,
+      imagesPercentage,
+      outOfStockPercentage,
+      featuredPercentage,
+      hasMarketing: featuredProductsCount > 0 || offerProductsCount > 0,
+    };
+  }, [products, featuredProducts]);
 
-  console.log("📊 Dashboard Stats:", {
-    totalProducts,
-    featuredProductsCount,
-    offerProductsCount,
-    featuredProducts: featuredProducts,
-  });
+  // Componente de tarjeta reutilizable
+  const StatCard = ({
+    type,
+    icon,
+    label,
+    value,
+    percentage,
+    breakdown,
+    trend,
+    alert,
+    tip,
+  }) => (
+    <div className={`dashboard-stat dashboard-stat--${type}`}>
+      <div className="stat-content">
+        <div className="stat-header">
+          <div className="stat-header-main">
+            <div className="stat-icon">{icon}</div>
+            <div className="stat-label">{label}</div>
+          </div>
+        </div>
+        <div className={`stat-value stat-value--${type}`}>{value}</div>
+
+        {percentage !== undefined && (
+          <div className="stat-progress">
+            <div className="progress-bar">
+              <div
+                className={`progress-fill progress-fill--${type}`}
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
+            <div className="progress-label">{percentage}% del inventario</div>
+          </div>
+        )}
+
+        {breakdown && (
+          <div className="stat-breakdown">
+            {breakdown.map((item, index) => (
+              <div key={index} className="breakdown-item">
+                <div className="breakdown-info">
+                  <span
+                    className={`breakdown-dot breakdown-dot--${item.type}`}
+                  />
+                  <span className="breakdown-text">{item.text}</span>
+                </div>
+                <span className="breakdown-value">{item.value}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {trend && (
+          <div className={`stat-trend stat-trend--${trend.type}`}>
+            <span className="trend-icon">{trend.icon}</span>
+            <span className="trend-text">{trend.text}</span>
+          </div>
+        )}
+
+        {alert && <div className="stat-alert">{alert}</div>}
+        {tip && <div className="stat-tip">{tip}</div>}
+      </div>
+    </div>
+  );
 
   return (
     <div className="dashboard-stats">
-      {/* TARJETA PRINCIPAL - RESUMEN GENERAL */}
-      <div className="dashboard-stat dashboard-stat--primary">
-        <div className="stat-content">
-          <div className="stat-header">
-            <div className="stat-header-main">
-              <div className="stat-icon">📊</div>
-              <div className="stat-label">Inventario Total</div>
-            </div>
-          </div>
-          <div className="stat-value stat-value--primary">{totalProducts}</div>
-          <div className="stat-breakdown">
-            <div className="breakdown-item">
-              <div className="breakdown-info">
-                <span className="breakdown-dot breakdown-dot--success"></span>
-                <span className="breakdown-text">
-                  {inStockCount} disponibles
-                </span>
-              </div>
-              <span className="breakdown-value">{inStockCount}</span>
-            </div>
-            <div className="breakdown-item">
-              <div className="breakdown-info">
-                <span className="breakdown-dot breakdown-dot--warning"></span>
-                <span className="breakdown-text">
-                  {outOfStockCount} agotados
-                </span>
-              </div>
-              <span className="breakdown-value">{outOfStockCount}</span>
-            </div>
-          </div>
-          {recentProducts > 0 && (
-            <div className="stat-trend stat-trend--positive">
-              <span className="trend-icon">+</span>
-              <span className="trend-text">
-                {recentProducts} nuevos este mes
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
+      <StatCard
+        type="primary"
+        icon="📊"
+        label="Inventario Total"
+        value={metrics.totalProducts}
+        breakdown={[
+          {
+            type: "success",
+            text: `${metrics.inStockCount} disponibles`,
+            value: metrics.inStockCount,
+          },
+          {
+            type: "warning",
+            text: `${metrics.outOfStockCount} agotados`,
+            value: metrics.outOfStockCount,
+          },
+        ]}
+        trend={
+          metrics.recentProducts > 0
+            ? {
+                type: "positive",
+                icon: "+",
+                text: `${metrics.recentProducts} nuevos este mes`,
+              }
+            : null
+        }
+      />
 
-      {/* ESTADO DE STOCK */}
-      <div className="dashboard-stat dashboard-stat--success">
-        <div className="stat-content">
-          <div className="stat-header">
-            <div className="stat-header-main">
-              <div className="stat-icon">📦</div>
-              <div className="stat-label">Stock Disponible</div>
-            </div>
-          </div>
-          <div className="stat-value stat-value--success">{inStockCount}</div>
-          <div className="stat-progress">
-            <div className="progress-bar">
-              <div
-                className="progress-fill progress-fill--success"
-                style={{ width: `${stockPercentage}%` }}
-              ></div>
-            </div>
-            <div className="progress-label">
-              {stockPercentage}% del inventario
-            </div>
-          </div>
-        </div>
-      </div>
+      <StatCard
+        type="success"
+        icon="📦"
+        label="Stock Disponible"
+        value={metrics.inStockCount}
+        percentage={metrics.stockPercentage}
+      />
 
-      {/* PRODUCTOS AGOTADOS */}
-      <div className="dashboard-stat dashboard-stat--warning">
-        <div className="stat-content">
-          <div className="stat-header">
-            <div className="stat-header-main">
-              <div className="stat-icon">⚠️</div>
-              <div className="stat-label">Requiere Atención</div>
-            </div>
-          </div>
-          <div className="stat-value stat-value--warning">
-            {outOfStockCount}
-          </div>
-          <div className="stat-progress">
-            <div className="progress-bar">
-              <div
-                className="progress-fill progress-fill--warning"
-                style={{ width: `${outOfStockPercentage}%` }}
-              ></div>
-            </div>
-            <div className="progress-label">
-              {outOfStockPercentage}% del inventario
-            </div>
-          </div>
-          {outOfStockCount > 0 && (
-            <div className="stat-alert">Necesitan reposición inmediata</div>
-          )}
-        </div>
-      </div>
+      <StatCard
+        type="warning"
+        icon="⚠️"
+        label="Requiere Atención"
+        value={metrics.outOfStockCount}
+        percentage={metrics.outOfStockPercentage}
+        alert={
+          metrics.outOfStockCount > 0 ? "Necesitan reposición inmediata" : null
+        }
+      />
 
-      {/* PRODUCTOS DESTACADOS */}
-      <div className="dashboard-stat dashboard-stat--featured">
-        <div className="stat-content">
-          <div className="stat-header">
-            <div className="stat-header-main">
-              <div className="stat-icon">⭐</div>
-              <div className="stat-label">Destacados</div>
-            </div>
-          </div>
-          <div className="stat-value stat-value--featured">
-            {featuredProductsCount}
-          </div>
-          <div className="stat-progress">
-            <div className="progress-bar">
-              <div
-                className="progress-fill progress-fill--featured"
-                style={{ width: `${featuredPercentage}%` }}
-              ></div>
-            </div>
-            <div className="progress-label">
-              {featuredPercentage}% del inventario
-            </div>
-          </div>
-          {featuredProductsCount === 0 ? (
-            <div className="stat-tip">Agrega productos destacados</div>
-          ) : (
-            <div className="stat-trend stat-trend--positive">
-              <span className="trend-icon">👑</span>
-              <span className="trend-text">Productos populares</span>
-            </div>
-          )}
-        </div>
-      </div>
+      <StatCard
+        type="featured"
+        icon="⭐"
+        label="Destacados"
+        value={metrics.featuredProductsCount}
+        percentage={metrics.featuredPercentage}
+        trend={
+          metrics.featuredProductsCount === 0
+            ? null
+            : {
+                type: "positive",
+                icon: "👑",
+                text: "Productos populares",
+              }
+        }
+        tip={
+          metrics.featuredProductsCount === 0
+            ? "Agrega productos destacados"
+            : null
+        }
+      />
 
-      {/* OFERTAS ACTIVAS */}
-      <div className="dashboard-stat dashboard-stat--danger">
-        <div className="stat-content">
-          <div className="stat-header">
-            <div className="stat-header-main">
-              <div className="stat-icon">🎯</div>
-              <div className="stat-label">Ofertas Activas</div>
-            </div>
-          </div>
-          <div className="stat-value stat-value--danger">
-            {offerProductsCount}
-          </div>
-          <div className="stat-subtext">En promoción especial</div>
-          {offerProductsCount > 0 ? (
-            <div className="stat-trend stat-trend--positive">
-              <span className="trend-icon">🔥</span>
-              <span className="trend-text">Atrayendo clientes</span>
-            </div>
-          ) : (
-            <div className="stat-tip">Crea ofertas para aumentar ventas</div>
-          )}
-        </div>
-      </div>
+      <StatCard
+        type="danger"
+        icon="🎯"
+        label="Ofertas Activas"
+        value={metrics.offerProductsCount}
+        trend={
+          metrics.offerProductsCount > 0
+            ? {
+                type: "positive",
+                icon: "🔥",
+                text: "Atrayendo clientes",
+              }
+            : null
+        }
+        tip={
+          metrics.offerProductsCount === 0
+            ? "Crea ofertas para aumentar ventas"
+            : null
+        }
+      />
 
-      {/* CATEGORÍAS */}
-      <div className="dashboard-stat dashboard-stat--info">
-        <div className="stat-content">
-          <div className="stat-header">
-            <div className="stat-header-main">
-              <div className="stat-icon">📁</div>
-              <div className="stat-label">Categorías</div>
-            </div>
-          </div>
-          <div className="stat-value stat-value--info">{totalCategories}</div>
-          <div className="stat-subtext">{topCategory[0]}</div>
-          <div className="stat-breakdown">
-            <div className="breakdown-item">
-              <div className="breakdown-info">
-                <span className="breakdown-text">
-                  Principal: {topCategory[1]} productos
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <StatCard
+        type="info"
+        icon="📁"
+        label="Categorías"
+        value={metrics.totalCategories}
+        breakdown={[
+          {
+            text: `Principal: ${metrics.topCategory[1]} productos`,
+            value: null,
+          },
+        ]}
+      />
 
-      {/* VALOR DEL INVENTARIO */}
-      {totalInventoryValue > 0 && (
-        <div className="dashboard-stat dashboard-stat--inventory">
-          <div className="stat-content">
-            <div className="stat-header">
-              <div className="stat-header-main">
-                <div className="stat-icon">💰</div>
-                <div className="stat-label">Valor Inventario</div>
-              </div>
-            </div>
-            <div className="stat-value stat-value--inventory">
-              ${totalInventoryValue.toLocaleString()}
-            </div>
-            <div className="stat-subtext">Valor total estimado</div>
-            <div className="stat-breakdown">
-              <div className="breakdown-item">
-                <div className="breakdown-info">
-                  <span className="breakdown-text">
-                    Basado en precios actuales
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      {metrics.totalInventoryValue > 0 && (
+        <StatCard
+          type="inventory"
+          icon="💰"
+          label="Valor Inventario"
+          value={`$${metrics.totalInventoryValue.toLocaleString()}`}
+          breakdown={[{ text: "Basado en precios actuales", value: null }]}
+        />
       )}
 
-      {/* ESTADO DE IMÁGENES */}
-      <div className="dashboard-stat dashboard-stat--media">
-        <div className="stat-content">
-          <div className="stat-header">
-            <div className="stat-header-main">
-              <div className="stat-icon">🖼️</div>
-              <div className="stat-label">Imágenes</div>
-            </div>
-          </div>
-          <div className="stat-value stat-value--media">
-            {productsWithImages}
-          </div>
-          <div className="stat-progress">
-            <div className="progress-bar">
-              <div
-                className="progress-fill progress-fill--media"
-                style={{ width: `${imagesPercentage}%` }}
-              ></div>
-            </div>
-            <div className="progress-label">
-              {imagesPercentage}% con imágenes
-            </div>
-          </div>
-          {productsWithoutImages > 0 && (
-            <div className="stat-tip">
-              {productsWithoutImages} productos sin imágenes
-            </div>
-          )}
-        </div>
-      </div>
+      <StatCard
+        type="media"
+        icon="🖼️"
+        label="Imágenes"
+        value={metrics.productsWithImages}
+        percentage={metrics.imagesPercentage}
+        tip={
+          metrics.productsWithoutImages > 0
+            ? `${metrics.productsWithoutImages} productos sin imágenes`
+            : null
+        }
+      />
 
-      {/* TARJETA EXTRA: RESUMEN DESTACADOS */}
-      {(featuredProductsCount > 0 || offerProductsCount > 0) && (
-        <div className="dashboard-stat dashboard-stat--summary">
-          <div className="stat-content">
-            <div className="stat-header">
-              <div className="stat-header-main">
-                <div className="stat-icon">🚀</div>
-                <div className="stat-label">Marketing Activo</div>
-              </div>
-            </div>
-            <div className="stat-breakdown">
-              <div className="breakdown-item">
-                <div className="breakdown-info">
-                  <span className="breakdown-dot breakdown-dot--featured"></span>
-                  <span className="breakdown-text">Productos destacados</span>
-                </div>
-                <span className="breakdown-value">{featuredProductsCount}</span>
-              </div>
-              <div className="breakdown-item">
-                <div className="breakdown-info">
-                  <span className="breakdown-dot breakdown-dot--danger"></span>
-                  <span className="breakdown-text">Ofertas activas</span>
-                </div>
-                <span className="breakdown-value">{offerProductsCount}</span>
-              </div>
-            </div>
-            <div className="stat-trend stat-trend--positive">
-              <span className="trend-icon">📈</span>
-              <span className="trend-text">Estrategia de marketing activa</span>
-            </div>
-          </div>
-        </div>
+      {metrics.hasMarketing && (
+        <StatCard
+          type="summary"
+          icon="🚀"
+          label="Marketing Activo"
+          breakdown={[
+            {
+              type: "featured",
+              text: "Productos destacados",
+              value: metrics.featuredProductsCount,
+            },
+            {
+              type: "danger",
+              text: "Ofertas activas",
+              value: metrics.offerProductsCount,
+            },
+          ]}
+          trend={{
+            type: "positive",
+            icon: "📈",
+            text: "Estrategia de marketing activa",
+          }}
+        />
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   toggleProductPopular,
@@ -21,12 +21,11 @@ const FeaturedProductsManager = () => {
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [saving, setSaving] = useState(false);
 
-  // Cargar productos destacados al iniciar
   useEffect(() => {
     dispatch(getFeaturedProducts());
   }, [dispatch]);
 
-  // Obtener categorías únicas
+  // Memoizar categorías
   const categories = useMemo(() => {
     const uniqueCategories = [
       ...new Set(products.map((p) => p.category?.name).filter(Boolean)),
@@ -34,34 +33,47 @@ const FeaturedProductsManager = () => {
     return ["Todos", ...uniqueCategories];
   }, [products]);
 
-  // Filtrar productos
-  const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      const matchesSearch = product.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-      const matchesCategory =
-        selectedCategory === "Todos" ||
-        product.category?.name === selectedCategory;
-      return matchesSearch && matchesCategory;
-    });
-  }, [products, searchTerm, selectedCategory]);
+  // Memoizar productos filtrados
+  const filteredProducts = useMemo(
+    () =>
+      products.filter((product) => {
+        const matchesSearch = product.name
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+        const matchesCategory =
+          selectedCategory === "Todos" ||
+          product.category?.name === selectedCategory;
+        return matchesSearch && matchesCategory;
+      }),
+    [products, searchTerm, selectedCategory]
+  );
 
-  const isProductPopular = (productId) =>
-    featuredProducts.popular.includes(productId);
+  // Handlers optimizados
+  const isProductPopular = useCallback(
+    (productId) => featuredProducts.popular.includes(productId),
+    [featuredProducts.popular]
+  );
 
-  const isProductOnSale = (productId) =>
-    featuredProducts.onSale.includes(productId);
+  const isProductOnSale = useCallback(
+    (productId) => featuredProducts.onSale.includes(productId),
+    [featuredProducts.onSale]
+  );
 
-  const handleTogglePopular = (productId) => {
-    dispatch(toggleProductPopular(productId));
-  };
+  const handleTogglePopular = useCallback(
+    (productId) => {
+      dispatch(toggleProductPopular(productId));
+    },
+    [dispatch]
+  );
 
-  const handleToggleOnSale = (productId) => {
-    dispatch(toggleProductOnSale(productId));
-  };
+  const handleToggleOnSale = useCallback(
+    (productId) => {
+      dispatch(toggleProductOnSale(productId));
+    },
+    [dispatch]
+  );
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     setSaving(true);
     try {
       await dispatch(
@@ -73,7 +85,35 @@ const FeaturedProductsManager = () => {
     } finally {
       setSaving(false);
     }
-  };
+  }, [dispatch, featuredProducts]);
+
+  // Componente de producto reutilizable
+  const ProductItem = useCallback(
+    ({ product, isSelected, onToggle }) => (
+      <div
+        className={`product-item ${isSelected ? "selected" : ""}`}
+        onClick={() => onToggle(product.id)}
+      >
+        <img
+          src={product.image_url || "/default-product.png"}
+          alt={product.name}
+          className="product-image"
+          onError={(e) => {
+            e.target.src = "/default-product.png";
+          }}
+        />
+        <div className="product-info">
+          <span className="product-name">{product.name}</span>
+          <span className="product-category">
+            {product.category?.name || "Sin categoría"}
+          </span>
+          <span className="product-price">${product.price}</span>
+        </div>
+        <div className="selection-indicator">{isSelected ? "✓" : "+"}</div>
+      </div>
+    ),
+    []
+  );
 
   return (
     <div className="featured-products-manager">
@@ -118,7 +158,6 @@ const FeaturedProductsManager = () => {
         </button>
       </div>
 
-      {/* Filtro de búsqueda */}
       <SearchFilter
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
@@ -143,32 +182,12 @@ const FeaturedProductsManager = () => {
             </div>
             <div className="products-list">
               {filteredProducts.map((product) => (
-                <div
+                <ProductItem
                   key={product.id}
-                  className={`product-item ${
-                    isProductPopular(product.id) ? "selected" : ""
-                  }`}
-                  onClick={() => handleTogglePopular(product.id)}
-                >
-                  <img
-                    src={product.image_url || "/default-product.png"}
-                    alt={product.name}
-                    className="product-image"
-                    onError={(e) => {
-                      e.target.src = "/default-product.png";
-                    }}
-                  />
-                  <div className="product-info">
-                    <span className="product-name">{product.name}</span>
-                    <span className="product-category">
-                      {product.category?.name || "Sin categoría"}
-                    </span>
-                    <span className="product-price">${product.price}</span>
-                  </div>
-                  <div className="selection-indicator">
-                    {isProductPopular(product.id) ? "✓" : "+"}
-                  </div>
-                </div>
+                  product={product}
+                  isSelected={isProductPopular(product.id)}
+                  onToggle={handleTogglePopular}
+                />
               ))}
             </div>
           </div>
@@ -187,32 +206,12 @@ const FeaturedProductsManager = () => {
             </div>
             <div className="products-list">
               {filteredProducts.map((product) => (
-                <div
+                <ProductItem
                   key={product.id}
-                  className={`product-item ${
-                    isProductOnSale(product.id) ? "selected" : ""
-                  }`}
-                  onClick={() => handleToggleOnSale(product.id)}
-                >
-                  <img
-                    src={product.image_url || "/default-product.png"}
-                    alt={product.name}
-                    className="product-image"
-                    onError={(e) => {
-                      e.target.src = "/default-product.png";
-                    }}
-                  />
-                  <div className="product-info">
-                    <span className="product-name">{product.name}</span>
-                    <span className="product-category">
-                      {product.category?.name || "Sin categoría"}
-                    </span>
-                    <span className="product-price">${product.price}</span>
-                  </div>
-                  <div className="selection-indicator">
-                    {isProductOnSale(product.id) ? "✓" : "+"}
-                  </div>
-                </div>
+                  product={product}
+                  isSelected={isProductOnSale(product.id)}
+                  onToggle={handleToggleOnSale}
+                />
               ))}
             </div>
           </div>
