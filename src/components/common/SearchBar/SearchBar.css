@@ -1,9 +1,10 @@
-/* SearchBar.css - */
+/* SearchBar.css - SIN STICKY */
 
 .search-bar {
   position: relative;
   width: 100%;
   transition: all 0.3s ease;
+  margin-bottom: 1rem;
 }
 
 /* Contenedor principal para desktop */
@@ -58,25 +59,6 @@
   box-shadow: var(--shadow-md);
 }
 
-/* Estado inicial antes de aparecer */
-.search-bar:not(.search-bar--sticky) {
-  transform: translateY(0);
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* En sticky, ocultar la info de ubicación en móvil */
-
-@keyframes searchBarSlideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px); /* Reducido de -15px */
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .search-bar__icon {
   position: absolute;
   left: 0.75rem;
@@ -117,28 +99,9 @@
   border-color: var(--gray-300);
 }
 
-/* Efecto de "scroll indicator" más sutil */
-.search-bar--sticky::before {
-  content: "";
-  position: absolute;
-  bottom: -1px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    rgba(156, 163, 175, 0.6),
-    rgba(107, 114, 128, 0.6),
-    rgba(156, 163, 175, 0.6)
-  );
-  border-radius: 3px;
-  opacity: 0.7;
-}
-
 /* Responsive para móviles */
 @media (max-width: 768px) {
-  /* 🔥 NUEVO: Resetear el max-width para móvil */
+  /* Resetear el max-width para móvil */
   .search-bar__input-container {
     max-width: 100% !important;
     flex: 1 !important;
@@ -150,7 +113,7 @@
   }
 
   .search-bar__icon {
-    left: calc(1rem + 0.75rem);
+    left: 0.75rem;
     width: 1.25rem;
     height: 1.25rem;
   }
@@ -163,7 +126,7 @@
   /* Ajuste para pantallas muy pequeñas */
   @media (max-width: 480px) {
     .search-bar__icon {
-      left: calc(0.875rem + 0.625rem);
+      left: 0.75rem;
     }
   }
 }
@@ -173,28 +136,4 @@
   .search-bar--desktop .search-bar__content {
     max-width: 100%;
   }
-}
-
-/* Asegurar que el contenido no se solape - MEJORADO */
-.client-interface__content:has(.search-bar--sticky) {
-  padding-top: 60px;
-  transition: padding-top 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* MEJORA: Prevenir saltos bruscos en el contenido */
-.client-interface__content {
-  scroll-behavior: smooth;
-}
-
-/* MEJORA: Transición más suave para todos los elementos */
-.search-bar,
-.search-bar__input,
-.client-interface__content {
-  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* MEJORA: Estado focus más suave */
-.search-bar__input:focus {
-  transform: translateY(-1px);
-  transition: transform 0.2s ease;
 }

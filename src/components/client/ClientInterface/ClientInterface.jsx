@@ -1,5 +1,5 @@
 // components/client/ClientInterface/ClientInterface.jsx
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { loadAppConfig } from "../../../actions/appConfigActions";
 import { useProductsSync } from "../../../hooks/useProductsSync";
 import { useSelector } from "react-redux";
@@ -80,7 +80,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  // SIMPLIFICAR handleSearchClick:
+  // ✅ Manejar click en búsqueda desde Bottom Navigation
   const handleSearchClick = () => {
     const searchInput = document.querySelector(
       ".client-interface__search-section input"
@@ -91,7 +91,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
     }
   };
 
-  // ✅ NUEVO: Manejar cambio de sección desde Bottom Navigation
+  // ✅ Manejar cambio de sección desde Bottom Navigation
   const handleSectionChange = (sectionId) => {
     setActiveSection(sectionId);
     // Scroll al top cuando cambias de sección
@@ -522,13 +522,12 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
 
   // ✅ RENDERIZADO PARA MÓVIL
   const renderMobileLayout = () => (
-    <div className={`client-interface__content mobile-layout`}>
-      {/* Search Bar - ahora con ref y condición sticky */}
-      <div ref={searchBarRef} className="client-interface__search-section">
+    <div className="client-interface__content mobile-layout">
+      {/* Search Bar */}
+      <div className="client-interface__search-section">
         <SearchBar
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
-          isSticky={isSearchSticky}
           isDesktop={false}
           appConfig={appConfig}
         />
@@ -607,14 +606,11 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
       {renderContactSection()}
       {renderOffersSection()}
 
-      {/* Sección de productos - con ref para detectar scroll */}
+      {/* Sección de productos */}
       {(activeSection === "todos" ||
         activeSection === "populares" ||
         activeSection === "ofertas") && (
-        <div
-          ref={productsSectionRef}
-          className="client-interface__products-section"
-        >
+        <div className="client-interface__products-section">
           <ProductGrid
             products={getProductsToShow()}
             onWhatsAppClick={handleWhatsAppClick}
@@ -667,7 +663,6 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
           currentView={currentView}
           onViewChange={onViewChange}
           onAdminClick={onShowLoginForm}
-          // ✅ NUEVAS PROPS PARA EL BOTTOM NAVIGATION MEJORADO
           categories={categoryOptions}
           selectedCategory={selectedCategory}
           onCategoryChange={setSelectedCategory}

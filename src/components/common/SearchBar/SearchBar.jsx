@@ -1,5 +1,4 @@
 import { Search } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
 import { HiOutlineLocationMarker } from "react-icons/hi";
 import "./SearchBar.css";
 
