@@ -211,26 +211,35 @@ const AdminInterface = ({ onLogout }) => {
       {/* Header Mejorado */}
       <Header>
         <div className="admin-header__content">
-          <div className="admin-header__brand">
-            <div className="admin-header__icon-wrapper">
-              <HiOutlineShieldCheck className="admin-header__icon" />
-            </div>
-            <div className="admin-header__text">
-              <h1 className="admin-header__title">Panel de Administración</h1>
-              <p className="admin-header__subtitle">
-                Gestión completa de tu tienda
-              </p>
+          {/* Lado izquierdo - Brand y título */}
+          <div className="admin-header__left">
+            <div className="admin-header__brand">
+              <div className="admin-header__icon-wrapper">
+                <HiOutlineShieldCheck className="admin-header__icon" />
+              </div>
+              <div className="admin-header__text">
+                <h1 className="admin-header__title">Panel de Administración</h1>
+                <p className="admin-header__subtitle">
+                  Gestión completa de tu tienda
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="admin-interface__header-actions">
-            <div className="admin-header__user">
+          {/* Lado derecho - Acciones y usuario */}
+          <div className="admin-header__right">
+            <div className="admin-header__user-info">
               <HiOutlineUserCircle className="admin-header__user-icon" />
-              <span className="admin-header__user-text">Administrador</span>
+              <div className="admin-header__user-details">
+                <span className="admin-header__user-name">Administrador</span>
+                <span className="admin-header__user-role">Super Admin</span>
+              </div>
             </div>
+
             <button
               className="admin-interface__mobile-menu"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Menú de navegación"
             >
               {isMobileMenuOpen ? <HiOutlineX /> : <HiOutlineMenu />}
             </button>

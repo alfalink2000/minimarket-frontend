@@ -9,13 +9,22 @@
   );
 }
 
-/* Header Mejorado */
+/* Header Mejorado - ESTRUCTURA PROFESIONAL */
 .admin-header__content {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 0 1rem;
+  padding: 0 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Lado izquierdo - Brand */
+.admin-header__left {
+  display: flex;
+  align-items: center;
+  flex: 1;
 }
 
 .admin-header__brand {
@@ -28,8 +37,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   background: linear-gradient(
     135deg,
     var(--primary-blue) 0%,
@@ -37,11 +46,17 @@
   );
   border-radius: 12px;
   box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+}
+
+.admin-header__icon-wrapper:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
 }
 
 .admin-header__icon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   color: var(--white);
 }
 
@@ -52,7 +67,7 @@
 }
 
 .admin-header__title {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--gray-800);
   margin: 0;
@@ -64,6 +79,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  line-height: 1.2;
 }
 
 .admin-header__subtitle {
@@ -71,60 +87,95 @@
   color: var(--gray-500);
   font-weight: 500;
   margin: 0;
+  letter-spacing: 0.025em;
 }
 
-.admin-header__user {
+/* Lado derecho - User Info y Menu */
+.admin-header__right {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1.5rem;
+}
+
+/* Información del usuario mejorada */
+.admin-header__user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   padding: 0.5rem 1rem;
-  background: var(--gray-100);
-  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius-xl);
   border: 1px solid var(--gray-200);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.admin-header__user-info:hover {
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--gray-300);
 }
 
 .admin-header__user-icon {
-  width: 1.125rem;
-  height: 1.125rem;
+  width: 1.5rem;
+  height: 1.5rem;
   color: var(--primary-blue);
+  flex-shrink: 0;
 }
 
-.admin-header__user-text {
+.admin-header__user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.admin-header__user-name {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--gray-700);
+  color: var(--gray-800);
+  line-height: 1.2;
 }
 
-.admin-interface__header-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+.admin-header__user-role {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
+/* Botón de menú móvil mejorado */
 .admin-interface__mobile-menu {
   display: none;
-  background: none;
-  border: none;
+  background: var(--white);
+  border: 1px solid var(--gray-300);
   color: var(--gray-600);
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: var(--radius);
-  transition: all 0.2s ease;
+  padding: 0.625rem;
+  border-radius: var(--radius-lg);
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
 }
 
 .admin-interface__mobile-menu:hover {
-  background: var(--gray-100);
+  background: var(--gray-50);
   color: var(--gray-800);
+  border-color: var(--gray-400);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
 }
 
-/* Eliminamos los estilos del botón de logout del header */
+.admin-interface__mobile-menu:active {
+  transform: translateY(0);
+}
+
+/* Eliminar cualquier estilo de logout del header que pueda interferir */
 .admin-interface__logout-button {
-  display: none;
-}
-
-.logout-icon {
-  width: 1.125rem;
-  height: 1.125rem;
+  display: none !important;
 }
 
 /* Layout Principal */
@@ -134,7 +185,7 @@
   position: relative;
 }
 
-/* Sidebar Navigation - MODIFICADO PARA SER FIXED */
+/* Sidebar Navigation - MANTENEMOS LOS ESTILOS EXISTENTES PERO MEJORAMOS */
 .admin-sidebar {
   width: 280px;
   background: linear-gradient(135deg, var(--white) 0%, var(--gray-50) 100%);
@@ -162,6 +213,8 @@
   font-weight: 600;
   color: var(--gray-700);
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .admin-sidebar__menu {
@@ -210,6 +263,7 @@
 .admin-sidebar__item:hover {
   color: var(--primary-blue);
   transform: translateX(4px);
+  background: var(--gray-50);
 }
 
 .admin-sidebar__item--active {
@@ -267,6 +321,7 @@
   flex-shrink: 0;
   position: relative;
   z-index: 2;
+  transition: color 0.3s ease;
 }
 
 .admin-sidebar__label {
@@ -275,7 +330,7 @@
   font-weight: 500;
 }
 
-/* Main Content Area - MODIFICADO PARA COMPENSAR EL SIDEBAR FIXED */
+/* Main Content Area */
 .admin-main {
   flex: 1;
   padding: 2rem;
@@ -403,6 +458,10 @@
     width: calc(100% - 240px);
     padding: 1.5rem;
   }
+
+  .admin-header__content {
+    padding: 0 1rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -411,7 +470,7 @@
   }
 
   .admin-header__content {
-    padding: 0 0.5rem;
+    padding: 0 1rem;
   }
 
   .admin-header__brand {
@@ -429,15 +488,19 @@
   }
 
   .admin-header__title {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   .admin-header__subtitle {
     font-size: 0.7rem;
   }
 
-  .admin-header__user-text {
+  .admin-header__user-details {
     display: none;
+  }
+
+  .admin-header__user-info {
+    padding: 0.5rem;
   }
 
   .admin-sidebar {
@@ -482,6 +545,10 @@
     margin-bottom: 1rem;
   }
 
+  .admin-header__content {
+    padding: 0 0.75rem;
+  }
+
   .admin-header__brand {
     gap: 0.5rem;
   }
@@ -497,10 +564,41 @@
   }
 
   .admin-header__title {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
   .admin-header__subtitle {
     font-size: 0.65rem;
   }
+
+  .admin-header__right {
+    gap: 1rem;
+  }
+}
+
+/* Estados de focus para accesibilidad */
+.admin-interface__mobile-menu:focus-visible,
+.admin-sidebar__item:focus-visible,
+.admin-section__add-button:focus-visible {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 2px;
+}
+
+/* Scrollbar personalizado para sidebar */
+.admin-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+  background: var(--gray-100);
+  border-radius: 3px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 3px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
 }
