@@ -98,67 +98,76 @@ export const updateCategory = (oldName, newName) => {
   };
 };
 
+// Si el backend solo envía un mensaje de error sin la lista de productos
 export const deleteCategory = (categoryName) => {
   return async (dispatch) => {
     try {
-      // ✅ CONFIRMACIÓN MEJORADA CON SWAL
       const result = await Swal.fire({
         title: "¿Estás seguro?",
-        text: `Vas a eliminar la categoría "${categoryName}"`,
+        html: `Vas a eliminar la categoría: <strong>"${categoryName}"</strong>`,
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
+        confirmButtonColor: "#ef4444",
+        cancelButtonColor: "#6b7280",
         confirmButtonText: "Sí, eliminar",
         cancelButtonText: "Cancelar",
       });
 
-      if (!result.isConfirmed) {
-        return;
-      }
-
-      console.log("🗑️ [DEBUG] deleteCategory - Eliminando:", categoryName);
+      if (!result.isConfirmed) return;
 
       const body = await fetchAPIConfig(
-        `categories/delete/${encodeURIComponent(categoryName)}`, // ✅ CORREGIDO: encodeURIComponent
+        `categories/delete/${encodeURIComponent(categoryName)}`,
         {},
         "DELETE"
       );
 
       if (body.ok) {
-        dispatch({
-          type: types.categoryDeleted,
-          payload: categoryName,
-        });
-        Swal.fire("¡Éxito!", "Categoría eliminada correctamente", "success");
+        dispatch({ type: types.categoryDeleted, payload: categoryName });
+        Swal.fire(
+          "¡Eliminada!",
+          "Categoría eliminada correctamente",
+          "success"
+        );
       } else {
-        // ✅ MANEJO ESPECÍFICO PARA CATEGORÍAS CON PRODUCTOS
-        if (body.msg && body.msg.includes("producto(s) asociado(s)")) {
+        // ✅ DETECTAR SI ES POR PRODUCTOS ASOCIADOS
+        const errorMsg = body.msg?.toLowerCase() || "";
+        const hasProducts =
+          errorMsg.includes("producto") ||
+          errorMsg.includes("asociado") ||
+          body.status === 400;
+
+        if (hasProducts) {
           Swal.fire({
             icon: "error",
             title: "No se puede eliminar",
             html: `
-              <div>
-                <p><strong>${categoryName}</strong> no se puede eliminar porque tiene productos asociados.</p>
-                ${
-                  body.products
-                    ? `<p class="mt-2"><strong>Productos:</strong> ${body.products
-                        .map((p) => p.name)
-                        .join(", ")}</p>`
-                    : ""
-                }
-                <p class="mt-3 text-sm">Elimine o reassigne los productos antes de eliminar la categoría.</p>
+              <div style="text-align: center;">
+                <p>La categoría <strong>"${categoryName}"</strong> contiene productos.</p>
+                <p style="color: #6b7280; font-size: 0.9rem; margin-top: 10px;">
+                  ⚠️ Elimina o reasigna los productos antes de eliminar la categoría.
+                </p>
               </div>
             `,
             confirmButtonText: "Entendido",
           });
         } else {
-          Swal.fire("Error", body.msg, "error");
+          Swal.fire("Error", body.msg || "Error al eliminar", "error");
         }
       }
     } catch (error) {
       console.error("Error eliminando categoría:", error);
-      Swal.fire("Error", "Error de conexión al eliminar la categoría", "error");
+
+      // ✅ DETECTAR ERROR 400 EN EL CATCH
+      if (error.message?.includes("400")) {
+        Swal.fire({
+          icon: "error",
+          title: "No se puede eliminar",
+          html: `La categoría <strong>"${categoryName}"</strong> tiene productos asociados. Elimina los productos primero.`,
+          confirmButtonText: "Entendido",
+        });
+      } else {
+        Swal.fire("Error", "Error de conexión", "error");
+      }
     }
   };
 };
