@@ -1,10 +1,6 @@
-// components/client/ClientInterface/ClientInterface.jsx
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { useProductsSync } from "../../../hooks/useProductsSync";
-import { HiOutlineInformationCircle } from "react-icons/hi"; // ✅ NUEVO ICONO
-import InitialInfoModal from "../../common/InitialInfoModal/InitialInfoModal"; // ✅ NUEVO MODAL
-import { useSelector } from "react-redux";
-
 import {
   HiOutlineShoppingBag,
   HiOutlineFire,
@@ -16,21 +12,20 @@ import {
   HiOutlineSearch,
   HiOutlineStar,
   HiOutlineCog,
+  HiOutlineInformationCircle,
 } from "react-icons/hi";
-import { useDispatch } from "react-redux";
+
+// Components
 import Header from "../../common/Header/Header";
 import SearchBar from "../../common/SearchBar/SearchBar";
 import CategoryFilter from "../../common/CategoryFilter/CategoryFilter";
 import ProductGrid from "../ProductGrid/ProductGrid";
 import ProductDetail from "../ProductDetail/ProductDetail";
 import BottomNavigation from "../../common/BottomNavigation/BottomNavigation";
+import InitialInfoModal from "../../common/InitialInfoModal/InitialInfoModal";
+
+// Actions & Selectors
 import { loadFeaturedProducts } from "../../../actions/featuredProductsActions";
-import image from "../../../assets/images/shop.png";
-
-import "./ClientInterface.css";
-import "./ClientInterface.desktop.css";
-
-// Importar selectores memoizados
 import {
   selectProducts,
   selectCategories,
@@ -40,20 +35,34 @@ import {
   selectFeaturedProducts,
 } from "../../../selectors/productSelectors";
 
+import image from "../../../assets/images/shop.png";
+import "./ClientInterface.css";
+import "./ClientInterface.desktop.css";
+
+// Constantes para evitar recreación
+const SECTIONS = {
+  TODOS: "todos",
+  POPULARES: "populares",
+  OFERTAS: "ofertas",
+  CONTACTO: "contacto",
+};
+
+const PRODUCT_SECTIONS = [SECTIONS.TODOS, SECTIONS.POPULARES, SECTIONS.OFETAS];
+
 const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
   // 🔄 SINCRONIZACIÓN AUTOMÁTICA DE PRODUCTOS
   useProductsSync(30000);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
-  const [activeSection, setActiveSection] = useState("todos");
+  const [activeSection, setActiveSection] = useState(SECTIONS.TODOS);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isDesktop, setIsDesktop] = useState(false);
-  const [showInfoModal, setShowInfoModal] = useState(false); // ✅ NUEVO ESTADO
+  const [showInfoModal, setShowInfoModal] = useState(false);
 
   const dispatch = useDispatch();
 
-  // ✅ VERIFICAR QUE TENEMOS DATOS ANTES DE RENDERIZAR
+  // Selectores memoizados
   const products = useSelector(selectProducts);
   const categories = useSelector(selectCategories);
   const popularProducts = useSelector(selectPopularProducts);
@@ -62,22 +71,17 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
   const featuredProducts = useSelector(selectFeaturedProducts);
   const appConfig = useSelector((state) => state.appConfig.config);
 
-  // ✅ EFECTO PARA MOSTRAR MODAL AL INICIAR (si está configurado)
+  // ✅ EFECTO PARA MOSTRAR MODAL AL INICIAR
   useEffect(() => {
     if (appConfig?.show_initialinfo !== false) {
-      // Mostrar después de un pequeño delay para mejor UX
-      const timer = setTimeout(() => {
-        setShowInfoModal(true);
-      }, 1000);
-
+      const timer = setTimeout(() => setShowInfoModal(true), 1000);
       return () => clearTimeout(timer);
     }
   }, [appConfig?.show_initialinfo]);
 
-  // ✅ EFECTO PARA CARGAR DATOS ADICIONALES (SOLO SI NO EXISTEN)
+  // ✅ EFECTO PARA CARGAR DATOS ADICIONALES
   useEffect(() => {
     if (products.length === 0 || categories.length === 0) {
-      console.log("🔄 ClientInterface: Cargando datos adicionales...");
       dispatch(loadFeaturedProducts());
     }
   }, [dispatch, products.length, categories.length]);
@@ -90,43 +94,59 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
 
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
-
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  // ✅ NUEVO: Componente de información
-  const InfoButton = () => (
-    <button
-      className="header-action header-action--icon"
-      title="Información de la tienda"
-      onClick={() => setShowInfoModal(true)}
-    >
-      <HiOutlineInformationCircle className="header-action__icon" />
-    </button>
-  );
-
-  // ✅ Manejar click en búsqueda desde Bottom Navigation
-  const handleSearchClick = () => {
+  // ✅ Handlers optimizados con useCallback
+  const handleSearchClick = useCallback(() => {
     const searchInput = document.querySelector(
       ".client-interface__search-section input"
     );
+    searchInput?.focus();
+  }, []);
 
-    if (searchInput) {
-      searchInput.focus();
-    }
-  };
-
-  // ✅ Manejar cambio de sección desde Bottom Navigation
-  const handleSectionChange = (sectionId) => {
+  const handleSectionChange = useCallback((sectionId) => {
     setActiveSection(sectionId);
-    // Scroll al top cuando cambias de sección
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  }, []);
 
-  // ✅ BOTÓN FLOTANTE DE WHATSAPP
-  const FloatingWhatsAppButton = () => {
+  const handleProductClick = useCallback((product) => {
+    setSelectedProduct(product);
+  }, []);
+
+  const handleBackFromDetail = useCallback(() => {
+    setSelectedProduct(null);
+  }, []);
+
+  const handleWhatsAppClick = useCallback(
+    (productName) => {
+      const phoneNumber = appConfig?.whatsapp_number || "5491112345678";
+      const message = `¡Hola! Estoy interesado en el producto: ${productName} que vi en su catálogo online. ¿Podrían ayudarme?`;
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+        message
+      )}`;
+      window.open(whatsappUrl, "_blank");
+    },
+    [appConfig?.whatsapp_number]
+  );
+
+  // ✅ Componentes memoizados
+  const InfoButton = useCallback(
+    () => (
+      <button
+        className="header-action header-action--icon"
+        title="Información de la tienda"
+        onClick={() => setShowInfoModal(true)}
+      >
+        <HiOutlineInformationCircle className="header-action__icon" />
+      </button>
+    ),
+    []
+  );
+
+  const FloatingWhatsAppButton = useCallback(() => {
     const handleWhatsAppClick = () => {
-      const phoneNumber = appConfig.whatsapp_number || "5491112345678";
+      const phoneNumber = appConfig?.whatsapp_number || "5491112345678";
       const message = `¡Hola! Me gustaría obtener más información sobre sus productos y servicios. ¿Podrían ayudarme?`;
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
         message
@@ -152,16 +172,14 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
         <div className="whatsapp-pulse"></div>
       </button>
     );
-  };
-  const TitleWithIcon = () => {
-    // Función para manejar errores de carga de imagen
+  }, [appConfig?.whatsapp_number]);
+
+  const TitleWithIcon = useCallback(() => {
     const handleImageError = (e) => {
-      console.log("❌ Error cargando logo desde URL, usando logo local");
-      e.target.src = image; // Fallback al logo local
-      e.target.onerror = null; // Prevenir bucles infinitos
+      e.target.src = image;
+      e.target.onerror = null;
     };
 
-    // Función para verificar si la URL del logo es válida
     const isValidLogoUrl = (url) => {
       if (!url) return false;
       try {
@@ -181,83 +199,75 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
       <div className="header-title-with-icon">
         <img
           src={shouldUseCustomLogo ? logoUrl : image}
-          alt={`Logo ${appConfig.app_name}`}
+          alt={`Logo ${appConfig?.app_name}`}
           className="header-icon"
           onError={handleImageError}
           loading="lazy"
         />
         <div className="header-text">
-          <span className="header-main-title">{appConfig.app_name}</span>
-          <span className="header-subtitle">{appConfig.app_description}</span>
+          <span className="header-main-title">{appConfig?.app_name}</span>
+          <span className="header-subtitle">{appConfig?.app_description}</span>
         </div>
       </div>
     );
-  };
+  }, [appConfig]);
 
-  // ✅ Navegación para desktop que va dentro del Header
-  const DesktopNavigation = () => (
-    <div className="desktop-navigation">
-      {/* Botón de información - NUEVO */}
-      <InfoButton />
-      {/* Botón de búsqueda avanzada */}
-      <button
-        className="header-action header-action--icon"
-        title="Búsqueda avanzada"
-        onClick={() => document.querySelector(".desktop-search input")?.focus()}
-      >
-        <HiOutlineSearch className="header-action__icon" />
-      </button>
-
-      {/* Botón de favoritos */}
-      <button
-        className="header-action header-action--icon"
-        title="Productos destacados"
-        onClick={() => setActiveSection("populares")}
-      >
-        <HiOutlineStar className="header-action__icon" />
-      </button>
-
-      {/* Botón de ofertas */}
-      <button
-        className="header-action header-action--icon"
-        title="Ofertas especiales"
-        onClick={() => setActiveSection("ofertas")}
-      >
-        <HiOutlineTag className="header-action__icon" />
-      </button>
-
-      {/* Separador visual */}
-      <div className="header-separator"></div>
-
-      {/* Botón de contacto rápido */}
-      <button
-        className="header-action header-action--icon"
-        title="Contacto rápido"
-        onClick={() => setActiveSection("contacto")}
-      >
-        <HiOutlinePhone className="header-action__icon" />
-      </button>
-
-      {/* Botón de administración */}
-      <button
-        onClick={onShowLoginForm}
-        className="header-action header-action--admin"
-        title="Panel de administración"
-      >
-        <HiOutlineCog className="header-action__icon" />
-        <span className="header-action__text">Admin</span>
-      </button>
-    </div>
+  const DesktopNavigation = useCallback(
+    () => (
+      <div className="desktop-navigation">
+        <InfoButton />
+        <button
+          className="header-action header-action--icon"
+          title="Búsqueda avanzada"
+          onClick={() =>
+            document.querySelector(".desktop-search input")?.focus()
+          }
+        >
+          <HiOutlineSearch className="header-action__icon" />
+        </button>
+        <button
+          className="header-action header-action--icon"
+          title="Productos destacados"
+          onClick={() => setActiveSection(SECTIONS.POPULARES)}
+        >
+          <HiOutlineStar className="header-action__icon" />
+        </button>
+        <button
+          className="header-action header-action--icon"
+          title="Ofertas especiales"
+          onClick={() => setActiveSection(SECTIONS.OFETAS)}
+        >
+          <HiOutlineTag className="header-action__icon" />
+        </button>
+        <div className="header-separator"></div>
+        <button
+          className="header-action header-action--icon"
+          title="Contacto rápido"
+          onClick={() => setActiveSection(SECTIONS.CONTACTO)}
+        >
+          <HiOutlinePhone className="header-action__icon" />
+        </button>
+        <button
+          onClick={onShowLoginForm}
+          className="header-action header-action--admin"
+          title="Panel de administración"
+        >
+          <HiOutlineCog className="header-action__icon" />
+          <span className="header-action__text">Admin</span>
+        </button>
+      </div>
+    ),
+    [onShowLoginForm]
   );
 
   // ✅ FILTRADO CORREGIDO Y MEMOIZADO
   const filteredProducts = useMemo(() => {
     const productsToFilter =
-      activeSection === "todos"
+      activeSection === SECTIONS.TODOS
         ? products
-        : activeSection === "populares"
+        : activeSection === SECTIONS.POPULARES
         ? popularProducts
-        : activeSection === "ofertas"
+        : activeSection === SECTIONS.OFETAS
         ? offerProducts
         : products;
 
@@ -283,38 +293,22 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
   ]);
 
   // ✅ FUNCIÓN MEJORADA PARA OBTENER PRODUCTOS
-  const getProductsToShow = () => {
-    return filteredProducts;
-  };
+  const getProductsToShow = useCallback(
+    () => filteredProducts,
+    [filteredProducts]
+  );
 
-  const handleProductClick = (product) => {
-    setSelectedProduct(product);
-  };
-
-  const handleBackFromDetail = () => {
-    setSelectedProduct(null);
-  };
-
-  const handleWhatsAppClick = (productName) => {
-    const phoneNumber = appConfig.whatsapp_number || "5491112345678";
-    const message = `¡Hola! Estoy interesado en el producto: ${productName} que vi en su catálogo online. ¿Podrían ayudarme?`;
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
-      message
-    )}`;
-    window.open(whatsappUrl, "_blank");
-  };
-
-  // ✅ OBTENER CONTADOR DE PRODUCTOS PARA CADA SECCIÓN
-  const getProductsCount = () => {
+  // ✅ OBTENER CONTADOR DE PRODUCTOS
+  const getProductsCount = useCallback(() => {
     const productsToShow = getProductsToShow();
     return `${productsToShow.length} ${
       productsToShow.length === 1 ? "producto" : "productos"
     }`;
-  };
+  }, [getProductsToShow]);
 
-  // ✅ RENDERIZAR SECCIÓN DE PRODUCTOS POPULARES
-  const renderPopularSection = () => {
-    if (activeSection !== "populares") return null;
+  // ✅ COMPONENTES DE SECCIÓN MEMOIZADOS
+  const renderPopularSection = useMemo(() => {
+    if (activeSection !== SECTIONS.POPULARES) return null;
 
     return (
       <div className="popular-section">
@@ -366,11 +360,10 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
         )}
       </div>
     );
-  };
+  }, [activeSection, popularProducts]);
 
-  // ✅ RENDERIZAR SECCIÓN DE OFERTAS
-  const renderOffersSection = () => {
-    if (activeSection !== "ofertas") return null;
+  const renderOffersSection = useMemo(() => {
+    if (activeSection !== SECTIONS.OFETAS) return null;
 
     return (
       <div className="offers-section">
@@ -419,11 +412,10 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
         )}
       </div>
     );
-  };
+  }, [activeSection, offerProducts]);
 
-  // ✅ RENDERIZAR SECCIÓN DE CONTACTO
-  const renderContactSection = () => {
-    if (activeSection !== "contacto") return null;
+  const renderContactSection = useMemo(() => {
+    if (activeSection !== SECTIONS.CONTACTO) return null;
 
     return (
       <div className="contact-section">
@@ -439,246 +431,225 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
               <HiOutlinePhone className="contact-item-icon" />
               WhatsApp:
             </span>
-            <span className="contact-value">{appConfig.whatsapp_number}</span>
+            <span className="contact-value">{appConfig?.whatsapp_number}</span>
           </div>
           <div className="contact-item">
             <span className="contact-label">
               <HiOutlineClock className="contact-item-icon" />
               Horario:
             </span>
-            <span className="contact-value">{appConfig.business_hours}</span>
+            <span className="contact-value">{appConfig?.business_hours}</span>
           </div>
           <div className="contact-item">
             <span className="contact-label">
               <HiOutlineLocationMarker className="contact-item-icon" />
               Dirección:
             </span>
-            <span className="contact-value">{appConfig.business_address}</span>
+            <span className="contact-value">{appConfig?.business_address}</span>
           </div>
         </div>
       </div>
     );
-  };
+  }, [activeSection, appConfig]);
 
-  // ✅ RENDERIZADO PARA DESKTOP
-  const renderDesktopLayout = () => (
-    <div className="client-interface__content desktop-layout">
-      {/* Barra de búsqueda */}
-      <div className="client-interface__search-section desktop-search">
-        <SearchBar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          isDesktop={true}
-          appConfig={appConfig}
-        />
-      </div>
-
-      {/* Sidebar con navegación y filtros */}
-      <div className="desktop-sidebar">
-        {/* Navegación por secciones en sidebar */}
-        <div className="desktop-sections-nav">
-          <button
-            className={`desktop-section-button ${
-              activeSection === "todos" ? "desktop-section-button--active" : ""
-            }`}
-            onClick={() => setActiveSection("todos")}
-          >
-            <HiOutlineShoppingBag className="desktop-section-icon" />
-            <span className="desktop-section-text">Todos los Productos</span>
-            <span className="desktop-section-badge">{products.length}</span>
-          </button>
-
-          <button
-            className={`desktop-section-button ${
-              activeSection === "populares"
-                ? "desktop-section-button--active"
-                : ""
-            }`}
-            onClick={() => setActiveSection("populares")}
-          >
-            <HiOutlineFire className="desktop-section-icon" />
-            <span className="desktop-section-text">Populares</span>
-            <span className="desktop-section-badge">
-              {popularProducts.length}
-            </span>
-          </button>
-
-          <button
-            className={`desktop-section-button ${
-              activeSection === "ofertas"
-                ? "desktop-section-button--active"
-                : ""
-            }`}
-            onClick={() => setActiveSection("ofertas")}
-          >
-            <HiOutlineTag className="desktop-section-icon" />
-            <span className="desktop-section-text">Ofertas</span>
-            <span className="desktop-section-badge">
-              {offerProducts.length}
-            </span>
-          </button>
-
-          <button
-            className={`desktop-section-button ${
-              activeSection === "contacto"
-                ? "desktop-section-button--active"
-                : ""
-            }`}
-            onClick={() => setActiveSection("contacto")}
-          >
-            <HiOutlinePhone className="desktop-section-icon" />
-            <span className="desktop-section-text">Contacto</span>
-          </button>
+  // ✅ RENDERIZADO PARA DESKTOP OPTIMIZADO
+  const renderDesktopLayout = useMemo(
+    () => (
+      <div className="client-interface__content desktop-layout">
+        <div className="client-interface__search-section desktop-search">
+          <SearchBar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            isDesktop={true}
+            appConfig={appConfig}
+          />
         </div>
 
-        {/* Filtros de categoría - SOLO para secciones de productos */}
-        {(activeSection === "todos" ||
-          activeSection === "populares" ||
-          activeSection === "ofertas") && (
-          <div className="desktop-filters">
-            <div className="filters-header desktop-filters-header">
-              <h3 className="filters-title">Filtrar por Categoría</h3>
+        <div className="desktop-sidebar">
+          <div className="desktop-sections-nav">
+            {[
+              {
+                id: SECTIONS.TODOS,
+                icon: HiOutlineShoppingBag,
+                label: "Todos los Productos",
+                count: products.length,
+              },
+              {
+                id: SECTIONS.POPULARES,
+                icon: HiOutlineFire,
+                label: "Populares",
+                count: popularProducts.length,
+              },
+              {
+                id: SECTIONS.OFETAS,
+                icon: HiOutlineTag,
+                label: "Ofertas",
+                count: offerProducts.length,
+              },
+              {
+                id: SECTIONS.CONTACTO,
+                icon: HiOutlinePhone,
+                label: "Contacto",
+              },
+            ].map(({ id, icon: Icon, label, count }) => (
+              <button
+                key={id}
+                className={`desktop-section-button ${
+                  activeSection === id ? "desktop-section-button--active" : ""
+                }`}
+                onClick={() => setActiveSection(id)}
+              >
+                <Icon className="desktop-section-icon" />
+                <span className="desktop-section-text">{label}</span>
+                {count !== undefined && (
+                  <span className="desktop-section-badge">{count}</span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          {PRODUCT_SECTIONS.includes(activeSection) && (
+            <div className="desktop-filters">
+              <div className="filters-header desktop-filters-header">
+                <h3 className="filters-title">Filtrar por Categoría</h3>
+                <span className="products-count">{getProductsCount()}</span>
+              </div>
+              <div className="desktop-category-filter">
+                <CategoryFilter
+                  categories={categoryOptions}
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={setSelectedCategory}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="desktop-main-content">
+          {activeSection === SECTIONS.POPULARES && renderPopularSection}
+          {activeSection === SECTIONS.OFETAS && renderOffersSection}
+          {activeSection === SECTIONS.CONTACTO && renderContactSection}
+
+          {PRODUCT_SECTIONS.includes(activeSection) && (
+            <div className="desktop-products-section">
+              <ProductGrid
+                products={getProductsToShow()}
+                onWhatsAppClick={handleWhatsAppClick}
+                onProductClick={handleProductClick}
+                isOfferSection={activeSection === SECTIONS.OFETAS}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    ),
+    [
+      searchTerm,
+      appConfig,
+      activeSection,
+      products.length,
+      popularProducts.length,
+      offerProducts.length,
+      categoryOptions,
+      selectedCategory,
+      getProductsCount,
+      renderPopularSection,
+      renderOffersSection,
+      renderContactSection,
+      getProductsToShow,
+      handleWhatsAppClick,
+      handleProductClick,
+    ]
+  );
+
+  // ✅ RENDERIZADO PARA MÓVIL OPTIMIZADO
+  const renderMobileLayout = useMemo(
+    () => (
+      <div className="client-interface__content mobile-layout">
+        <div className="client-interface__search-section">
+          <SearchBar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            isDesktop={false}
+            appConfig={appConfig}
+          />
+        </div>
+
+        <div className="sections-navigation">
+          {[
+            { id: SECTIONS.TODOS, icon: HiOutlineShoppingBag, label: "Todos" },
+            { id: SECTIONS.POPULARES, icon: HiOutlineFire, label: "Populares" },
+            { id: SECTIONS.OFETAS, icon: HiOutlineTag, label: "Ofertas" },
+            { id: SECTIONS.CONTACTO, icon: HiOutlinePhone, label: "Contacto" },
+          ].map(({ id, icon: Icon, label }) => (
+            <button
+              key={id}
+              className={`nav-button ${activeSection === id ? "active" : ""}`}
+              onClick={() => setActiveSection(id)}
+            >
+              <Icon className="nav-icon" />
+              <span className="nav-text">{label}</span>
+            </button>
+          ))}
+        </div>
+
+        {PRODUCT_SECTIONS.includes(activeSection) && (
+          <>
+            <div className="filters-header">
+              <h3 className="filters-title">Categorías</h3>
+              <div className="header-ornament">
+                <span className="ornament-dot"></span>
+                <span className="ornament-dot"></span>
+                <span className="ornament-dot"></span>
+              </div>
               <span className="products-count">{getProductsCount()}</span>
             </div>
 
-            <div className="desktop-category-filter">
-              <CategoryFilter
-                categories={categoryOptions}
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
-              />
+            <div className="client-interface__filters-section">
+              <div className="filters-container">
+                <CategoryFilter
+                  categories={categoryOptions}
+                  selectedCategory={selectedCategory}
+                  onCategoryChange={setSelectedProduct}
+                />
+              </div>
             </div>
-          </div>
+          </>
         )}
-      </div>
 
-      {/* Contenido principal */}
-      <div className="desktop-main-content">
-        {/* Renderizar sección activa */}
-        {activeSection === "populares" && renderPopularSection()}
-        {activeSection === "ofertas" && renderOffersSection()}
-        {activeSection === "contacto" && renderContactSection()}
+        {renderPopularSection}
+        {renderContactSection}
+        {renderOffersSection}
 
-        {/* Grid de productos para secciones de productos */}
-        {(activeSection === "todos" ||
-          activeSection === "populares" ||
-          activeSection === "ofertas") && (
-          <div className="desktop-products-section">
+        {PRODUCT_SECTIONS.includes(activeSection) && (
+          <div className="client-interface__products-section">
             <ProductGrid
               products={getProductsToShow()}
               onWhatsAppClick={handleWhatsAppClick}
               onProductClick={handleProductClick}
-              isOfferSection={activeSection === "ofertas"}
+              isOfferSection={activeSection === SECTIONS.OFETAS}
             />
           </div>
         )}
       </div>
-    </div>
+    ),
+    [
+      searchTerm,
+      appConfig,
+      activeSection,
+      categoryOptions,
+      selectedCategory,
+      getProductsCount,
+      renderPopularSection,
+      renderContactSection,
+      renderOffersSection,
+      getProductsToShow,
+      handleWhatsAppClick,
+      handleProductClick,
+    ]
   );
 
-  // ✅ RENDERIZADO PARA MÓVIL
-  const renderMobileLayout = () => (
-    <div className="client-interface__content mobile-layout">
-      {/* Search Bar */}
-      <div className="client-interface__search-section">
-        <SearchBar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          isDesktop={false}
-          appConfig={appConfig}
-        />
-      </div>
-
-      {/* Navegación por secciones */}
-      <div className="sections-navigation">
-        <button
-          className={`nav-button ${activeSection === "todos" ? "active" : ""}`}
-          onClick={() => setActiveSection("todos")}
-        >
-          <HiOutlineShoppingBag className="nav-icon" />
-          <span className="nav-text">Todos</span>
-        </button>
-
-        <button
-          className={`nav-button ${
-            activeSection === "populares" ? "active" : ""
-          }`}
-          onClick={() => setActiveSection("populares")}
-        >
-          <HiOutlineFire className="nav-icon" />
-          <span className="nav-text">Populares</span>
-        </button>
-
-        <button
-          className={`nav-button ${
-            activeSection === "ofertas" ? "active" : ""
-          }`}
-          onClick={() => setActiveSection("ofertas")}
-        >
-          <HiOutlineTag className="nav-icon" />
-          <span className="nav-text">Ofertas</span>
-        </button>
-
-        <button
-          className={`nav-button ${
-            activeSection === "contacto" ? "active" : ""
-          }`}
-          onClick={() => setActiveSection("contacto")}
-        >
-          <HiOutlinePhone className="nav-icon" />
-          <span className="nav-text">Contacto</span>
-        </button>
-      </div>
-
-      {/* Sección de filtros */}
-      {(activeSection === "todos" ||
-        activeSection === "populares" ||
-        activeSection === "ofertas") && (
-        <>
-          <div className="filters-header">
-            <h3 className="filters-title">Categorías</h3>
-            <div className="header-ornament">
-              <span className="ornament-dot"></span>
-              <span className="ornament-dot"></span>
-              <span className="ornament-dot"></span>
-            </div>
-            <span className="products-count">{getProductsCount()}</span>
-          </div>
-
-          <div className="client-interface__filters-section">
-            <div className="filters-container">
-              <CategoryFilter
-                categories={categoryOptions}
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
-              />
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Renderizar sección específica */}
-      {renderPopularSection()}
-      {renderContactSection()}
-      {renderOffersSection()}
-
-      {/* Sección de productos */}
-      {(activeSection === "todos" ||
-        activeSection === "populares" ||
-        activeSection === "ofertas") && (
-        <div className="client-interface__products-section">
-          <ProductGrid
-            products={getProductsToShow()}
-            onWhatsAppClick={handleWhatsAppClick}
-            onProductClick={handleProductClick}
-            isOfferSection={activeSection === "ofertas"}
-          />
-        </div>
-      )}
-    </div>
-  );
-
-  // ✅ VERIFICACIÓN DE DATOS - MOSTRAR LOADING SI FALTAN DATOS
+  // ✅ VERIFICACIÓN DE DATOS
   if (!appConfig || products.length === 0 || categories.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -713,15 +684,15 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
       >
         <DesktopNavigation />
       </Header>
+
       <InitialInfoModal
         isOpen={showInfoModal}
         onClose={() => setShowInfoModal(false)}
         initialInfo={appConfig.initialinfo}
       />
-      {/* Renderizar layout según el dispositivo */}
-      {isDesktop ? renderDesktopLayout() : renderMobileLayout()}
 
-      {/* Bottom Navigation - Solo móvil */}
+      {isDesktop ? renderDesktopLayout : renderMobileLayout}
+
       {!isDesktop && (
         <BottomNavigation
           currentView={currentView}
@@ -735,7 +706,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
           onSectionChange={handleSectionChange}
         />
       )}
-      {/* ✅ BOTÓN FLOTANTE DE WHATSAPP */}
+
       <FloatingWhatsAppButton />
     </div>
   );

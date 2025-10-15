@@ -9,7 +9,7 @@ const ProductGrid = ({
   products,
   onWhatsAppClick,
   onProductClick,
-  isOfferSection = false, // ← Nueva prop para identificar ofertas
+  isOfferSection = false,
 }) => {
   if (products.length === 0) {
     return (

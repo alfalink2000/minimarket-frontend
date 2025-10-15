@@ -1,34 +1,28 @@
-// components/client/ProductCard/ProductCard.jsx
+import { useCallback, memo } from "react";
 import { FiPhone } from "react-icons/fi";
 import "./ProductCard.css";
 import "./ProductCard.desktop.css";
 
-const ProductCard = ({ product, onWhatsAppClick, onProductClick }) => {
-  const handleCardClick = () => {
-    if (onProductClick) {
-      onProductClick(product);
-    }
-  };
-
-  const handleWhatsAppClick = (e) => {
-    e.stopPropagation();
-    if (onWhatsAppClick) {
-      onWhatsAppClick(product.name);
-    }
-  };
-
-  // ✅ LÓGICA CORREGIDA: Usar ambos campos para determinar disponibilidad
+const ProductCard = memo(({ product, onWhatsAppClick, onProductClick }) => {
   const isAvailable =
     product.status === "available" && product.stock_quantity > 0;
 
-  // ✅ DEBUG: Mostrar información del producto
-  console.log("🔄 ProductCard -", {
-    id: product.id,
-    name: product.name,
-    status: product.status,
-    stock: product.stock_quantity,
-    isAvailable: isAvailable,
-  });
+  const handleCardClick = useCallback(() => {
+    onProductClick?.(product);
+  }, [onProductClick, product]);
+
+  const handleWhatsAppClick = useCallback(
+    (e) => {
+      e.stopPropagation();
+      onWhatsAppClick?.(product.name);
+    },
+    [onWhatsAppClick, product.name]
+  );
+
+  const handleImageError = useCallback((e) => {
+    e.target.src =
+      "https://via.placeholder.com/200x200?text=Imagen+No+Disponible";
+  }, []);
 
   return (
     <div className="product-card" onClick={handleCardClick}>
@@ -37,10 +31,8 @@ const ProductCard = ({ product, onWhatsAppClick, onProductClick }) => {
           src={product.image_url}
           alt={product.name}
           className="product-card__image"
-          onError={(e) => {
-            e.target.src =
-              "https://via.placeholder.com/200x200?text=Imagen+No+Disponible";
-          }}
+          onError={handleImageError}
+          loading="lazy"
         />
         <div
           className={`product-card__status ${
@@ -66,11 +58,6 @@ const ProductCard = ({ product, onWhatsAppClick, onProductClick }) => {
           {product.description && product.description.length > 80 ? "..." : ""}
         </p>
 
-        {/* ✅ DEBUG: Mostrar información adicional */}
-        <div style={{ fontSize: "10px", color: "#666", marginBottom: "8px" }}>
-          Status: {product.status} | Stock: {product.stock_quantity}
-        </div>
-
         <button
           className="product-card__whatsapp-btn"
           onClick={handleWhatsAppClick}
@@ -82,6 +69,8 @@ const ProductCard = ({ product, onWhatsAppClick, onProductClick }) => {
       </div>
     </div>
   );
-};
+});
+
+ProductCard.displayName = "ProductCard";
 
 export default ProductCard;
