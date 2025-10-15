@@ -79,23 +79,23 @@
 
 /* Botón de información para móvil */
 .header__info-btn {
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: transparent; /* Quitar fondo */
+  border: none; /* Eliminar bordes completamente */
   border-radius: 12px;
-  width: 44px;
-  height: 44px;
+  width: 48px; /* Aumentar tamaño en móvil */
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: #3b82f6;
+  color: var(--primary-blue); /* Usar color del tema */
 }
 
 .header__info-btn:hover {
-  background: rgba(59, 130, 246, 0.2);
-  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(59, 130, 246, 0.1); /* Fondo sutil al hover */
   transform: scale(1.05);
+  color: var(--primary-blue-dark); /* Color más oscuro al hover */
 }
 
 .header__info-btn:active {
@@ -103,10 +103,13 @@
 }
 
 .header__info-icon {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   stroke-width: 1.5;
 }
-
+/* Efecto sutil al hover del icono */
+.header__info-btn:hover .header__info-icon {
+  transform: scale(1.1);
+}
 /* Acciones del header (para desktop) */
 .header__actions {
   display: flex;
@@ -129,12 +132,12 @@
   }
 
   .header__info-btn {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
 
   .header__info-icon {
-    font-size: 1.3rem;
+    font-size: 1.6rem;
   }
 }
 
@@ -144,12 +147,12 @@
   }
 
   .header__info-btn {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
   }
 
   .header__info-icon {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
   }
 }
 
@@ -164,8 +167,14 @@
   }
 }
 
-/* Estados de focus para accesibilidad */
+/* Estados de focus para accesibilidad - usando variables CSS */
 .header__info-btn:focus {
-  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline: 2px solid var(--primary-blue);
   outline-offset: 2px;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* Asegurar que el color del icono herede el tema */
+.header__info-icon {
+  color: inherit; /* Hereda el color del botón */
 }
