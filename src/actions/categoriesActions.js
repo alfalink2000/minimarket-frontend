@@ -1,4 +1,4 @@
-// actions/categoriesActions.js - VERSIÓN MEJORADA
+// actions/categoriesActions.js - COMPLETO
 import { fetchAPIConfig } from "../helpers/fetchAPIConfig";
 import { fetchPublic } from "../helpers/fetchPublic";
 import { types } from "../types/types";
@@ -67,13 +67,8 @@ export const insertCategory = (categoryName) => {
 export const updateCategory = (oldName, newName) => {
   return async (dispatch) => {
     try {
-      console.log("🔄 [DEBUG] updateCategory - Enviando:", {
-        oldName,
-        newName,
-      });
-
       const body = await fetchAPIConfig(
-        `categories/update/${encodeURIComponent(oldName)}`, // ✅ CORREGIDO: encodeURIComponent
+        `categories/update/${oldName}`,
         { newName },
         "PUT"
       );
@@ -98,7 +93,6 @@ export const updateCategory = (oldName, newName) => {
   };
 };
 
-// Si el backend solo envía un mensaje de error sin la lista de productos
 export const deleteCategory = (categoryName) => {
   return async (dispatch) => {
     try {
@@ -171,3 +165,24 @@ export const deleteCategory = (categoryName) => {
     }
   };
 };
+
+// Action creators sincrónicos (sin cambios)
+const loadCategories = (categories) => ({
+  type: types.categoriesLoad,
+  payload: categories,
+});
+
+const addNewCategory = (category) => ({
+  type: types.categoryAddNew,
+  payload: category,
+});
+
+const updateCategoryAction = ({ oldName, newName }) => ({
+  type: types.categoryUpdated,
+  payload: { oldName, newName },
+});
+
+const deleteCategoryAction = (categoryName) => ({
+  type: types.categoryDeleted,
+  payload: categoryName,
+});
