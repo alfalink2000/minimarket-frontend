@@ -1,3 +1,4 @@
+// reducers/appConfigReducer.js
 import { types } from "../types/types";
 
 const initialState = {
@@ -9,7 +10,8 @@ const initialState = {
     business_hours: "Lun-Vie: 8:00 - 20:00",
     business_address: "Av. Principal 123",
     initialinfo:
-      "Bienvenido a nuestro minimarket. Ofrecemos productos de calidad con el mejor servicio. ¡Estamos aquí para ayudarte!", // ✅ NUEVO CAMPO
+      "🌟 **Bienvenido a nuestro Minimarket Digital** 🌟\n\n¡Estamos encantados de tenerte aquí! En nuestro minimarket encontrarás productos de calidad, horario extendido y servicio personalizado.",
+    show_initialinfo: true, // ✅ NUEVO CAMPO
     logo_url: null,
   },
   loading: false,

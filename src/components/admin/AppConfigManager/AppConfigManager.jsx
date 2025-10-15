@@ -6,6 +6,8 @@ import {
   HiOutlineColorSwatch,
   HiOutlineInformationCircle,
   HiCheck,
+  HiOutlineEye,
+  HiOutlineEyeOff,
 } from "react-icons/hi";
 import {
   updateAppConfig,
@@ -29,6 +31,8 @@ const AppConfigManager = () => {
     business_hours: "",
     business_address: "",
     logo_url: "",
+    initialinfo: "",
+    show_initialinfo: true,
   });
 
   const [activeTab, setActiveTab] = useState("general");
@@ -49,15 +53,17 @@ const AppConfigManager = () => {
         business_hours: config.business_hours || "",
         business_address: config.business_address || "",
         logo_url: config.logo_url || "",
+        initialinfo: config.initialinfo || "",
+        show_initialinfo: config.show_initialinfo !== false,
       });
     }
   }, [config]);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -71,7 +77,6 @@ const AppConfigManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ Confirmación opcional antes de guardar
     const result = await Swal.fire({
       title: "¿Guardar cambios?",
       text: "Se aplicarán los cambios a toda la aplicación",
@@ -163,6 +168,13 @@ const AppConfigManager = () => {
         >
           <HiOutlineCog />
           Contacto
+        </button>
+        <button
+          className={`tab ${activeTab === "welcome" ? "active" : ""}`}
+          onClick={() => setActiveTab("welcome")}
+        >
+          <HiOutlineInformationCircle />
+          Mensaje Bienvenida
         </button>
       </div>
 
@@ -334,6 +346,75 @@ const AppConfigManager = () => {
                 rows="3"
                 required
               />
+            </div>
+          </div>
+        )}
+
+        {activeTab === "welcome" && (
+          <div className="tab-content">
+            <div className="form-group">
+              <label className="toggle-label">
+                <input
+                  type="checkbox"
+                  name="show_initialinfo"
+                  checked={formData.show_initialinfo}
+                  onChange={handleInputChange}
+                  className="toggle-input"
+                />
+                <span className="toggle-slider"></span>
+                <span className="toggle-text">
+                  {formData.show_initialinfo ? (
+                    <>
+                      <HiOutlineEye className="toggle-icon" />
+                      Mostrar mensaje al iniciar la app
+                    </>
+                  ) : (
+                    <>
+                      <HiOutlineEyeOff className="toggle-icon" />
+                      Ocultar mensaje al iniciar la app
+                    </>
+                  )}
+                </span>
+              </label>
+              <small className="help-text">
+                Cuando está activado, los usuarios verán este mensaje la primera
+                vez que abran la aplicación
+              </small>
+            </div>
+
+            <div className="form-group">
+              <label>Mensaje de Bienvenida</label>
+              <textarea
+                name="initialinfo"
+                value={formData.initialinfo}
+                onChange={handleInputChange}
+                placeholder="Escribe aquí tu mensaje de bienvenida personalizado..."
+                rows="8"
+                className="welcome-textarea"
+              />
+              <small className="help-text">
+                Puedes usar formato Markdown básico: **negrita**, *cursiva*,
+                saltos de línea
+              </small>
+            </div>
+
+            <div className="preview-section">
+              <h4 className="preview-title">Vista Previa del Mensaje</h4>
+              <div className="preview-content">
+                {formData.initialinfo ? (
+                  <div className="preview-message">
+                    {formData.initialinfo.split("\n").map((line, index) => (
+                      <p key={index} className="preview-line">
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="preview-placeholder">
+                    El mensaje de bienvenida aparecerá aquí...
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         )}

@@ -32,6 +32,7 @@
   margin-bottom: 2rem;
   border-bottom: 1px solid var(--gray-200);
   padding-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
 .tab {
@@ -46,6 +47,7 @@
   transition: all 0.3s ease;
   color: var(--gray-600);
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .tab:hover {
@@ -97,120 +99,122 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.color-picker-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.color-picker {
+/* Estilos para el toggle switch */
+.toggle-label {
   display: flex;
   align-items: center;
   gap: 1rem;
-}
-
-.color-picker input[type="color"] {
-  width: 60px;
-  height: 40px;
-  border: none;
-  border-radius: var(--radius);
   cursor: pointer;
+  padding: 1rem;
+  background: var(--gray-50);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  transition: all 0.3s ease;
 }
 
-.color-picker span {
-  font-family: monospace;
+.toggle-label:hover {
+  background: var(--gray-100);
+}
+
+.toggle-input {
+  display: none;
+}
+
+.toggle-slider {
+  width: 50px;
+  height: 26px;
+  background: var(--gray-300);
+  border-radius: 25px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: var(--white);
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: all 0.3s ease;
+}
+
+.toggle-input:checked + .toggle-slider {
+  background: var(--primary-blue);
+}
+
+.toggle-input:checked + .toggle-slider::before {
+  transform: translateX(24px);
+}
+
+.toggle-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-weight: 600;
   color: var(--gray-700);
+  flex: 1;
 }
 
-.color-preview {
+.toggle-icon {
+  font-size: 1.2rem;
+}
+
+/* Textarea para mensaje de bienvenida */
+.welcome-textarea {
+  min-height: 200px;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+/* Sección de vista previa */
+.preview-section {
+  margin-top: 2rem;
   padding: 1.5rem;
   background: var(--gray-50);
   border-radius: var(--radius-lg);
   border: 1px solid var(--gray-200);
 }
 
-.color-preview h4 {
+.preview-title {
   margin: 0 0 1rem 0;
   color: var(--gray-700);
-}
-
-.preview-elements {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.preview-primary,
-.preview-secondary {
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--radius);
-  color: white;
+  font-size: 1.1rem;
   font-weight: 600;
-  font-size: 0.9rem;
 }
 
-.preview-actions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.preview-btn,
-.reset-btn {
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--gray-300);
-  border-radius: var(--radius);
+.preview-content {
   background: var(--white);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.85rem;
-}
-
-.preview-btn:hover {
-  background: var(--primary-blue);
-  color: var(--white);
-  border-color: var(--primary-blue);
-}
-
-.reset-btn:hover {
-  background: var(--gray-100);
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.save-btn {
-  background: linear-gradient(135deg, var(--primary-blue), var(--accent-teal));
-  color: white;
-  border: none;
-  padding: 0.75rem 2rem;
+  padding: 1.5rem;
   border-radius: var(--radius);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  border: 1px solid var(--gray-300);
+  min-height: 120px;
 }
 
-.save-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+.preview-message {
+  color: var(--gray-700);
+  line-height: 1.6;
 }
 
-@media (max-width: 768px) {
-  .app-config-manager {
-    padding: 1rem;
-  }
-
-  .config-tabs {
-    flex-direction: column;
-  }
-
-  .preview-elements {
-    flex-direction: column;
-  }
+.preview-line {
+  margin: 0 0 0.75rem 0;
 }
-/* components/admin/AppConfigManager/AppConfigManager.css - Añadir */
+
+.preview-line:last-child {
+  margin-bottom: 0;
+}
+
+.preview-placeholder {
+  color: var(--gray-500);
+  font-style: italic;
+  text-align: center;
+  margin: 0;
+}
+
+/* Theme Selection Styles */
 .theme-selection {
   padding: 1rem 0;
 }
@@ -366,22 +370,83 @@
   text-align: center;
 }
 
-@media (max-width: 768px) {
-  .theme-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .theme-preview-actions {
-    flex-direction: column;
-  }
-
-  .preview-btn,
-  .reset-btn {
-    width: 100%;
-  }
+/* Color Picker Styles (Legacy - si aún los necesitas) */
+.color-picker-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-/* components/admin/AppConfigManager/AppConfigManager.css - AÑADIDOS */
+.color-picker {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.color-picker input[type="color"] {
+  width: 60px;
+  height: 40px;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.color-picker span {
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--gray-700);
+}
+
+.color-preview {
+  padding: 1.5rem;
+  background: var(--gray-50);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+}
+
+.color-preview h4 {
+  margin: 0 0 1rem 0;
+  color: var(--gray-700);
+}
+
+.preview-elements {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.preview-primary,
+.preview-secondary {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, var(--primary-blue), var(--accent-teal));
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Help Text */
 .help-text {
   color: var(--gray-500);
   font-size: 0.8rem;
@@ -389,6 +454,7 @@
   display: block;
 }
 
+/* Disabled States */
 .save-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -400,8 +466,29 @@
   cursor: not-allowed;
 }
 
-/* Mejoras responsive */
-@media (max-width: 640px) {
+/* Loading Animation */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.save-btn:disabled {
+  animation: pulse 1.5s infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-config-manager {
+    padding: 1rem;
+  }
+
   .config-tabs {
     flex-direction: column;
   }
@@ -422,21 +509,128 @@
   .reset-btn {
     width: 100%;
   }
+
+  .toggle-label {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .toggle-text {
+    width: 100%;
+  }
+
+  .preview-section {
+    padding: 1rem;
+  }
+
+  .preview-content {
+    padding: 1rem;
+  }
+
+  .preview-elements {
+    flex-direction: column;
+  }
+
+  .form-actions {
+    justify-content: center;
+  }
+
+  .save-btn {
+    width: 100%;
+  }
 }
 
-/* Estados de loading */
-@keyframes pulse {
-  0% {
-    opacity: 1;
+@media (max-width: 480px) {
+  .config-tabs {
+    gap: 0.25rem;
   }
-  50% {
-    opacity: 0.5;
+
+  .tab {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
   }
-  100% {
-    opacity: 1;
+
+  .theme-card {
+    padding: 1rem;
+  }
+
+  .theme-preview {
+    height: 50px;
+  }
+
+  .preview-section {
+    margin-top: 1rem;
   }
 }
 
-.save-btn:disabled {
-  animation: pulse 1.5s infinite;
+/* Accesibilidad y Estados de Focus */
+.tab:focus-visible,
+.preview-btn:focus-visible,
+.reset-btn:focus-visible,
+.save-btn:focus-visible,
+.toggle-label:focus-within {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 2px;
+}
+
+/* Mejoras de legibilidad */
+.preview-message {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.welcome-textarea {
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+/* Estados de hover mejorados */
+.theme-card:active {
+  transform: translateY(-2px);
+}
+
+.save-btn:active {
+  transform: translateY(0);
+}
+
+/* Transiciones suaves para todos los elementos interactivos */
+.tab,
+.theme-card,
+.preview-btn,
+.reset-btn,
+.save-btn,
+.toggle-label,
+.form-group input,
+.form-group textarea {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Scroll suave para áreas de texto largas */
+.preview-content,
+.welcome-textarea {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-300) var(--gray-100);
+}
+
+.preview-content::-webkit-scrollbar,
+.welcome-textarea::-webkit-scrollbar {
+  width: 6px;
+}
+
+.preview-content::-webkit-scrollbar-track,
+.welcome-textarea::-webkit-scrollbar-track {
+  background: var(--gray-100);
+  border-radius: 3px;
+}
+
+.preview-content::-webkit-scrollbar-thumb,
+.welcome-textarea::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 3px;
+}
+
+.preview-content::-webkit-scrollbar-thumb:hover,
+.welcome-textarea::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-400);
 }

@@ -62,6 +62,18 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
   const featuredProducts = useSelector(selectFeaturedProducts);
   const appConfig = useSelector((state) => state.appConfig.config);
 
+  // ✅ EFECTO PARA MOSTRAR MODAL AL INICIAR (si está configurado)
+  useEffect(() => {
+    if (appConfig?.show_initialinfo !== false) {
+      // Mostrar después de un pequeño delay para mejor UX
+      const timer = setTimeout(() => {
+        setShowInfoModal(true);
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [appConfig?.show_initialinfo]);
+
   // ✅ EFECTO PARA CARGAR DATOS ADICIONALES (SOLO SI NO EXISTEN)
   useEffect(() => {
     if (products.length === 0 || categories.length === 0) {
