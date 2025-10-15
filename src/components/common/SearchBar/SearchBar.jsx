@@ -6,16 +6,11 @@ import "./SearchBar.css";
 const SearchBar = ({
   searchTerm,
   onSearchChange,
-  isSticky = false,
   isDesktop = false,
   appConfig,
 }) => {
   return (
-    <div
-      className={`search-bar ${isSticky ? "search-bar--sticky" : ""} ${
-        isDesktop ? "search-bar--desktop" : ""
-      }`}
-    >
+    <div className={`search-bar ${isDesktop ? "search-bar--desktop" : ""}`}>
       <div className="search-bar__content">
         <div className="search-bar__input-container">
           <Search className="search-bar__icon" />

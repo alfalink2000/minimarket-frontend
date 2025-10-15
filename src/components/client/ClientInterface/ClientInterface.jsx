@@ -48,11 +48,6 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
   const [activeSection, setActiveSection] = useState("todos");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isDesktop, setIsDesktop] = useState(false);
-  const [isSearchSticky, setIsSearchSticky] = useState(false);
-
-  // ✅ REFS PARA DETECTAR SCROLL
-  const productsSectionRef = useRef(null);
-  const searchBarRef = useRef(null);
 
   const dispatch = useDispatch();
 
@@ -85,69 +80,14 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  // ✅ EFECTO MEJORADO PARA DETECTAR SCROLL Y ACTIVAR STICKY (SOLO MÓVIL)
-  useEffect(() => {
-    if (isDesktop) return;
-
-    let ticking = false;
-
-    const handleScroll = () => {
-      if (!productsSectionRef.current || !searchBarRef.current) return;
-
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          const productsSectionTop =
-            productsSectionRef.current.getBoundingClientRect().top;
-          const searchBarHeight = searchBarRef.current.offsetHeight;
-
-          // Umbral más preciso y con hysteresis
-          const shouldBeSticky = productsSectionTop <= 80;
-
-          // Solo actualizar si cambió el estado
-          if (shouldBeSticky !== isSearchSticky) {
-            setIsSearchSticky(shouldBeSticky);
-          }
-
-          ticking = false;
-        });
-
-        ticking = true;
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isDesktop, isSearchSticky]); // Agregar isSearchSticky como dependencia
-
-  // ✅ NUEVO: Manejar click en búsqueda desde Bottom Navigation
-  // ✅ CORREGIDO: Manejar click en búsqueda desde Bottom Navigation
+  // SIMPLIFICAR handleSearchClick:
   const handleSearchClick = () => {
     const searchInput = document.querySelector(
       ".client-interface__search-section input"
     );
 
     if (searchInput) {
-      // Si el search bar ya está sticky, solo enfocar
-      if (isSearchSticky) {
-        searchInput.focus();
-        return;
-      }
-
-      // Si NO está sticky, hacer scroll suave al search bar original
-      const searchSection = document.querySelector(
-        ".client-interface__search-section"
-      );
-      if (searchSection) {
-        searchSection.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
-
-        // Pequeño delay para que termine el scroll antes de enfocar
-        setTimeout(() => {
-          searchInput.focus();
-        }, 500);
-      }
+      searchInput.focus();
     }
   };
 
@@ -582,11 +522,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
 
   // ✅ RENDERIZADO PARA MÓVIL
   const renderMobileLayout = () => (
-    <div
-      className={`client-interface__content mobile-layout ${
-        isSearchSticky ? "has-sticky-search" : ""
-      }`}
-    >
+    <div className={`client-interface__content mobile-layout`}>
       {/* Search Bar - ahora con ref y condición sticky */}
       <div ref={searchBarRef} className="client-interface__search-section">
         <SearchBar
