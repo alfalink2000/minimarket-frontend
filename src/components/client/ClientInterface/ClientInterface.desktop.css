@@ -186,7 +186,7 @@
   .desktop-search {
     grid-area: search;
     margin-bottom: 0;
-    padding: 0 0 1rem 0;
+    /* padding: 0 0 1rem 0; */
   }
 
   .desktop-sidebar {
@@ -531,6 +531,17 @@
 
 /* ===== TRANSICIONES SUAVES ===== */
 @media (min-width: 1024px) {
+  .floating-whatsapp-button {
+    bottom: 2rem;
+    right: 2rem;
+    width: 65px;
+    height: 65px;
+  }
+
+  .floating-whatsapp-button:hover {
+    transform: scale(1.15) translateY(-8px);
+  }
+
   .desktop-layout > * {
     animation: fadeInUp 0.6s ease-out;
   }
