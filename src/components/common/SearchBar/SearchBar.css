@@ -1,9 +1,61 @@
-/* SearchBar.css - STICKY MEJORADO */
+/* SearchBar.css - STICKY MEJORADO CON INFO DESKTOP */
 
 .search-bar {
   position: relative;
   width: 100%;
   transition: all 0.3s ease;
+}
+
+/* Contenedor principal para desktop */
+.search-bar--desktop .search-bar__content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+/* Contenedor del input (70% del espacio) */
+.search-bar__input-container {
+  position: relative;
+  flex: 1;
+  max-width: 70%;
+}
+
+/* Campo de información de ubicación (30% del espacio) */
+.search-bar__location-info {
+  flex: 0 0 30%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, var(--primary-blue), var(--accent-teal));
+  color: white;
+  border-radius: var(--radius-lg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  min-width: 0;
+}
+
+.location-info__icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.location-info__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-bar__location-info:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 /* Estado normal */
@@ -25,6 +77,11 @@
   box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
   animation: searchBarSlideDown 0.3s ease-out;
   margin-bottom: 0;
+}
+
+/* En sticky, ocultar la info de ubicación en móvil */
+.search-bar--sticky .search-bar__location-info {
+  display: none;
 }
 
 @keyframes searchBarSlideDown {
@@ -52,9 +109,9 @@
 
 /* Cuando está sticky, el icono mantiene su posición */
 .search-bar--sticky .search-bar__icon {
-  color: var(--gray-500); /* Color ligeramente más oscuro, no azul */
-  transform: translateY(-50%); /* Sin escala para mantener alineación */
-  left: calc(1rem + 0.75rem); /* 1rem padding + 0.75rem posición original */
+  color: var(--gray-500);
+  transform: translateY(-50%);
+  left: calc(1rem + 0.75rem);
 }
 
 .search-bar__input {
@@ -85,15 +142,14 @@
   border-color: var(--gray-300);
 }
 
-/* Input cuando está sticky - MANTIENE COLORES ORIGINALES */
+/* Input cuando está sticky */
 .search-bar--sticky .search-bar__input {
-  border-color: var(--gray-200); /* Mantiene el gris original */
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08); /* Sombra más suave */
-  background: var(--white); /* Fondo sólido, no translúcido */
-  padding-left: 2.75rem; /* Mantiene el padding original */
+  border-color: var(--gray-200);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  background: var(--white);
+  padding-left: 2.75rem;
 }
 
-/* Solo cambia el borde al focus, incluso en sticky */
 .search-bar--sticky .search-bar__input:focus {
   border-color: var(--primary-blue);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
@@ -118,41 +174,27 @@
   opacity: 0.7;
 }
 
-/* Efecto de desvanecimiento en los bordes laterales */
-.search-bar--sticky::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.9) 0%,
-    transparent 10%,
-    transparent 90%,
-    rgba(255, 255, 255, 0.9) 100%
-  );
-  pointer-events: none;
-  z-index: -1;
-}
-
 /* Responsive para móviles */
 @media (max-width: 768px) {
   .search-bar--sticky {
-    top: 60px; /* Header más pequeño en móviles */
-    padding: 0.75rem 1rem; /* Padding consistente */
+    top: 60px;
+    padding: 0.75rem 1rem;
   }
 
   .search-bar__input {
-    padding: 0.75rem 0.75rem 0.75rem 2.75rem; /* Padding consistente */
+    padding: 0.75rem 0.75rem 0.75rem 2.75rem;
     font-size: 0.875rem;
   }
 
   .search-bar__icon {
-    left: calc(1rem + 0.75rem); /* Misma lógica que en desktop */
+    left: calc(1rem + 0.75rem);
     width: 1.25rem;
     height: 1.25rem;
+  }
+
+  /* Ocultar info de ubicación en móvil */
+  .search-bar__location-info {
+    display: none !important;
   }
 
   /* Ajuste para pantallas muy pequeñas */
@@ -164,6 +206,25 @@
     .search-bar__icon {
       left: calc(0.875rem + 0.625rem);
     }
+  }
+}
+
+/* Para desktop específico */
+@media (min-width: 1024px) {
+  .search-bar--desktop .search-bar__content {
+    max-width: 100%;
+  }
+
+  /* En sticky en desktop, mantener el layout */
+  .search-bar--sticky.search-bar--desktop .search-bar__content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .search-bar--sticky.search-bar--desktop .search-bar__location-info {
+    display: flex; /* Mostrar incluso en sticky en desktop */
+    background: rgba(37, 99, 235, 0.9); /* Fondo semi-transparente en sticky */
+    backdrop-filter: blur(10px);
   }
 }
 

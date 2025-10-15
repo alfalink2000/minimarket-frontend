@@ -434,7 +434,12 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
     <div className="client-interface__content desktop-layout">
       {/* Barra de búsqueda */}
       <div className="client-interface__search-section desktop-search">
-        <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+        <SearchBar
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          isDesktop={true}
+          appConfig={appConfig}
+        />
       </div>
 
       {/* Sidebar con navegación y filtros */}
@@ -553,6 +558,8 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           isSticky={isSearchSticky}
+          isDesktop={false}
+          appConfig={appConfig}
         />
       </div>
 
