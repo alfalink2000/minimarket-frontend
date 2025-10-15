@@ -1124,3 +1124,90 @@
   outline: 3px solid rgba(37, 211, 102, 0.5);
   outline-offset: 2px;
 }
+
+/* En tu ClientInterface.css - agregar estos estilos */
+
+.header-title-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: inherit;
+  font-weight: 600;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.header-main-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  background: linear-gradient(135deg, var(--primary-blue), var(--accent-teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.header-subtitle {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--gray-500);
+  margin-top: 0.125rem;
+}
+
+.header-icon {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  transition: all 0.3s ease-in-out;
+  border-radius: var(--radius-md);
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  /* Estilos para prevenir problemas de visualización */
+  display: block;
+  flex-shrink: 0;
+}
+
+.header-title-with-icon:hover .header-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* Estados de carga para el logo */
+.header-icon:not([src]),
+.header-icon[src=""],
+.header-icon[src*="undefined"],
+.header-icon[src*="null"] {
+  opacity: 0.7;
+  background: var(--gray-200);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .header-main-title {
+    font-size: 1.1rem;
+  }
+
+  .header-subtitle {
+    font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .header-main-title {
+    font-size: 1rem;
+  }
+}

@@ -153,17 +153,46 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
       </button>
     );
   };
+  const TitleWithIcon = () => {
+    // Función para manejar errores de carga de imagen
+    const handleImageError = (e) => {
+      console.log("❌ Error cargando logo desde URL, usando logo local");
+      e.target.src = image; // Fallback al logo local
+      e.target.onerror = null; // Prevenir bucles infinitos
+    };
 
-  // Componente del título con icono
-  const TitleWithIcon = () => (
-    <div className="header-title-with-icon">
-      <img src={image} alt="Icono Minimarket" className="header-icon" />
-      <div className="header-text">
-        <span className="header-main-title">{appConfig.app_name}</span>
-        <span className="header-subtitle">{appConfig.app_description}</span>
+    // Función para verificar si la URL del logo es válida
+    const isValidLogoUrl = (url) => {
+      if (!url) return false;
+      try {
+        const parsedUrl = new URL(url);
+        return (
+          parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:"
+        );
+      } catch {
+        return false;
+      }
+    };
+
+    const logoUrl = appConfig?.logo_url;
+    const shouldUseCustomLogo = isValidLogoUrl(logoUrl);
+
+    return (
+      <div className="header-title-with-icon">
+        <img
+          src={shouldUseCustomLogo ? logoUrl : image}
+          alt={`Logo ${appConfig.app_name}`}
+          className="header-icon"
+          onError={handleImageError}
+          loading="lazy"
+        />
+        <div className="header-text">
+          <span className="header-main-title">{appConfig.app_name}</span>
+          <span className="header-subtitle">{appConfig.app_description}</span>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // ✅ Navegación para desktop que va dentro del Header
   const DesktopNavigation = () => (
