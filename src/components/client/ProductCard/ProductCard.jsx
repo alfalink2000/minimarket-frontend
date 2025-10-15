@@ -1,4 +1,4 @@
-import { useCallback, memo } from "react";
+import React, { useCallback, memo } from "react";
 import { FiPhone } from "react-icons/fi";
 import "./ProductCard.css";
 import "./ProductCard.desktop.css";

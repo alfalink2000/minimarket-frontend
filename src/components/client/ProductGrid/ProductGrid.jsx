@@ -1,4 +1,5 @@
 // components/client/ProductGrid/ProductGrid.jsx
+import React from "react";
 import ProductCard from "../ProductCard/ProductCard";
 import { Search } from "lucide-react";
 import ProductCardOffer from "../ProductCardOffer/ProductCardOffer";
