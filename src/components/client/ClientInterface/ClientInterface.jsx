@@ -610,7 +610,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
                 <CategoryFilter
                   categories={categoryOptions}
                   selectedCategory={selectedCategory}
-                  onCategoryChange={setSelectedProduct}
+                  onCategoryChange={setSelectedCategory}
                 />
               </div>
             </div>

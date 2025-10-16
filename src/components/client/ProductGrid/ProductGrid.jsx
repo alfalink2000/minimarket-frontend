@@ -43,7 +43,7 @@ const ProductGrid = ({
           ) : (
             // Usar ProductCard normal para otras secciones
             <ProductCard
-              key={product.id}
+              key={product.id} // ✅ KEY ÚNICA REQUERIDA
               product={product}
               onWhatsAppClick={onWhatsAppClick}
               onProductClick={onProductClick}
