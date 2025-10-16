@@ -481,7 +481,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
                 count: popularProducts.length,
               },
               {
-                id: SECTIONS.OFETAS,
+                id: SECTIONS.OFERTAS,
                 icon: HiOutlineTag,
                 label: "Ofertas",
                 count: offerProducts.length,
@@ -579,7 +579,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
           {[
             { id: SECTIONS.TODOS, icon: HiOutlineShoppingBag, label: "Todos" },
             { id: SECTIONS.POPULARES, icon: HiOutlineFire, label: "Populares" },
-            { id: SECTIONS.OFETAS, icon: HiOutlineTag, label: "Ofertas" },
+            { id: SECTIONS.OFERTAS, icon: HiOutlineTag, label: "Ofertas" },
             { id: SECTIONS.CONTACTO, icon: HiOutlinePhone, label: "Contacto" },
           ].map(({ id, icon: Icon, label }) => (
             <button

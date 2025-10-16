@@ -174,9 +174,10 @@ const BottomNavigation = ({
                 <div className="category-dot"></div>
               </button>
 
+              {/* ✅ ESTA ES LA PARTE CORREGIDA */}
               {categories.map((category) => (
                 <button
-                  key={category}
+                  key={category} // ✅ KEY AÑADIDA AQUÍ
                   onClick={() => handleCategorySelect(category)}
                   className={`category-item ${
                     selectedCategory === category ? "category-item--active" : ""
@@ -190,7 +191,7 @@ const BottomNavigation = ({
           </div>
         )}
 
-        {/* Menú de Navegación Rápida */}
+        {/* Menú de Navegación Rápida - ESTE YA ESTÁ BIEN */}
         {showQuickActions && (
           <div className="bottom-nav-menu quick-actions-menu">
             <div className="menu-header">
@@ -207,7 +208,7 @@ const BottomNavigation = ({
                 const IconComponent = section.icon;
                 return (
                   <button
-                    key={section.id}
+                    key={section.id} // ✅ Este ya tiene key
                     onClick={() => handleSectionSelect(section.id)}
                     className={`quick-action-item ${
                       activeSection === section.id
