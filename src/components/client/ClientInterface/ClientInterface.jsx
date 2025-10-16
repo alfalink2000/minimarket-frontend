@@ -47,7 +47,7 @@ const SECTIONS = {
   CONTACTO: "contacto",
 };
 
-const PRODUCT_SECTIONS = [SECTIONS.TODOS, SECTIONS.POPULARES, SECTIONS.OFETAS];
+const PRODUCT_SECTIONS = [SECTIONS.TODOS, SECTIONS.POPULARES, SECTIONS.OFERTAS];
 
 const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
   // 🔄 SINCRONIZACIÓN AUTOMÁTICA DE PRODUCTOS
@@ -235,7 +235,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
         <button
           className="header-action header-action--icon"
           title="Ofertas especiales"
-          onClick={() => setActiveSection(SECTIONS.OFETAS)}
+          onClick={() => setActiveSection(SECTIONS.OFERTAS)}
         >
           <HiOutlineTag className="header-action__icon" />
         </button>
@@ -267,7 +267,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
         ? products
         : activeSection === SECTIONS.POPULARES
         ? popularProducts
-        : activeSection === SECTIONS.OFETAS
+        : activeSection === SECTIONS.OFERTAS
         ? offerProducts
         : products;
 
@@ -363,7 +363,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
   }, [activeSection, popularProducts]);
 
   const renderOffersSection = useMemo(() => {
-    if (activeSection !== SECTIONS.OFETAS) return null;
+    if (activeSection !== SECTIONS.OFERTAS) return null;
 
     return (
       <div className="offers-section">
@@ -527,7 +527,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
 
         <div className="desktop-main-content">
           {activeSection === SECTIONS.POPULARES && renderPopularSection}
-          {activeSection === SECTIONS.OFETAS && renderOffersSection}
+          {activeSection === SECTIONS.OFERTAS && renderOffersSection}
           {activeSection === SECTIONS.CONTACTO && renderContactSection}
 
           {PRODUCT_SECTIONS.includes(activeSection) && (
@@ -536,7 +536,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
                 products={getProductsToShow()}
                 onWhatsAppClick={handleWhatsAppClick}
                 onProductClick={handleProductClick}
-                isOfferSection={activeSection === SECTIONS.OFETAS}
+                isOfferSection={activeSection === SECTIONS.OFERTAS}
               />
             </div>
           )}
@@ -627,7 +627,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
               products={getProductsToShow()}
               onWhatsAppClick={handleWhatsAppClick}
               onProductClick={handleProductClick}
-              isOfferSection={activeSection === SECTIONS.OFETAS}
+              isOfferSection={activeSection === SECTIONS.OFERTAS}
             />
           </div>
         )}
