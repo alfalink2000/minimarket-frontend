@@ -1,4 +1,4 @@
-// App.js - VERSIÓN CON VERIFICACIÓN EN SEGUNDO PLANO
+// App.js - VERSIÓN QUE SÍ ACTIVA MODO MANTENIMIENTO
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ClientInterface from "./components/client/ClientInterface/ClientInterface";
@@ -12,20 +12,22 @@ import {
 import { getProducts } from "./actions/productsActions";
 import { getCategories } from "./actions/categoriesActions";
 import { loadFeaturedProducts } from "./actions/featuredProductsActions";
-import { loadAppConfig } from "./actions/appConfigActions";
+import { loadAppConfig, loadDefaultConfig } from "./actions/appConfigActions";
 import SpiralLoading from "./components/common/SpiralLoading/SpiralLoading";
+import MaintenanceMode from "./components/common/MaintenanceMode/MaintenanceMode";
 
 const App = () => {
   const [currentView, setCurrentView] = useState("client");
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [loadingStatus, setLoadingStatus] = useState("Iniciando aplicación...");
-  const [loadingError, setLoadingError] = useState(null);
-  const [authVerified, setAuthVerified] = useState(false); // ✅ NUEVO: Controla si la auth ya se verificó
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [connectionFailed, setConnectionFailed] = useState(false); // ✅ NUEVO: Para forzar modo mantenimiento
 
   const dispatch = useDispatch();
 
-  // ✅ SELECTORES PARA VERIFICAR ESTADO DE CARGA
+  // ✅ SELECTORES
   const auth = useSelector((state) => state.auth);
   const appConfig = useSelector((state) => state.appConfig.config);
   const products = useSelector((state) => state.products.products);
@@ -34,135 +36,170 @@ const App = () => {
 
   // ✅ VERIFICAR SI TODOS LOS DATOS ESENCIALES ESTÁN CARGADOS
   const areEssentialDataLoaded = () => {
+    if (maintenanceMode || connectionFailed) return false;
+
     const hasAppConfig = appConfig && appConfig.app_name;
     const hasProducts = products.length > 0;
     const hasCategories = categories.length > 0;
-    const hasAuthVerified = authVerified; // ✅ Usar nuestro estado local
 
-    console.log("📊 Estado de carga:", {
-      appConfig: hasAppConfig,
-      products: hasProducts ? `${products.length} productos` : "sin productos",
-      categories: hasCategories
-        ? `${categories.length} categorías`
-        : "sin categorías",
-      authVerified: hasAuthVerified,
-    });
-
-    return hasAppConfig && hasProducts && hasCategories && hasAuthVerified;
+    return hasAppConfig && hasProducts && hasCategories;
   };
-
-  // ✅ PING PARA MANTENER SERVIDOR ACTIVO
-  useEffect(() => {
-    const keepAlive = () => {
-      fetch("https://minimarket-backend-6z9m.onrender.com/api/health")
-        .then(() => console.log("✅ Ping enviado"))
-        .catch(() => console.log("❌ Error en ping"));
-    };
-
-    const interval = setInterval(keepAlive, 10 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   // ✅ VERIFICAR AUTENTICACIÓN EN SEGUNDO PLANO
   const verifyAuthentication = async () => {
     try {
       const token = localStorage.getItem("token");
-
       if (token) {
-        console.log("🔐 Verificando token...");
-        setLoadingStatus("Verificando sesión...");
         await dispatch(StartChecking());
-        console.log("✅ Verificación de auth completada - Usuario autenticado");
       } else {
-        console.log("🔐 No hay token, continuando como invitado");
         dispatch(checkingFinish());
       }
     } catch (error) {
       console.error("❌ Error verificando autenticación:", error);
       dispatch(checkingFinish());
-    } finally {
-      // ✅ MARCAR QUE LA VERIFICACIÓN TERMINÓ (ÉXITO O FALLO)
-      setAuthVerified(true);
-      console.log("✅ Proceso de verificación de auth finalizado");
     }
   };
 
-  // ✅ CARGAR DATOS INICIALES CON VERIFICACIÓN DE AUTH
-  useEffect(() => {
-    const loadInitialData = async () => {
-      try {
-        console.log("🚀 Iniciando carga de datos esenciales...");
-
-        // ✅ INICIAR VERIFICACIÓN DE AUTH EN SEGUNDO PLANO
-        verifyAuthentication();
-
-        // ✅ CARGAR CONFIGURACIÓN
-        setLoadingStatus("Cargando configuración...");
-        await dispatch(loadAppConfig());
-        console.log("✅ Configuración cargada");
-
-        // ✅ CARGAR PRODUCTOS Y CATEGORÍAS EN PARALELO
-        setLoadingStatus("Cargando productos...");
-        const productsPromise = dispatch(getProducts());
-
-        setLoadingStatus("Cargando categorías...");
-        const categoriesPromise = dispatch(getCategories());
-
-        // Esperar a que ambos terminen
-        await Promise.all([productsPromise, categoriesPromise]);
-        console.log("✅ Productos y categorías cargados");
-
-        // ✅ CARGAR PRODUCTOS DESTACADOS (OPCIONAL)
-        try {
-          setLoadingStatus("Cargando productos destacados...");
-          await dispatch(loadFeaturedProducts());
-          console.log("✅ Productos destacados cargados");
-        } catch (featuredError) {
-          console.warn("⚠️ Productos destacados no cargados:", featuredError);
-        }
-
-        console.log("✅ Todos los datos cargados exitosamente");
-      } catch (error) {
-        console.error("❌ Error cargando datos iniciales:", error);
-        setLoadingError(`Error: ${error.message}`);
-
-        // ✅ REINTENTAR DESPUÉS DE 5 SEGUNDOS
-        setTimeout(() => {
-          if (!areEssentialDataLoaded()) {
-            setLoadingStatus("Reintentando carga...");
-            window.location.reload();
-          }
-        }, 5000);
-      }
-    };
-
+  // ✅ REINTENTAR CONEXIÓN DESDE MODO MANTENIMIENTO
+  const handleRetryConnection = () => {
+    console.log("🔄 Reintentando conexión desde modo mantenimiento...");
+    setMaintenanceMode(false);
+    setConnectionFailed(false);
+    setRetryCount(0);
+    setIsLoading(true);
     loadInitialData();
-  }, [dispatch]);
+  };
+
+  // ✅ CARGAR DATOS INICIALES CON LÓGICA SIMPLIFICADA
+  const loadInitialData = async () => {
+    try {
+      console.log(
+        `🚀 Iniciando carga de datos (Intento ${retryCount + 1}/2)...`
+      );
+      setLoadingStatus("Conectando con el servidor...");
+
+      // ✅ VERIFICAR AUTENTICACIÓN EN PARALELO
+      verifyAuthentication();
+
+      // ✅ INTENTAR CARGAR DESDE EL SERVIDOR PRIMERO
+      setLoadingStatus("Cargando configuración...");
+      await dispatch(loadAppConfig());
+
+      setLoadingStatus("Cargando productos...");
+      await dispatch(getProducts());
+
+      setLoadingStatus("Cargando categorías...");
+      await dispatch(getCategories());
+
+      // ✅ CARGAR PRODUCTOS DESTACADOS (OPCIONAL)
+      try {
+        setLoadingStatus("Cargando productos destacados...");
+        await dispatch(loadFeaturedProducts());
+      } catch (featuredError) {
+        console.warn("⚠️ Productos destacados no cargados:", featuredError);
+      }
+
+      console.log("✅ Todos los datos cargados exitosamente desde el servidor");
+      setRetryCount(0);
+      setConnectionFailed(false);
+    } catch (error) {
+      console.error("❌ Error cargando datos del servidor:", error);
+
+      const newRetryCount = retryCount + 1;
+      setRetryCount(newRetryCount);
+
+      // ✅ SI ES EL SEGUNDO INTENTO FALLIDO, USAR DATOS LOCALES
+      if (newRetryCount >= 2) {
+        console.log("🚨 Segundo intento fallido, usando datos locales...");
+        setConnectionFailed(true);
+
+        try {
+          setLoadingStatus("Cargando datos locales...");
+
+          // ✅ CARGAR CONFIGURACIÓN LOCAL
+          await dispatch(loadDefaultConfig());
+
+          // ✅ PARA PRODUCTOS Y CATEGORÍAS, DEJAR LOS ARRAYS VACÍOS
+          // (asumiendo que Redux ya los inicializa como arrays vacíos)
+
+          console.log("✅ Datos locales cargados");
+
+          // ✅ ESPERAR UN POCO Y QUITAR LOADING
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 1000);
+        } catch (fallbackError) {
+          console.error("❌ Error incluso con datos locales:", fallbackError);
+
+          // ✅ SI FALLAN LOS DATOS LOCALES TAMBIÉN, ACTIVAR MODO MANTENIMIENTO
+          setTimeout(() => {
+            setMaintenanceMode(true);
+            setIsLoading(false);
+          }, 1000);
+        }
+        return;
+      }
+
+      // ✅ REINTENTAR AUTOMÁTICAMENTE
+      console.log(`🔄 Reintentando en 2 segundos... (${newRetryCount}/2)`);
+      setLoadingStatus(`Reintentando conexión... (${newRetryCount}/2)`);
+
+      setTimeout(() => {
+        if (!maintenanceMode && !connectionFailed) {
+          loadInitialData();
+        }
+      }, 2000);
+    }
+  };
+
+  // ✅ EFECTO PRINCIPAL PARA CARGAR DATOS
+  useEffect(() => {
+    loadInitialData();
+  }, []);
 
   // ✅ EFECTO PARA QUITAR LOADING CUANDO TODO ESTÉ LISTO
   useEffect(() => {
-    if (areEssentialDataLoaded()) {
+    if (areEssentialDataLoaded() && !maintenanceMode) {
       console.log(
         "🎯 Todos los datos esenciales cargados, quitando loading..."
       );
 
       const timer = setTimeout(() => {
         setIsLoading(false);
-        setLoadingStatus("¡Listo!");
-      }, 800);
+      }, 500);
 
       return () => clearTimeout(timer);
     }
-  }, [appConfig, products, categories, authVerified]); // ✅ INCLUIR authVerified
+  }, [appConfig, products, categories, maintenanceMode, connectionFailed]);
 
-  // ✅ REDIRIGIR SI ESTÁ AUTENTICADO (DESPUÉS DE QUITAR LOADING)
+  // ✅ EFECTO PARA ACTIVAR MODO MANTENIMIENTO SI NO HAY CONEXIÓN DESPUÉS DE UN TIEMPO
   useEffect(() => {
-    if (!isLoading && auth.isLoggedIn && !auth.checking) {
+    const timeout = setTimeout(() => {
+      if (
+        isLoading &&
+        retryCount >= 1 &&
+        !maintenanceMode &&
+        !connectionFailed
+      ) {
+        console.log(
+          "⏰ Timeout: No hay conexión, activando modo mantenimiento"
+        );
+        setMaintenanceMode(true);
+        setIsLoading(false);
+      }
+    }, 10000); // 10 segundos de timeout
+
+    return () => clearTimeout(timeout);
+  }, [isLoading, maintenanceMode, retryCount, connectionFailed]);
+
+  // ✅ REDIRIGIR SI ESTÁ AUTENTICADO
+  useEffect(() => {
+    if (!isLoading && auth.isLoggedIn && !auth.checking && !maintenanceMode) {
       console.log("🔄 Usuario autenticado, redirigiendo a admin...");
       setCurrentView("admin");
       setShowLoginForm(false);
     }
-  }, [auth.isLoggedIn, auth.checking, isLoading]);
+  }, [auth.isLoggedIn, auth.checking, isLoading, maintenanceMode]);
 
   // ✅ MANEJAR LOGIN
   const handleLogin = async (username, password) => {
@@ -178,50 +215,42 @@ const App = () => {
     setCurrentView("client");
   };
 
-  // ✅ MANEJAR CAMBIO DE VISTA
-  const handleViewChange = (view) => {
-    setCurrentView(view);
-  };
+  // ✅ RENDERIZAR MODO MANTENIMIENTO
+  if (maintenanceMode) {
+    return <MaintenanceMode onRetry={handleRetryConnection} />;
+  }
 
-  // ✅ MOSTRAR LOADING PRINCIPAL HASTA QUE TODOS LOS DATOS ESTÉN LISTOS
+  // ✅ RENDERIZAR LOADING PRINCIPAL
   if (isLoading) {
     return (
       <div className="relative">
         <SpiralLoading />
 
-        {/* Status de carga - AHORA INCLUYE LA VERIFICACIÓN DE AUTH */}
+        {/* Status de carga */}
         <div className="fixed bottom-10 left-0 right-0 text-center z-50">
           <div className="bg-black bg-opacity-70 text-white inline-block px-6 py-3 rounded-full shadow-lg">
             <div className="flex items-center gap-3">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
               <span className="font-medium">{loadingStatus}</span>
+              {retryCount > 0 && !connectionFailed && (
+                <span className="text-yellow-300 text-sm">
+                  (Intento {retryCount}/2)
+                </span>
+              )}
+              {connectionFailed && (
+                <span className="text-orange-300 text-sm">• Modo local</span>
+              )}
             </div>
           </div>
         </div>
-
-        {/* Error overlay */}
-        {loadingError && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg text-center max-w-sm mx-4">
-              <div className="text-red-500 text-4xl mb-4">⚠️</div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                Error de Carga
-              </h3>
-              <p className="text-gray-600 mb-4">{loadingError}</p>
-              <p className="text-sm text-gray-500">
-                Reintentando automáticamente...
-              </p>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
-
-  // ✅ ELIMINADO: Ya no mostramos el loading de verificación de sesión por separado
-  // El código que tenías aquí ha sido movido al loading principal
-
-  // ✅ RENDERIZAR INTERFAZ PRINCIPAL (SOLO CUANDO TODOS LOS DATOS ESTÉN LISTOS)
+  // ✅ AGREGAR ESTA FUNCIÓN FALTANTE
+  const handleViewChange = (view) => {
+    setCurrentView(view);
+  };
+  // ✅ RENDERIZAR INTERFAZ PRINCIPAL
   return (
     <div className="font-sans antialiased">
       {currentView === "client" ? (
@@ -246,12 +275,24 @@ const App = () => {
         />
       )}
 
-      {/* Estado de carga global (opcional) */}
+      {/* Estado de carga global */}
       {authLoading && (
         <div className="fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
           <div className="flex items-center gap-2">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
             <span>Procesando...</span>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ OVERLAY DE MODO LOCAL */}
+      {connectionFailed && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+            <span className="text-sm">
+              Modo local - Sin conexión al servidor
+            </span>
           </div>
         </div>
       )}

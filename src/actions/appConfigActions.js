@@ -1,11 +1,11 @@
-// actions/appConfigActions.js
+// actions/appConfigActions.js - VERSIÓN QUE PERMITE FALLOS
 import { fetchAPIConfig } from "../helpers/fetchAPIConfig";
 import { fetchPublic } from "../helpers/fetchPublic";
 import { types } from "../types/types";
 import { applyTheme } from "../utils/themeManager";
 import Swal from "sweetalert2";
 
-// Cargar configuración
+// Cargar configuración - AHORA PERMITE FALLAR
 export const loadAppConfig = () => {
   return async (dispatch) => {
     try {
@@ -22,61 +22,51 @@ export const loadAppConfig = () => {
         });
 
         applyTheme(body.config.theme);
-        return Promise.resolve();
+        return Promise.resolve(body.config);
       } else {
         console.error("❌ Error en respuesta de configuración:", body.msg);
 
-        // ✅ USAR CONFIGURACIÓN POR DEFECTO PERO MARCAR COMO ERROR
-        const defaultConfig = {
-          app_name: "Minimarket Digital",
-          app_description: "Tu tienda de confianza",
-          theme: "blue",
-          whatsapp_number: "+5491112345678",
-          business_hours: "Lun-Vie: 8:00 - 20:00",
-          business_address: "Av. Principal 123",
-          initialinfo:
-            "🌟 **Bienvenido a nuestro Minimarket Digital** 🌟\n\n¡Estamos encantados de tenerte aquí! En nuestro minimarket encontrarás productos de calidad, horario extendido y servicio personalizado.",
-          show_initialinfo: true, // ✅ NUEVO CAMPO
-        };
-
-        dispatch({
-          type: types.appConfigLoad,
-          payload: defaultConfig,
-        });
-
-        applyTheme(defaultConfig.theme);
-        return Promise.reject(new Error("Configuración por defecto cargada"));
+        // ✅ IMPORTANTE: NO USAR CONFIGURACIÓN POR DEFECTO, DEJAR QUE FALLE
+        throw new Error(body.msg || "Error cargando configuración");
       }
     } catch (error) {
       console.error("❌ Error de conexión cargando configuración:", error);
 
-      // ✅ CONFIGURACIÓN POR DEFECTO EN CASO DE ERROR DE RED
-      const defaultConfig = {
-        app_name: "Minimarket Digital",
-        app_description: "Tu tienda de confianza",
-        theme: "blue",
-        whatsapp_number: "+5491112345678",
-        business_hours: "Lun-Vie: 8:00 - 20:00",
-        business_address: "Av. Principal 123",
-        initialinfo:
-          "🌟 **Bienvenido a nuestro Minimarket Digital** 🌟\n\n¡Estamos encantados de tenerte aquí! En nuestro minimarket encontrarás productos de calidad, horario extendido y servicio personalizado.",
-        show_initialinfo: true, // ✅ NUEVO CAMPO
-      };
-
-      console.log("🔄 Usando configuración local:", defaultConfig.app_name);
-
-      dispatch({
-        type: types.appConfigLoad,
-        payload: defaultConfig,
-      });
-
-      applyTheme(defaultConfig.theme);
+      // ✅ IMPORTANTE: NO DISPATCHAR CONFIGURACIÓN POR DEFECTO
+      // Dejamos que el error se propague para activar el modo mantenimiento
       return Promise.reject(error);
     }
   };
 };
 
-// Actualizar configuración
+// Función separada para cargar configuración por defecto (solo si es necesario)
+export const loadDefaultConfig = () => {
+  return (dispatch) => {
+    const defaultConfig = {
+      app_name: "Minimarket Digital",
+      app_description: "Tu tienda de confianza",
+      theme: "blue",
+      whatsapp_number: "+5491112345678",
+      business_hours: "Lun-Vie: 8:00 - 20:00",
+      business_address: "Av. Principal 123",
+      initialinfo:
+        "🌟 **Bienvenido a nuestro Minimarket Digital** 🌟\n\n¡Estamos encantados de tenerte aquí!",
+      show_initialinfo: true,
+    };
+
+    console.log("🔄 Usando configuración local:", defaultConfig.app_name);
+
+    dispatch({
+      type: types.appConfigLoad,
+      payload: defaultConfig,
+    });
+
+    applyTheme(defaultConfig.theme);
+    return Promise.resolve(defaultConfig);
+  };
+};
+
+// Resto del código permanece igual...
 export const updateAppConfig = (configData) => {
   return async (dispatch) => {
     try {
