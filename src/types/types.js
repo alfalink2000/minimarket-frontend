@@ -46,4 +46,11 @@ export const types = {
   adminUserSetActive: "[adminUsers] Set active user",
   adminUserClearActive: "[adminUsers] Clear active user",
   adminUserStatusToggled: "[adminUsers] Status toggled",
+
+  // ========== CART ==========
+  cartAddItem: "[cart] Add item",
+  cartRemoveItem: "[cart] Remove item",
+  cartUpdateQuantity: "[cart] Update quantity",
+  cartClear: "[cart] Clear cart",
+  cartToggleModal: "[cart] Toggle modal",
 };

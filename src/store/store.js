@@ -6,6 +6,7 @@ import { categoriesReducer } from "../reducers/categoriesReducer";
 import { authReducer } from "../reducers/authReducer";
 import { adminUsersReducer } from "../reducers/adminUsersReducer";
 import { appConfigReducer } from "../reducers/appConfigReducer";
+import { cartReducer } from "../reducers/cartReducer";
 
 const reducers = combineReducers({
   products: productsReducer,
@@ -13,6 +14,7 @@ const reducers = combineReducers({
   auth: authReducer,
   adminUsers: adminUsersReducer,
   appConfig: appConfigReducer,
+  cart: cartReducer,
 });
 
 // ✅ MIDDLEWARE DE DEBUG PARA ENCONTRAR LA ACCIÓN PROBLEMÁTICA

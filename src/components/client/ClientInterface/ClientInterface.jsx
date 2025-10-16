@@ -23,6 +23,7 @@ import ProductGrid from "../ProductGrid/ProductGrid";
 import ProductDetail from "../ProductDetail/ProductDetail";
 import BottomNavigation from "../../common/BottomNavigation/BottomNavigation";
 import InitialInfoModal from "../../common/InitialInfoModal/InitialInfoModal";
+import CartModal from "../../common/CartModal/CartModal";
 
 // Actions & Selectors
 import { loadFeaturedProducts } from "../../../actions/featuredProductsActions";
@@ -239,6 +240,8 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
         >
           <HiOutlineTag className="header-action__icon" />
         </button>
+        {/* ✅ AGREGAR ESTE BOTÓN DEL CARRITO */}
+
         <div className="header-separator"></div>
         <button
           className="header-action header-action--icon"
@@ -684,6 +687,9 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
       >
         <DesktopNavigation />
       </Header>
+
+      {/* AGREGAR EL MODAL DEL CARRITO */}
+      <CartModal />
 
       <InitialInfoModal
         isOpen={showInfoModal}

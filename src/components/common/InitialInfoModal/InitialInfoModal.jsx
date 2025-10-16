@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+// components/common/InitialInfoModal/InitialInfoModal.jsx - CORREGIDO
 import {
   HiX,
   HiInformationCircle,
@@ -10,18 +10,7 @@ import {
 import "./InitialInfoModal.css";
 
 const InitialInfoModal = ({ isOpen, onClose, initialInfo }) => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      setIsVisible(true);
-    } else {
-      const timer = setTimeout(() => setIsVisible(false), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen]);
-
-  if (!isVisible && !isOpen) return null;
+  // ❌ ELIMINA todo el estado isVisible y useEffect
 
   // Función para formatear el texto con emojis y formato básico
   const formatInitialInfo = (text) => {
