@@ -634,3 +634,167 @@
 .welcome-textarea::-webkit-scrollbar-thumb:hover {
   background: var(--gray-400);
 }
+/* components/admin/AppConfigManager/AppConfigManager.css */
+
+/* ... (tus estilos existentes) ... */
+
+/* Currency Selection Styles */
+.currency-selection {
+  padding: 1rem 0;
+}
+
+.currency-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 0.5rem;
+}
+
+.currency-subtitle {
+  color: var(--gray-600);
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+.currency-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.currency-card {
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--white);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.currency-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--gray-300);
+}
+
+.currency-card.selected {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px var(--primary-blue-light);
+}
+
+.currency-icon {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--primary-blue), var(--accent-teal));
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.currency-symbol {
+  font-size: 1.5rem;
+  color: var(--white);
+}
+
+.currency-info {
+  flex: 1;
+}
+
+.currency-name {
+  font-weight: 600;
+  color: var(--gray-800);
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+.currency-description {
+  color: var(--gray-600);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+}
+
+.currency-preview {
+  margin-top: 0.5rem;
+}
+
+.currency-example {
+  background: var(--gray-100);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--gray-700);
+  font-size: 1.1rem;
+}
+
+.currency-selected-indicator {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 24px;
+  height: 24px;
+  background: var(--primary-blue);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.currency-preview-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--gray-50);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+}
+
+.price-preview {
+  text-align: center;
+}
+
+.preview-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+  margin: 1rem 0;
+}
+
+/* Responsive Design para Currency */
+@media (max-width: 768px) {
+  .currency-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .currency-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .currency-icon {
+    align-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .currency-card {
+    padding: 1rem;
+  }
+
+  .currency-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .currency-symbol {
+    font-size: 1.25rem;
+  }
+}

@@ -12,10 +12,33 @@ const ProductCard = memo(({ product, onWhatsAppClick, onProductClick }) => {
   const cartItems = useSelector(selectCartItems);
   const [showQuantity, setShowQuantity] = useState(false);
 
+  // ✅ OBTENER LA MONEDA DESDE LA CONFIGURACIÓN
+  const currency = useSelector(
+    (state) => state.appConfig.config?.currency || "MN"
+  );
+
   const isAvailable =
     product.status === "available" && product.stock_quantity > 0;
   const cartItem = cartItems.find((item) => item.id === product.id);
   const currentQuantity = cartItem ? cartItem.quantity : 0;
+
+  // ✅ FUNCIÓN PARA OBTENER EL SÍMBOLO DE MONEDA
+  const getCurrencySymbol = useCallback(() => {
+    switch (currency) {
+      case "USD":
+        return "US$";
+      case "EUR":
+        return "€";
+      case "MN":
+      default:
+        return "$";
+    }
+  }, [currency]);
+
+  // ✅ FUNCIÓN PARA FORMATEAR EL PRECIO
+  const formatPrice = useCallback((price) => {
+    return parseFloat(price).toFixed(2);
+  }, []);
 
   const handleCardClick = useCallback(() => {
     onProductClick?.(product);
@@ -77,6 +100,9 @@ const ProductCard = memo(({ product, onWhatsAppClick, onProductClick }) => {
           {isAvailable ? "🟢 Disponible" : "🔴 Agotado"}
         </div>
 
+        {/* ✅ BADGE DE MONEDA - Agregado aquí */}
+        <div className="product-card__currency-badge">{currency}</div>
+
         {/* Badge de cantidad en carrito */}
         {currentQuantity > 0 && (
           <div className="product-card__cart-badge">{currentQuantity}</div>
@@ -88,7 +114,7 @@ const ProductCard = memo(({ product, onWhatsAppClick, onProductClick }) => {
 
         <div className="product-card__info-row">
           <div className="product-card__price">
-            ${parseFloat(product.price).toFixed(2)}
+            {getCurrencySymbol()} {formatPrice(product.price)}
           </div>
           <div className="product-card__category">{product.category?.name}</div>
         </div>

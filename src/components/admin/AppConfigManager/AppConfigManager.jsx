@@ -8,6 +8,9 @@ import {
   HiCheck,
   HiOutlineEye,
   HiOutlineEyeOff,
+  HiOutlineCurrencyDollar,
+  HiOutlineCurrencyEuro,
+  HiOutlineCash,
 } from "react-icons/hi";
 import {
   updateAppConfig,
@@ -33,6 +36,7 @@ const AppConfigManager = () => {
     logo_url: "",
     initialinfo: "",
     show_initialinfo: true,
+    currency: "MN", // ✅ NUEVO CAMPO
   });
 
   const [activeTab, setActiveTab] = useState("general");
@@ -55,6 +59,7 @@ const AppConfigManager = () => {
         logo_url: config.logo_url || "",
         initialinfo: config.initialinfo || "",
         show_initialinfo: config.show_initialinfo !== false,
+        currency: config.currency || "MN", // ✅ NUEVO CAMPO
       });
     }
   }, [config]);
@@ -71,6 +76,13 @@ const AppConfigManager = () => {
     setFormData((prev) => ({
       ...prev,
       theme: themeName,
+    }));
+  };
+
+  const handleCurrencySelect = (currencyCode) => {
+    setFormData((prev) => ({
+      ...prev,
+      currency: currencyCode,
     }));
   };
 
@@ -140,6 +152,31 @@ const AppConfigManager = () => {
     { id: "rose", name: "Rosa Elegante", description: "Moderna y sofisticada" },
   ];
 
+  // ✅ NUEVO: Opciones de moneda (con iconos corregidos)
+  const currencyOptions = [
+    {
+      code: "MN",
+      name: "Moneda Nacional",
+      symbol: "$",
+      description: "Peso local (MN)",
+      icon: HiOutlineCash, // Usando HiOutlineCash para moneda nacional
+    },
+    {
+      code: "USD",
+      name: "Dólares Americanos",
+      symbol: "US$",
+      description: "Dólares (USD)",
+      icon: HiOutlineCurrencyDollar,
+    },
+    {
+      code: "EUR",
+      name: "Euros",
+      symbol: "€",
+      description: "Euros (EUR)",
+      icon: HiOutlineCurrencyEuro,
+    },
+  ];
+
   return (
     <div className="app-config-manager">
       <div className="config-header">
@@ -161,6 +198,13 @@ const AppConfigManager = () => {
         >
           <HiOutlineColorSwatch />
           Apariencia
+        </button>
+        <button
+          className={`tab ${activeTab === "currency" ? "active" : ""}`}
+          onClick={() => setActiveTab("currency")}
+        >
+          <HiOutlineCurrencyDollar />
+          Moneda
         </button>
         <button
           className={`tab ${activeTab === "contact" ? "active" : ""}`}
@@ -303,6 +347,75 @@ const AppConfigManager = () => {
                   </span>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* ✅ NUEVA PESTAÑA: Configuración de Moneda */}
+        {activeTab === "currency" && (
+          <div className="tab-content">
+            <div className="currency-selection">
+              <h3 className="currency-title">Selecciona la Moneda</h3>
+              <p className="currency-subtitle">
+                Esta moneda se mostrará en todos los precios de la aplicación
+              </p>
+
+              <div className="currency-grid">
+                {currencyOptions.map((currency) => {
+                  const IconComponent = currency.icon;
+                  return (
+                    <div
+                      key={currency.code}
+                      className={`currency-card ${
+                        formData.currency === currency.code ? "selected" : ""
+                      }`}
+                      onClick={() => handleCurrencySelect(currency.code)}
+                    >
+                      <div className="currency-icon">
+                        <IconComponent className="currency-symbol" />
+                      </div>
+
+                      <div className="currency-info">
+                        <h4 className="currency-name">{currency.name}</h4>
+                        <p className="currency-description">
+                          {currency.description}
+                        </p>
+                        <div className="currency-preview">
+                          <span className="currency-example">
+                            {currency.symbol} 99.99
+                          </span>
+                        </div>
+                      </div>
+
+                      {formData.currency === currency.code && (
+                        <div className="currency-selected-indicator">
+                          <HiCheck className="check-icon" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="currency-preview-section">
+                <h4 className="preview-title">Vista Previa</h4>
+                <div className="preview-content">
+                  <div className="price-preview">
+                    <p>
+                      <strong>Producto de ejemplo:</strong> Camiseta Básica
+                    </p>
+                    <p className="preview-price">
+                      Precio:{" "}
+                      {currencyOptions.find((c) => c.code === formData.currency)
+                        ?.symbol || "$"}{" "}
+                      29.99
+                    </p>
+                    <small className="help-text">
+                      Los precios se mostrarán con este formato en toda la app
+                    </small>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}

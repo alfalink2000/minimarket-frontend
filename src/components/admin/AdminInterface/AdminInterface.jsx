@@ -152,22 +152,17 @@ const AdminInterface = ({ onLogout }) => {
     setIsMobileMenuOpen(false);
   }, []);
 
-  // Renderizado de contenido optimizado
+  // Renderizado de contenido optimizado - CORREGIDO
   const renderContent = useMemo(() => {
-    const sectionProps = {
-      className: "admin-section",
-      titleClass: "admin-section__title",
-    };
-
     switch (activeSection) {
       case "dashboard":
         return <DashboardStats products={products} />;
 
       case "products":
         return (
-          <div {...sectionProps}>
+          <div className="admin-section">
             <div className="admin-section__header">
-              <h2 className={sectionProps.titleClass}>Gestión de Productos</h2>
+              <h2 className="admin-section__title">Gestión de Productos</h2>
               <button
                 onClick={() => setShowAddForm(true)}
                 className="admin-section__add-button"
@@ -200,8 +195,8 @@ const AdminInterface = ({ onLogout }) => {
 
       case "categories":
         return (
-          <div {...sectionProps}>
-            <h2 className={sectionProps.titleClass}>Gestión de Categorías</h2>
+          <div className="admin-section">
+            <h2 className="admin-section__title">Gestión de Categorías</h2>
             <CategoryManager
               categories={categories}
               onAddCategory={handleAddCategory}
@@ -213,16 +208,16 @@ const AdminInterface = ({ onLogout }) => {
 
       case "featured":
         return (
-          <div {...sectionProps}>
-            <h2 className={sectionProps.titleClass}>Productos Destacados</h2>
+          <div className="admin-section">
+            <h2 className="admin-section__title">Productos Destacados</h2>
             <FeaturedProductsManager />
           </div>
         );
 
       case "users":
         return (
-          <div {...sectionProps}>
-            <h2 className={sectionProps.titleClass}>
+          <div className="admin-section">
+            <h2 className="admin-section__title">
               Gestión de Usuarios Administradores
             </h2>
             <AdminUsersManager users={adminUsers} />
@@ -231,8 +226,8 @@ const AdminInterface = ({ onLogout }) => {
 
       case "config":
         return (
-          <div {...sectionProps}>
-            <h2 className={sectionProps.titleClass}>Configuración de la App</h2>
+          <div className="admin-section">
+            <h2 className="admin-section__title">Configuración de la App</h2>
             <AppConfigManager />
           </div>
         );

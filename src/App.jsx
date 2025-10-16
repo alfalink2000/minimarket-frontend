@@ -1,4 +1,4 @@
-// App.js - VERSIÓN COMPLETA MEJORADA
+// App.js - VERSIÓN CON VERIFICACIÓN EN SEGUNDO PLANO
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ClientInterface from "./components/client/ClientInterface/ClientInterface";
@@ -21,6 +21,7 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [loadingStatus, setLoadingStatus] = useState("Iniciando aplicación...");
   const [loadingError, setLoadingError] = useState(null);
+  const [authVerified, setAuthVerified] = useState(false); // ✅ NUEVO: Controla si la auth ya se verificó
 
   const dispatch = useDispatch();
 
@@ -36,6 +37,7 @@ const App = () => {
     const hasAppConfig = appConfig && appConfig.app_name;
     const hasProducts = products.length > 0;
     const hasCategories = categories.length > 0;
+    const hasAuthVerified = authVerified; // ✅ Usar nuestro estado local
 
     console.log("📊 Estado de carga:", {
       appConfig: hasAppConfig,
@@ -43,12 +45,13 @@ const App = () => {
       categories: hasCategories
         ? `${categories.length} categorías`
         : "sin categorías",
+      authVerified: hasAuthVerified,
     });
 
-    return hasAppConfig && hasProducts && hasCategories;
+    return hasAppConfig && hasProducts && hasCategories && hasAuthVerified;
   };
 
-  // Agrega este script en tu frontend (React)
+  // ✅ PING PARA MANTENER SERVIDOR ACTIVO
   useEffect(() => {
     const keepAlive = () => {
       fetch("https://minimarket-backend-6z9m.onrender.com/api/health")
@@ -56,17 +59,42 @@ const App = () => {
         .catch(() => console.log("❌ Error en ping"));
     };
 
-    // Ping cada 10 minutos
     const interval = setInterval(keepAlive, 10 * 60 * 1000);
-
     return () => clearInterval(interval);
   }, []);
 
-  // ✅ CARGAR DATOS INICIALES CON MEJOR MANEJO DE ERRORES
+  // ✅ VERIFICAR AUTENTICACIÓN EN SEGUNDO PLANO
+  const verifyAuthentication = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (token) {
+        console.log("🔐 Verificando token...");
+        setLoadingStatus("Verificando sesión...");
+        await dispatch(StartChecking());
+        console.log("✅ Verificación de auth completada - Usuario autenticado");
+      } else {
+        console.log("🔐 No hay token, continuando como invitado");
+        dispatch(checkingFinish());
+      }
+    } catch (error) {
+      console.error("❌ Error verificando autenticación:", error);
+      dispatch(checkingFinish());
+    } finally {
+      // ✅ MARCAR QUE LA VERIFICACIÓN TERMINÓ (ÉXITO O FALLO)
+      setAuthVerified(true);
+      console.log("✅ Proceso de verificación de auth finalizado");
+    }
+  };
+
+  // ✅ CARGAR DATOS INICIALES CON VERIFICACIÓN DE AUTH
   useEffect(() => {
     const loadInitialData = async () => {
       try {
         console.log("🚀 Iniciando carga de datos esenciales...");
+
+        // ✅ INICIAR VERIFICACIÓN DE AUTH EN SEGUNDO PLANO
+        verifyAuthentication();
 
         // ✅ CARGAR CONFIGURACIÓN
         setLoadingStatus("Cargando configuración...");
@@ -84,14 +112,13 @@ const App = () => {
         await Promise.all([productsPromise, categoriesPromise]);
         console.log("✅ Productos y categorías cargados");
 
-        // ✅ CARGAR PRODUCTOS DESTACADOS (OPCIONAL, PUEDE FALLAR)
+        // ✅ CARGAR PRODUCTOS DESTACADOS (OPCIONAL)
         try {
           setLoadingStatus("Cargando productos destacados...");
           await dispatch(loadFeaturedProducts());
           console.log("✅ Productos destacados cargados");
         } catch (featuredError) {
           console.warn("⚠️ Productos destacados no cargados:", featuredError);
-          // No es crítico, continuamos
         }
 
         console.log("✅ Todos los datos cargados exitosamente");
@@ -99,7 +126,7 @@ const App = () => {
         console.error("❌ Error cargando datos iniciales:", error);
         setLoadingError(`Error: ${error.message}`);
 
-        // ✅ REINTENTAR DESPUÉS DE 5 SEGUNDOS SI FALTAN DATOS ESENCIALES
+        // ✅ REINTENTAR DESPUÉS DE 5 SEGUNDOS
         setTimeout(() => {
           if (!areEssentialDataLoaded()) {
             setLoadingStatus("Reintentando carga...");
@@ -112,7 +139,7 @@ const App = () => {
     loadInitialData();
   }, [dispatch]);
 
-  // ✅ EFECTO PARA QUITAR LOADING CUANDO TODOS LOS DATOS ESTÉN LISTOS
+  // ✅ EFECTO PARA QUITAR LOADING CUANDO TODO ESTÉ LISTO
   useEffect(() => {
     if (areEssentialDataLoaded()) {
       console.log(
@@ -122,37 +149,15 @@ const App = () => {
       const timer = setTimeout(() => {
         setIsLoading(false);
         setLoadingStatus("¡Listo!");
-      }, 800); // Pequeño delay para mejor UX
+      }, 800);
 
       return () => clearTimeout(timer);
     }
-  }, [appConfig, products, categories]);
+  }, [appConfig, products, categories, authVerified]); // ✅ INCLUIR authVerified
 
-  // ✅ VERIFICAR AUTENTICACIÓN SOLO CUANDO LOS DATOS ESTÉN CARGADOS
+  // ✅ REDIRIGIR SI ESTÁ AUTENTICADO (DESPUÉS DE QUITAR LOADING)
   useEffect(() => {
-    if (!isLoading && !loadingError) {
-      const verifyAuth = async () => {
-        const token = localStorage.getItem("token");
-
-        if (token) {
-          try {
-            await dispatch(StartChecking());
-          } catch (error) {
-            console.error("Error verificando autenticación:", error);
-            dispatch(checkingFinish());
-          }
-        } else {
-          dispatch(checkingFinish());
-        }
-      };
-
-      verifyAuth();
-    }
-  }, [dispatch, isLoading, loadingError]);
-
-  // ✅ REDIRIGIR SI ESTÁ AUTENTICADO
-  useEffect(() => {
-    if (auth.isLoggedIn && !auth.checking && !isLoading) {
+    if (!isLoading && auth.isLoggedIn && !auth.checking) {
       console.log("🔄 Usuario autenticado, redirigiendo a admin...");
       setCurrentView("admin");
       setShowLoginForm(false);
@@ -184,7 +189,7 @@ const App = () => {
       <div className="relative">
         <SpiralLoading />
 
-        {/* Status de carga */}
+        {/* Status de carga - AHORA INCLUYE LA VERIFICACIÓN DE AUTH */}
         <div className="fixed bottom-10 left-0 right-0 text-center z-50">
           <div className="bg-black bg-opacity-70 text-white inline-block px-6 py-3 rounded-full shadow-lg">
             <div className="flex items-center gap-3">
@@ -213,20 +218,8 @@ const App = () => {
     );
   }
 
-  // ✅ MOSTRAR LOADING DE VERIFICACIÓN DE SESIÓN
-  if (auth.checking) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Verificando sesión...</p>
-          <p className="text-sm text-gray-500 mt-2">
-            {appConfig?.app_name || "Minimarket App"}
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // ✅ ELIMINADO: Ya no mostramos el loading de verificación de sesión por separado
+  // El código que tenías aquí ha sido movido al loading principal
 
   // ✅ RENDERIZAR INTERFAZ PRINCIPAL (SOLO CUANDO TODOS LOS DATOS ESTÉN LISTOS)
   return (

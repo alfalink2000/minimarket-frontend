@@ -28,7 +28,7 @@
 .floating-back-button {
   width: 48px;
   height: 48px;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.966);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 50%;
@@ -43,7 +43,7 @@
 
 .floating-back-button:hover {
   transform: scale(1.1);
-  background: rgba(255, 255, 255, 1);
+  background: rgba(255, 255, 255, 0.747);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
 }
 
@@ -604,33 +604,6 @@
 .security-icon {
   font-size: 1.1rem;
   flex-shrink: 0;
-}
-
-/* Elementos decorativos adicionales */
-.floating-decoration {
-  position: absolute;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.decoration-1 {
-  top: 20%;
-  left: 5%;
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-  border-radius: 50%;
-  opacity: 0.6;
-}
-
-.decoration-2 {
-  bottom: 30%;
-  right: 8%;
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-  border-radius: 50%;
-  opacity: 0.4;
 }
 
 /* ============================================= */
