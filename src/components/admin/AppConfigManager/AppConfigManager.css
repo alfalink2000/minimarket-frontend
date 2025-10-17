@@ -798,3 +798,66 @@
     font-size: 1.25rem;
   }
 }
+/* Mejoras para la cuadrícula de temas */
+.theme-grid {
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+/* Para pantallas más grandes */
+@media (min-width: 1200px) {
+  .theme-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+/* Para pantallas más pequeñas */
+@media (max-width: 768px) {
+  .theme-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .theme-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mejoras visuales para las tarjetas de tema */
+.theme-preview {
+  height: 80px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-primary,
+.theme-accent,
+.theme-success {
+  flex: 1;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.theme-primary::after,
+.theme-accent::after,
+.theme-success::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(0, 0, 0, 0.1)
+  );
+}
+
+.theme-card:hover .theme-primary,
+.theme-card:hover .theme-accent,
+.theme-card:hover .theme-success {
+  transform: scale(1.1);
+}

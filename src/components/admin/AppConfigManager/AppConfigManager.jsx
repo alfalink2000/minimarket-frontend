@@ -128,6 +128,7 @@ const AppConfigManager = () => {
     dispatch(resetTheme());
   };
 
+  // En tu componente AppConfigManager.jsx, reemplaza el array themeOptions con:
   const themeOptions = [
     {
       id: "blue",
@@ -140,16 +141,75 @@ const AppConfigManager = () => {
       description: "Ideal para productos orgánicos",
     },
     {
+      id: "emerald",
+      name: "Verde Esmeralda",
+      description: "Fresco y moderno",
+    },
+    {
+      id: "lime",
+      name: "Verde Lima",
+      description: "Energético y vibrante",
+    },
+    {
       id: "purple",
       name: "Púrpura Creativo",
       description: "Para marcas innovadoras",
+    },
+    {
+      id: "violet",
+      name: "Violeta Real",
+      description: "Lujo y elegancia",
+    },
+    {
+      id: "indigo",
+      name: "Índigo Profundo",
+      description: "Confiabilidad y estabilidad",
+    },
+    {
+      id: "fuchsia",
+      name: "Fucsia Vibrante",
+      description: "Juvenil y atrevido",
+    },
+    {
+      id: "pink",
+      name: "Rosa Moderno",
+      description: "Amigable y accesible",
+    },
+    {
+      id: "rose",
+      name: "Rosa Elegante",
+      description: "Moderna y sofisticada",
     },
     {
       id: "orange",
       name: "Naranja Energético",
       description: "Llama la atención",
     },
-    { id: "rose", name: "Rosa Elegante", description: "Moderna y sofisticada" },
+    {
+      id: "amber",
+      name: "Ámbar Cálido",
+      description: "Acogedor y tradicional",
+    },
+    {
+      id: "cyan",
+      name: "Cyan Refrescante",
+      description: "Tecnológico y limpio",
+    },
+    {
+      id: "sky",
+      name: "Azul Cielo",
+      description: "Sereno y confiable",
+    },
+    {
+      id: "slate",
+      name: "Pizarra Neutral",
+      description: "Minimalista y profesional",
+    },
+    {
+      id: "stone",
+      name: "Piedra Natural",
+      description: "Elegante y discreto",
+    },
   ];
 
   // ✅ NUEVO: Opciones de moneda (con iconos corregidos)
