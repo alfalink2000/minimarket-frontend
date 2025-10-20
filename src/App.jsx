@@ -1,4 +1,4 @@
-// App.js - VERSIÓN QUE SÍ ACTIVA MODO MANTENIMIENTO
+// App.js - VERSIÓN QUE MANTIENE LOADING HASTA MANTENIMIENTO
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ClientInterface from "./components/client/ClientInterface/ClientInterface";
@@ -22,69 +22,44 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [loadingStatus, setLoadingStatus] = useState("Iniciando aplicación...");
   const [maintenanceMode, setMaintenanceMode] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-  const [connectionFailed, setConnectionFailed] = useState(false); // ✅ NUEVO: Para forzar modo mantenimiento
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const [hasErrors, setHasErrors] = useState(false);
 
   const dispatch = useDispatch();
-
-  // ✅ SELECTORES
   const auth = useSelector((state) => state.auth);
+  const authLoading = useSelector((state) => state.auth.loading);
   const appConfig = useSelector((state) => state.appConfig.config);
   const products = useSelector((state) => state.products.products);
   const categories = useSelector((state) => state.categories.categories);
-  const authLoading = useSelector((state) => state.auth.loading);
 
-  // ✅ VERIFICAR SI TODOS LOS DATOS ESENCIALES ESTÁN CARGADOS
+  // ✅ VERIFICAR SI LOS DATOS ESENCIALES ESTÁN CARGADOS
   const areEssentialDataLoaded = () => {
-    if (maintenanceMode || connectionFailed) return false;
-
     const hasAppConfig = appConfig && appConfig.app_name;
-    const hasProducts = products.length > 0;
-    const hasCategories = categories.length > 0;
+    const productsLoaded = Array.isArray(products);
+    const categoriesLoaded = Array.isArray(categories);
 
-    return hasAppConfig && hasProducts && hasCategories;
+    return hasAppConfig && productsLoaded && categoriesLoaded;
   };
 
-  // ✅ VERIFICAR AUTENTICACIÓN EN SEGUNDO PLANO
-  const verifyAuthentication = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (token) {
-        await dispatch(StartChecking());
-      } else {
-        dispatch(checkingFinish());
-      }
-    } catch (error) {
-      console.error("❌ Error verificando autenticación:", error);
-      dispatch(checkingFinish());
-    }
-  };
-
-  // ✅ REINTENTAR CONEXIÓN DESDE MODO MANTENIMIENTO
-  const handleRetryConnection = () => {
-    console.log("🔄 Reintentando conexión desde modo mantenimiento...");
-    setMaintenanceMode(false);
-    setConnectionFailed(false);
-    setRetryCount(0);
-    setIsLoading(true);
-    loadInitialData();
-  };
-
-  // ✅ CARGAR DATOS INICIALES CON LÓGICA SIMPLIFICADA
+  // ✅ CARGAR DATOS INICIALES
   const loadInitialData = async () => {
     try {
-      console.log(
-        `🚀 Iniciando carga de datos (Intento ${retryCount + 1}/2)...`
-      );
+      console.log("🚀 Cargando datos iniciales...");
       setLoadingStatus("Conectando con el servidor...");
 
-      // ✅ VERIFICAR AUTENTICACIÓN EN PARALELO
-      verifyAuthentication();
+      // ✅ CARGAR CONFIGURACIÓN PRIMERO
+      try {
+        setLoadingStatus("Cargando configuración...");
+        await dispatch(loadAppConfig());
+        console.log("✅ Configuración cargada");
+      } catch (configError) {
+        console.error("❌ Error cargando configuración:", configError);
+        setHasErrors(true);
+        // ✅ INTENTAR CONFIGURACIÓN LOCAL
+        await dispatch(loadDefaultConfig());
+      }
 
-      // ✅ INTENTAR CARGAR DESDE EL SERVIDOR PRIMERO
-      setLoadingStatus("Cargando configuración...");
-      await dispatch(loadAppConfig());
-
+      // ✅ CARGAR DATOS ADICIONALES
       setLoadingStatus("Cargando productos...");
       await dispatch(getProducts());
 
@@ -93,104 +68,79 @@ const App = () => {
 
       // ✅ CARGAR PRODUCTOS DESTACADOS (OPCIONAL)
       try {
-        setLoadingStatus("Cargando productos destacados...");
+        setLoadingStatus("Cargando datos adicionales...");
         await dispatch(loadFeaturedProducts());
       } catch (featuredError) {
         console.warn("⚠️ Productos destacados no cargados:", featuredError);
       }
 
-      console.log("✅ Todos los datos cargados exitosamente desde el servidor");
-      setRetryCount(0);
-      setConnectionFailed(false);
-    } catch (error) {
-      console.error("❌ Error cargando datos del servidor:", error);
-
-      const newRetryCount = retryCount + 1;
-      setRetryCount(newRetryCount);
-
-      // ✅ SI ES EL SEGUNDO INTENTO FALLIDO, USAR DATOS LOCALES
-      if (newRetryCount >= 2) {
-        console.log("🚨 Segundo intento fallido, usando datos locales...");
-        setConnectionFailed(true);
-
-        try {
-          setLoadingStatus("Cargando datos locales...");
-
-          // ✅ CARGAR CONFIGURACIÓN LOCAL
-          await dispatch(loadDefaultConfig());
-
-          // ✅ PARA PRODUCTOS Y CATEGORÍAS, DEJAR LOS ARRAYS VACÍOS
-          // (asumiendo que Redux ya los inicializa como arrays vacíos)
-
-          console.log("✅ Datos locales cargados");
-
-          // ✅ ESPERAR UN POCO Y QUITAR LOADING
-          setTimeout(() => {
-            setIsLoading(false);
-          }, 1000);
-        } catch (fallbackError) {
-          console.error("❌ Error incluso con datos locales:", fallbackError);
-
-          // ✅ SI FALLAN LOS DATOS LOCALES TAMBIÉN, ACTIVAR MODO MANTENIMIENTO
-          setTimeout(() => {
-            setMaintenanceMode(true);
-            setIsLoading(false);
-          }, 1000);
-        }
-        return;
+      // ✅ VERIFICAR AUTENTICACIÓN
+      const token = localStorage.getItem("token");
+      if (token) {
+        dispatch(StartChecking());
+      } else {
+        dispatch(checkingFinish());
       }
 
-      // ✅ REINTENTAR AUTOMÁTICAMENTE
-      console.log(`🔄 Reintentando en 2 segundos... (${newRetryCount}/2)`);
-      setLoadingStatus(`Reintentando conexión... (${newRetryCount}/2)`);
-
-      setTimeout(() => {
-        if (!maintenanceMode && !connectionFailed) {
-          loadInitialData();
-        }
-      }, 2000);
+      console.log("✅ Todos los datos cargados exitosamente");
+      setDataLoaded(true);
+    } catch (error) {
+      console.error("❌ Error crítico cargando datos:", error);
+      setHasErrors(true);
     }
   };
 
-  // ✅ EFECTO PRINCIPAL PARA CARGAR DATOS
+  // ✅ EFECTO PRINCIPAL - CARGAR DATOS AL INICIAR
   useEffect(() => {
     loadInitialData();
   }, []);
 
-  // ✅ EFECTO PARA QUITAR LOADING CUANDO TODO ESTÉ LISTO
+  // ✅ EFECTO PARA MANEJAR LOS ESTADOS DE CARGA
   useEffect(() => {
-    if (areEssentialDataLoaded() && !maintenanceMode) {
-      console.log(
-        "🎯 Todos los datos esenciales cargados, quitando loading..."
-      );
-
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-      }, 500);
-
-      return () => clearTimeout(timer);
+    // ✅ CASO 1: DATOS CARGADOS EXITOSAMENTE - QUITAR LOADING INMEDIATO
+    if (dataLoaded && areEssentialDataLoaded()) {
+      console.log("🎯 Datos cargados exitosamente, quitando loading...");
+      setIsLoading(false);
+      return;
     }
-  }, [appConfig, products, categories, maintenanceMode, connectionFailed]);
 
-  // ✅ EFECTO PARA ACTIVAR MODO MANTENIMIENTO SI NO HAY CONEXIÓN DESPUÉS DE UN TIEMPO
+    // ✅ CASO 2: HAY ERRORES PERO ALGUNOS DATOS CARGARON - ESPERAR A MANTENIMIENTO
+    if (hasErrors && !areEssentialDataLoaded()) {
+      console.log("⚠️ Hay errores, esperando a modo mantenimiento...");
+      // NO quitamos el loading - seguimos mostrando SpiralLoading
+      return;
+    }
+
+    // ✅ CASO 3: SIN ERRORES PERO DATOS INCOMPLETOS - ESPERAR TIMEOUT
+    if (!hasErrors && !areEssentialDataLoaded()) {
+      console.log("⏳ Datos incompletos, esperando...");
+      // NO quitamos el loading - seguimos mostrando SpiralLoading
+      return;
+    }
+  }, [dataLoaded, hasErrors, appConfig, products, categories]);
+
+  // ✅ TIMEOUT PARA MODO MANTENIMIENTO (8 SEGUNDOS)
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (
-        isLoading &&
-        retryCount >= 1 &&
-        !maintenanceMode &&
-        !connectionFailed
-      ) {
-        console.log(
-          "⏰ Timeout: No hay conexión, activando modo mantenimiento"
-        );
+    const maintenanceTimeout = setTimeout(() => {
+      if (isLoading) {
+        console.log("🚨 Timeout de 8 segundos: Activando modo mantenimiento");
         setMaintenanceMode(true);
         setIsLoading(false);
       }
-    }, 10000); // 10 segundos de timeout
+    }, 8000);
 
-    return () => clearTimeout(timeout);
-  }, [isLoading, maintenanceMode, retryCount, connectionFailed]);
+    return () => clearTimeout(maintenanceTimeout);
+  }, [isLoading]);
+
+  // ✅ REINTENTAR CONEXIÓN DESDE MODO MANTENIMIENTO
+  const handleRetryConnection = () => {
+    console.log("🔄 Reintentando conexión desde modo mantenimiento...");
+    setMaintenanceMode(false);
+    setHasErrors(false);
+    setDataLoaded(false);
+    setIsLoading(true);
+    loadInitialData();
+  };
 
   // ✅ REDIRIGIR SI ESTÁ AUTENTICADO
   useEffect(() => {
@@ -215,30 +165,52 @@ const App = () => {
     setCurrentView("client");
   };
 
+  // ✅ FUNCIÓN PARA CAMBIAR VISTA
+  const handleViewChange = (view) => {
+    setCurrentView(view);
+  };
+
+  // ✅ DEBUG: Estado actual
+  console.log("🔍 Estado App:", {
+    isLoading,
+    maintenanceMode,
+    hasErrors,
+    dataLoaded,
+    hasConfig: !!(appConfig && appConfig.app_name),
+    productsLoaded: Array.isArray(products),
+    categoriesLoaded: Array.isArray(categories),
+    essentialDataLoaded: areEssentialDataLoaded(),
+  });
+
   // ✅ RENDERIZAR MODO MANTENIMIENTO
   if (maintenanceMode) {
-    return <MaintenanceMode onRetry={handleRetryConnection} />;
+    return (
+      <MaintenanceMode
+        onRetry={handleRetryConnection}
+        message="No se pudieron cargar los datos esenciales. Esto puede deberse a problemas de conexión o mantenimiento del servicio."
+      />
+    );
   }
 
-  // ✅ RENDERIZAR LOADING PRINCIPAL
+  // ✅ RENDERIZAR LOADING PRINCIPAL (SIEMPRE HASTA QUE TODO ESTÉ LISTO O MANTENIMIENTO)
   if (isLoading) {
     return (
       <div className="relative">
         <SpiralLoading />
-
-        {/* Status de carga */}
         <div className="fixed bottom-10 left-0 right-0 text-center z-50">
           <div className="bg-black bg-opacity-70 text-white inline-block px-6 py-3 rounded-full shadow-lg">
             <div className="flex items-center gap-3">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
               <span className="font-medium">{loadingStatus}</span>
-              {retryCount > 0 && !connectionFailed && (
-                <span className="text-yellow-300 text-sm">
-                  (Intento {retryCount}/2)
+              {hasErrors && (
+                <span className="text-orange-300 text-sm">
+                  • Reconectando... (
+                  {Math.round(
+                    (Date.now() - window.performance.timing.navigationStart) /
+                      1000
+                  )}
+                  s)
                 </span>
-              )}
-              {connectionFailed && (
-                <span className="text-orange-300 text-sm">• Modo local</span>
               )}
             </div>
           </div>
@@ -246,11 +218,8 @@ const App = () => {
       </div>
     );
   }
-  // ✅ AGREGAR ESTA FUNCIÓN FALTANTE
-  const handleViewChange = (view) => {
-    setCurrentView(view);
-  };
-  // ✅ RENDERIZAR INTERFAZ PRINCIPAL
+
+  // ✅ RENDERIZAR INTERFAZ PRINCIPAL (SOLO SI LOS DATOS ESTÁN COMPLETOS)
   return (
     <div className="font-sans antialiased">
       {currentView === "client" ? (
@@ -285,13 +254,13 @@ const App = () => {
         </div>
       )}
 
-      {/* ✅ OVERLAY DE MODO LOCAL */}
-      {connectionFailed && (
+      {/* ✅ OVERLAY DE MODO LOCAL (SOLO SI HAY ERRORES PERO LA APP CARGÓ) */}
+      {hasErrors && !isLoading && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-orange-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
             <span className="text-sm">
-              Modo local - Sin conexión al servidor
+              Modo local - Algunos datos pueden estar desactualizados
             </span>
           </div>
         </div>

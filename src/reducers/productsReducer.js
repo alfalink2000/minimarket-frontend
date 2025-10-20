@@ -47,13 +47,13 @@ export const productsReducer = (state = initialState, action) => {
         ),
       };
 
-    case types.productDeleted:
-      return {
-        ...state,
-        products: state.products.filter(
-          (product) => product.id !== action.payload
-        ),
-      };
+    // case types.productDeleted:
+    //   return {
+    //     ...state,
+    //     products: state.products.filter(
+    //       (product) => product.id !== action.payload
+    //     ),
+    //   };
 
     case types.productSetActive:
       return {

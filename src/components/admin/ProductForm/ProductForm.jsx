@@ -13,6 +13,7 @@ const ProductForm = ({ product, categories, onSubmit, onCancel }) => {
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
+  const [errors, setErrors] = useState({}); // ✅ NUEVO: Estado para errores
 
   useEffect(() => {
     if (product) {
@@ -29,6 +30,44 @@ const ProductForm = ({ product, categories, onSubmit, onCancel }) => {
       }
     }
   }, [product]);
+
+  // ✅ NUEVO: Función de validación
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Validar nombre
+    if (!formData.name.trim()) {
+      newErrors.name = "El nombre del producto es requerido";
+    }
+
+    // Validar descripción
+    if (!formData.description.trim()) {
+      newErrors.description = "La descripción del producto es requerida";
+    }
+
+    // Validar precio
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      newErrors.price = "El precio debe ser un número mayor a 0";
+    }
+
+    // Validar categoría
+    if (!formData.category_id) {
+      newErrors.category_id = "Debes seleccionar una categoría";
+    }
+
+    // ✅ NUEVO: Validar imagen (solo para productos nuevos)
+    if (!product && !imageFile && !imagePreview) {
+      newErrors.image = "La imagen del producto es requerida";
+    }
+
+    // Validar stock
+    if (formData.stock_quantity < 0) {
+      newErrors.stock_quantity = "El stock no puede ser negativo";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   // ✅ NUEVO: Sincronizar status con stock_quantity
   const handleInputChange = (e) => {
@@ -64,22 +103,34 @@ const ProductForm = ({ product, categories, onSubmit, onCancel }) => {
 
       return newFormData;
     });
+
+    // ✅ Limpiar error del campo cuando el usuario empiece a escribir
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       if (!file.type.startsWith("image/")) {
-        alert("Por favor selecciona un archivo de imagen válido");
+        setErrors((prev) => ({
+          ...prev,
+          image: "Por favor selecciona un archivo de imagen válido",
+        }));
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        alert("La imagen debe ser menor a 5MB");
+        setErrors((prev) => ({
+          ...prev,
+          image: "La imagen debe ser menor a 5MB",
+        }));
         return;
       }
 
       setImageFile(file);
+      setErrors((prev) => ({ ...prev, image: "" })); // Limpiar error de imagen
 
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -91,6 +142,13 @@ const ProductForm = ({ product, categories, onSubmit, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // ✅ Validar formulario antes de enviar
+    if (!validateForm()) {
+      // Mostrar mensaje general de error
+      alert("Por favor completa todos los campos requeridos correctamente");
+      return;
+    }
 
     // ✅ DEBUG: Ver datos antes de enviar
     console.log("📤 Enviando datos del formulario:", formData);
@@ -115,6 +173,10 @@ const ProductForm = ({ product, categories, onSubmit, onCancel }) => {
   const removeImage = () => {
     setImageFile(null);
     setImagePreview("");
+    setErrors((prev) => ({
+      ...prev,
+      image: "La imagen del producto es requerida",
+    })); // ✅ Mostrar error al eliminar imagen
     const fileInput = document.querySelector(".product-form__file-input");
     if (fileInput) fileInput.value = "";
   };
@@ -126,9 +188,11 @@ const ProductForm = ({ product, categories, onSubmit, onCancel }) => {
           <h2 className="product-form__title">
             {product ? "Editar Producto" : "Agregar Producto"}
           </h2>
+          <div className="product-form__required-note">* Campos requeridos</div>
         </div>
 
         <form onSubmit={handleSubmit} className="product-form__content">
+          {/* Campo Nombre */}
           <div className="product-form__group">
             <label className="product-form__label">Nombre *</label>
             <input
@@ -136,12 +200,18 @@ const ProductForm = ({ product, categories, onSubmit, onCancel }) => {
               name="name"
               value={formData.name}
               onChange={handleInputChange}
-              className="product-form__input"
+              className={`product-form__input ${
+                errors.name ? "product-form__input--error" : ""
+              }`}
               required
               placeholder="Nombre del producto"
             />
+            {errors.name && (
+              <span className="product-form__error">{errors.name}</span>
+            )}
           </div>
 
+          {/* Campo Descripción */}
           <div className="product-form__group">
             <label className="product-form__label">Descripción *</label>
             <textarea
@@ -149,12 +219,18 @@ const ProductForm = ({ product, categories, onSubmit, onCancel }) => {
               value={formData.description}
               onChange={handleInputChange}
               rows="3"
-              className="product-form__textarea"
+              className={`product-form__textarea ${
+                errors.description ? "product-form__input--error" : ""
+              }`}
               required
               placeholder="Descripción del producto"
             />
+            {errors.description && (
+              <span className="product-form__error">{errors.description}</span>
+            )}
           </div>
 
+          {/* Campo Precio */}
           <div className="product-form__group">
             <label className="product-form__label">Precio ($) *</label>
             <input
@@ -162,21 +238,29 @@ const ProductForm = ({ product, categories, onSubmit, onCancel }) => {
               name="price"
               value={formData.price}
               onChange={handleInputChange}
-              className="product-form__input"
+              className={`product-form__input ${
+                errors.price ? "product-form__input--error" : ""
+              }`}
               required
               min="0"
               step="0.01"
               placeholder="0.00"
             />
+            {errors.price && (
+              <span className="product-form__error">{errors.price}</span>
+            )}
           </div>
 
+          {/* Campo Categoría */}
           <div className="product-form__group">
             <label className="product-form__label">Categoría *</label>
             <select
               name="category_id"
               value={formData.category_id}
               onChange={handleInputChange}
-              className="product-form__select"
+              className={`product-form__select ${
+                errors.category_id ? "product-form__input--error" : ""
+              }`}
               required
             >
               <option value="">Seleccionar categoría</option>
@@ -187,8 +271,12 @@ const ProductForm = ({ product, categories, onSubmit, onCancel }) => {
                   </option>
                 ))}
             </select>
+            {errors.category_id && (
+              <span className="product-form__error">{errors.category_id}</span>
+            )}
           </div>
 
+          {/* Campo Stock */}
           <div className="product-form__group">
             <label className="product-form__label">Stock *</label>
             <input
@@ -196,28 +284,46 @@ const ProductForm = ({ product, categories, onSubmit, onCancel }) => {
               name="stock_quantity"
               value={formData.stock_quantity}
               onChange={handleInputChange}
-              className="product-form__input"
+              className={`product-form__input ${
+                errors.stock_quantity ? "product-form__input--error" : ""
+              }`}
               min="0"
               required
               placeholder="0"
             />
+            {errors.stock_quantity && (
+              <span className="product-form__error">
+                {errors.stock_quantity}
+              </span>
+            )}
             <small className="product-form__help">
               ✅ Stock se sincroniza automáticamente con el estado
             </small>
           </div>
 
-          {/* Campo para subir imagen */}
+          {/* Campo Imagen */}
           <div className="product-form__group">
-            <label className="product-form__label">Imagen del Producto</label>
+            <label className="product-form__label">
+              Imagen del Producto {!product && "*"}{" "}
+              {/* ✅ Solo requerida para productos nuevos */}
+            </label>
             <input
               type="file"
               accept="image/*"
               onChange={handleImageUpload}
-              className="product-form__file-input"
+              className={`product-form__file-input ${
+                errors.image ? "product-form__input--error" : ""
+              }`}
             />
             <small className="product-form__help">
               Formatos: JPG, PNG, GIF. Máximo 5MB.
+              {!product && " La imagen es requerida para productos nuevos."}
             </small>
+
+            {/* ✅ Mensaje de error para imagen */}
+            {errors.image && (
+              <span className="product-form__error">{errors.image}</span>
+            )}
 
             {imagePreview && (
               <div className="product-form__image-preview">
@@ -237,6 +343,7 @@ const ProductForm = ({ product, categories, onSubmit, onCancel }) => {
             )}
           </div>
 
+          {/* Campo Estado */}
           <div className="product-form__group">
             <label className="product-form__label">Estado</label>
             <select

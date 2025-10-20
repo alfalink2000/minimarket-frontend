@@ -1,9 +1,9 @@
 {
   "name": "minimarket-catalog",
-  "homepage": "https://minimarket-frontend-sage.vercel.app",
+  "homepage": "https://github.com/alfalink2000/online-shop.git",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alfalink2000/minimarket-frontend.git"
+    "url": "git+https://github.com/alfalink2000/online-shop.git"
   },
   "private": true,
   "version": "1.0.0",

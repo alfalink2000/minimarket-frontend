@@ -146,14 +146,76 @@ export const refreshProductsIfNeeded = () => {
 };
 
 export const deleteProduct = (id) => {
-  return async (dispatch) => {
-    const body = await fetchAPIConfig(`products/delete/${id}`, {}, "DELETE");
+  return async (dispatch, getState) => {
+    try {
+      const result = await Swal.fire({
+        title: "¿Estás seguro?",
+        text: "¡No podrás revertir esta acción!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+      });
 
-    if (body.ok) {
-      dispatch(deleteProductAction(id));
-      Swal.fire("Eliminado", "Producto eliminado correctamente", "success");
-    } else {
-      Swal.fire("Error", body.msg, "error");
+      if (!result.isConfirmed) {
+        return;
+      }
+
+      Swal.fire({
+        title: "Eliminando producto...",
+        text: "Por favor espera",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const body = await fetchAPIConfig(`products/delete/${id}`, {}, "DELETE");
+
+      Swal.close();
+
+      if (body.ok) {
+        // ✅ NO ELIMINAR DEL ESTADO LOCAL - SOLO RECARGAR
+        console.log("🔄 Recargando productos desde el backend...");
+        await dispatch(getProducts(true)); // Esperar a que se recarguen
+
+        Swal.fire({
+          icon: "success",
+          title: "¡Eliminado!",
+          text: "Producto eliminado correctamente",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } else {
+        // ✅ MANEJAR ERROR - EL PRODUCTO SIGUE EN EL ESTADO
+        if (body.msg && body.msg.includes("último producto")) {
+          Swal.fire({
+            icon: "error",
+            title: "No se puede eliminar",
+            text: body.msg,
+            confirmButtonText: "Entendido",
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: body.msg || "Error al eliminar el producto",
+            confirmButtonText: "Entendido",
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error eliminando producto:", error);
+      Swal.close();
+
+      Swal.fire({
+        icon: "error",
+        title: "Error de conexión",
+        text: "No se pudo conectar con el servidor",
+        confirmButtonText: "Entendido",
+      });
     }
   };
 };

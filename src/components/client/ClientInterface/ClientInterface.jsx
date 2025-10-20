@@ -1,3 +1,4 @@
+// ClientInterface.js - VERSIÓN COMPLETA CORREGIDA
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useProductsSync } from "../../../hooks/useProductsSync";
@@ -60,6 +61,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isDesktop, setIsDesktop] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const dispatch = useDispatch();
 
@@ -72,20 +74,41 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
   const featuredProducts = useSelector(selectFeaturedProducts);
   const appConfig = useSelector((state) => state.appConfig.config);
 
+  // ✅ EFECTO PARA QUITAR LOADING CUANDO LOS DATOS ESTÉN LISTOS
+  useEffect(() => {
+    // ✅ SOLO NECESITAMOS LA CONFIGURACIÓN - PRODUCTOS Y CATEGORÍAS PUEDEN SER ARRAYS VACÍOS
+    const hasAppConfig = appConfig && appConfig.app_name;
+    const productsLoaded = Array.isArray(products);
+    const categoriesLoaded = Array.isArray(categories);
+
+    console.log("🔍 ClientInterface - Estado de datos:", {
+      hasAppConfig,
+      productsLoaded,
+      categoriesLoaded,
+      productsCount: products?.length,
+      categoriesCount: categories?.length,
+    });
+
+    if (hasAppConfig && productsLoaded && categoriesLoaded) {
+      console.log("🎯 Datos listos en ClientInterface, quitando loading...");
+      setIsLoading(false);
+    }
+  }, [appConfig, products, categories]);
+
   // ✅ EFECTO PARA MOSTRAR MODAL AL INICIAR
   useEffect(() => {
-    if (appConfig?.show_initialinfo !== false) {
+    if (!isLoading && appConfig?.show_initialinfo !== false) {
       const timer = setTimeout(() => setShowInfoModal(true), 1000);
       return () => clearTimeout(timer);
     }
-  }, [appConfig?.show_initialinfo]);
+  }, [appConfig?.show_initialinfo, isLoading]);
 
   // ✅ EFECTO PARA CARGAR DATOS ADICIONALES
   useEffect(() => {
-    if (products.length === 0 || categories.length === 0) {
+    if (!isLoading && Array.isArray(products) && Array.isArray(categories)) {
       dispatch(loadFeaturedProducts());
     }
-  }, [dispatch, products.length, categories.length]);
+  }, [dispatch, products, categories, isLoading]);
 
   // ✅ EFECTO PARA DETECTAR TAMAÑO DE PANTALLA
   useEffect(() => {
@@ -240,7 +263,6 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
         >
           <HiOutlineTag className="header-action__icon" />
         </button>
-        {/* ✅ AGREGAR ESTE BOTÓN DEL CARRITO */}
 
         <div className="header-separator"></div>
         <button
@@ -652,8 +674,8 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
     ]
   );
 
-  // ✅ VERIFICACIÓN DE DATOS
-  if (!appConfig || products.length === 0 || categories.length === 0) {
+  // ✅ VERIFICACIÓN DE CARGA
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -661,6 +683,20 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
           <p className="text-gray-600 font-medium">Preparando interfaz...</p>
           <p className="text-sm text-gray-500 mt-2">
             {appConfig?.app_name || "Cargando..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ Si no hay configuración, mostrar error
+  if (!appConfig) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-gray-600 font-medium">Error de configuración</p>
+          <p className="text-sm text-gray-500 mt-2">
+            No se pudo cargar la configuración de la aplicación
           </p>
         </div>
       </div>
