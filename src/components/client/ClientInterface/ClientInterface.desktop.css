@@ -178,7 +178,6 @@
       "search search"
       "sidebar main";
     align-items: start;
-    /* CORREGIDO: Eliminar altura fija que causa problemas */
     min-height: calc(100vh - 80px);
     height: auto;
   }
@@ -186,22 +185,19 @@
   .desktop-search {
     grid-area: search;
     margin-bottom: 0;
-    /* padding: 0 0 1rem 0; */
   }
 
   .desktop-sidebar {
     grid-area: sidebar;
     position: sticky;
     top: 2rem;
-    /* display: flex; */
     flex-direction: column;
     gap: 2rem;
-    /* SCROLL INDEPENDIENTE PARA TODA LA ZONA IZQUIERDA */
-    height: calc(100vh - 185px);
+    height: fit-content;
+    max-height: calc(100vh - 140px);
     overflow-y: auto;
     overflow-x: hidden;
     padding: 0 1rem 1rem 0;
-    /* Estilos de scroll personalizados */
     scrollbar-width: thin;
     scrollbar-color: var(--gray-300) var(--gray-100);
   }
@@ -225,16 +221,15 @@
     background: var(--gray-400);
   }
 
-  /* CORREGIR: Contenido principal con altura flexible */
+  /* Contenido principal corregido */
   .desktop-main-content {
     grid-area: main;
-    /* CORREGIDO: Altura automática en lugar de fija */
     height: auto;
     min-height: 60vh;
-    max-height: calc(100vh - 180px);
+    max-height: calc(100vh - 140px);
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 0 2rem 2rem 1rem;
+    padding: 0 1rem 2rem 1rem;
   }
 
   /* Scrollbar personalizado para el contenido principal */
@@ -256,7 +251,7 @@
     background: var(--gray-400);
   }
 
-  /* Navegación de secciones en desktop - SIN SCROLL INTERNO */
+  /* Navegación de secciones en desktop */
   .desktop-sections-nav {
     background: var(--white);
     border-radius: var(--radius-lg);
@@ -265,7 +260,6 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    /* Asegurar que no hay overflow interno */
     overflow: visible;
   }
 
@@ -286,7 +280,7 @@
   }
 
   .desktop-section-button:hover {
-    /* background: var(--gray-50); */
+    background: var(--gray-50);
     transform: translateX(4px);
   }
 
@@ -324,13 +318,12 @@
     color: var(--white);
   }
 
-  /* Filtros en desktop - SIN SCROLL INTERNO */
+  /* Filtros en desktop */
   .desktop-filters {
     background: var(--white);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
     overflow: hidden;
-    /* Asegurar altura del contenido */
     height: fit-content;
   }
 
@@ -365,13 +358,11 @@
 
   .desktop-category-filter {
     padding: 1rem 1.5rem;
-    /* Sin overflow interno, el scroll lo maneja el sidebar */
   }
 
   .desktop-category-filter .category-filter {
     flex-direction: column;
     overflow-x: visible;
-    /* Quitar overflow-y ya que el scroll es del sidebar */
     overflow-y: visible;
   }
 
@@ -392,20 +383,202 @@
 
   .desktop-category-filter .category-filter__button:hover {
     transform: translateX(4px);
-    /* background: var(--gray-50); */
+    background: var(--gray-50);
   }
 
-  /* Secciones de contenido */
-  .desktop-products-section {
-    margin-top: 1rem;
-    /* Asegurar que ocupe solo el espacio necesario */
-    min-height: 0;
-    flex: 1;
-  }
-
-  .popular-section,
-  .offers-section,
+  /* SECCIÓN CONTACTO MEJORADA PARA DESKTOP */
   .contact-section {
+    background: linear-gradient(
+      145deg,
+      rgba(148, 163, 184, 0.08) 0%,
+      rgba(148, 163, 184, 0.03) 50%,
+      rgba(148, 163, 184, 0.08) 100%
+    );
+    border-radius: 24px;
+    padding: 2.5rem;
+    margin: 1rem 0 2rem 0;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    backdrop-filter: blur(16px);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(0, 0, 0, 0.02);
+  }
+
+  .contact-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      rgba(59, 130, 246, 0.8) 0%,
+      rgba(16, 185, 129, 0.8) 50%,
+      rgba(59, 130, 246, 0.8) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmerLine 3s ease-in-out infinite;
+  }
+
+  .contact-section::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(
+      circle at center,
+      rgba(59, 130, 246, 0.04) 0%,
+      transparent 70%
+    );
+    transform: translate(-50%, -50%);
+    z-index: 0;
+  }
+
+  .contact-section .section-header .section-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .contact-section .section-header .section-title h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: rgba(15, 23, 42, 0.95);
+    margin: 0;
+    letter-spacing: -0.025em;
+  }
+
+  .contact-section .contact-icon {
+    font-size: 2rem;
+    background: linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.9),
+      rgba(16, 185, 129, 0.9)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    padding: 0.75rem;
+    border-radius: 16px;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+
+  /* .contact-section .contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    position: relative;
+    z-index: 2;
+  } */
+
+  .contact-section .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+  }
+
+  .contact-section .contact-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5px;
+    height: 70%;
+    background: linear-gradient(
+      180deg,
+      rgba(59, 130, 246, 0.8),
+      rgba(16, 185, 129, 0.8)
+    );
+    border-radius: 0 8px 8px 0;
+    transition: all 0.4s ease;
+  }
+
+  .contact-section .contact-item:hover {
+    transform: translateY(-3px) translateX(4px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    border-color: rgba(59, 130, 246, 0.3);
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .contact-section .contact-item:hover::before {
+    width: 6px;
+    height: 80%;
+    background: linear-gradient(
+      180deg,
+      rgba(59, 130, 246, 1),
+      rgba(16, 185, 129, 1)
+    );
+  }
+
+  .contact-section .contact-label {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    font-weight: 600;
+    color: rgba(30, 41, 59, 0.9);
+    font-size: 0.95rem;
+    min-width: 140px;
+    letter-spacing: -0.01em;
+  }
+
+  .contact-section .contact-item-icon {
+    font-size: 1.375rem;
+    background: linear-gradient(
+      135deg,
+      rgba(59, 130, 246, 0.9),
+      rgba(16, 185, 129, 0.9)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+  }
+
+  .contact-section .contact-item:hover .contact-item-icon {
+    transform: scale(1.1);
+  }
+
+  .contact-section .contact-value {
+    color: rgba(15, 23, 42, 0.85);
+    font-weight: 500;
+    font-size: 1rem;
+    flex: 1;
+    text-align: right;
+    padding-left: 1rem;
+    letter-spacing: -0.01em;
+    transition: all 0.3s ease;
+  }
+
+  .contact-section .contact-item:hover .contact-value {
+    color: rgba(15, 23, 42, 1);
+    font-weight: 600;
+  }
+
+  /* Otras secciones */
+  .popular-section,
+  .offers-section {
     background: var(--white);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-sm);
@@ -442,22 +615,25 @@
     gap: 0.75rem;
   }
 
-  /* Grid de productos en desktop */
+  /* Sección de productos */
+  .desktop-products-section {
+    margin-top: 1rem;
+    min-height: 0;
+    flex: 1;
+  }
+
   .product-grid {
     max-width: none;
     padding: 0;
-    /* Prevenir crecimiento excesivo */
     height: fit-content;
   }
 
   .product-grid__container {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 1.5rem;
-    /* Asegurar que no crezca más de lo necesario */
     height: fit-content;
   }
 
-  /* Mejoras específicas para ProductCard en desktop */
   .product-card {
     transition: all 0.3s ease;
   }
@@ -496,6 +672,17 @@
   .bottom-nav {
     display: none;
   }
+
+  /* Animaciones para la sección contacto */
+  @keyframes shimmerLine {
+    0%,
+    100% {
+      background-position: -200% 0;
+    }
+    50% {
+      background-position: 200% 0;
+    }
+  }
 }
 
 /* ===== DESKTOP GRANDE ===== */
@@ -503,8 +690,7 @@
   .desktop-layout {
     max-width: 100%;
     grid-template-columns: 350px 1fr;
-    gap: 2rem; /* REDUCIDO gap */
-    /* CORREGIDO: Altura flexible */
+    gap: 2rem;
     min-height: calc(100vh - 80px);
     height: auto;
   }
@@ -514,18 +700,32 @@
   }
 
   .product-grid__container {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Ajustado */
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 1.25rem;
   }
 
   .desktop-sidebar {
-    max-height: calc(100vh - 180px);
-    padding: 0 1rem 1rem 0; /* REDUCIDO padding-bottom */
+    max-height: calc(100vh - 140px);
+    padding: 0 1rem 1rem 0;
   }
 
   .desktop-main-content {
-    max-height: calc(100vh - 180px);
-    padding: 0 0 1rem 0; /* REDUCIDO padding-bottom */
+    max-height: calc(100vh - 140px);
+    padding: 0 1rem 1rem 1rem;
+  }
+
+  /* Mejoras para contacto en desktop grande */
+  .contact-section {
+    padding: 3rem;
+  }
+
+  .contact-section .section-header .section-title h2 {
+    font-size: 2rem;
+  }
+
+  .contact-section .contact-icon {
+    font-size: 2.25rem;
+    padding: 1rem;
   }
 }
 
@@ -545,12 +745,10 @@
   .desktop-layout > * {
     animation: fadeInUp 0.6s ease-out;
   }
+
   .product-grid__container {
-    grid-template-columns: repeat(
-      auto-fill,
-      minmax(180px, 1fr)
-    ); /* Reducido de 200px */
-    gap: 1rem; /* Reducido de 1.5rem */
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
   }
 
   @keyframes fadeInUp {

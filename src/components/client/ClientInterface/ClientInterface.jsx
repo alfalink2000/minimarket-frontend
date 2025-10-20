@@ -1,4 +1,4 @@
-// ClientInterface.js - VERSIÓN COMPLETA CORREGIDA
+// ClientInterface.js - VERSIÓN SIN LOADING INTERNO
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useProductsSync } from "../../../hooks/useProductsSync";
@@ -61,7 +61,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isDesktop, setIsDesktop] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  // ⚠️ ELIMINAMOS el isLoading interno
 
   const dispatch = useDispatch();
 
@@ -74,41 +74,25 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
   const featuredProducts = useSelector(selectFeaturedProducts);
   const appConfig = useSelector((state) => state.appConfig.config);
 
-  // ✅ EFECTO PARA QUITAR LOADING CUANDO LOS DATOS ESTÉN LISTOS
+  // ✅ ELIMINAR EFECTO DE LOADING INTERNO - LA APP PRINCIPAL YA LO MANEJA
+  // useEffect(() => {
+  //   // ESTE EFECTO CAUSABA EL PROBLEMA - LO ELIMINAMOS
+  // }, [appConfig, products, categories]);
+
+  // ✅ EFECTO PARA MOSTRAR MODAL AL INICIAR (SOLO SI HAY CONFIGURACIÓN)
   useEffect(() => {
-    // ✅ SOLO NECESITAMOS LA CONFIGURACIÓN - PRODUCTOS Y CATEGORÍAS PUEDEN SER ARRAYS VACÍOS
-    const hasAppConfig = appConfig && appConfig.app_name;
-    const productsLoaded = Array.isArray(products);
-    const categoriesLoaded = Array.isArray(categories);
-
-    console.log("🔍 ClientInterface - Estado de datos:", {
-      hasAppConfig,
-      productsLoaded,
-      categoriesLoaded,
-      productsCount: products?.length,
-      categoriesCount: categories?.length,
-    });
-
-    if (hasAppConfig && productsLoaded && categoriesLoaded) {
-      console.log("🎯 Datos listos en ClientInterface, quitando loading...");
-      setIsLoading(false);
-    }
-  }, [appConfig, products, categories]);
-
-  // ✅ EFECTO PARA MOSTRAR MODAL AL INICIAR
-  useEffect(() => {
-    if (!isLoading && appConfig?.show_initialinfo !== false) {
+    if (appConfig?.show_initialinfo !== false) {
       const timer = setTimeout(() => setShowInfoModal(true), 1000);
       return () => clearTimeout(timer);
     }
-  }, [appConfig?.show_initialinfo, isLoading]);
+  }, [appConfig?.show_initialinfo]);
 
-  // ✅ EFECTO PARA CARGAR DATOS ADICIONALES
+  // ✅ EFECTO PARA CARGAR DATOS ADICIONALES (SI HAY PRODUCTOS)
   useEffect(() => {
-    if (!isLoading && Array.isArray(products) && Array.isArray(categories)) {
+    if (Array.isArray(products) && Array.isArray(categories)) {
       dispatch(loadFeaturedProducts());
     }
-  }, [dispatch, products, categories, isLoading]);
+  }, [dispatch, products, categories]);
 
   // ✅ EFECTO PARA DETECTAR TAMAÑO DE PANTALLA
   useEffect(() => {
@@ -674,22 +658,10 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
     ]
   );
 
-  // ✅ VERIFICACIÓN DE CARGA
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium">Preparando interfaz...</p>
-          <p className="text-sm text-gray-500 mt-2">
-            {appConfig?.app_name || "Cargando..."}
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // ✅ **ELIMINAMOS COMPLETAMENTE LA VERIFICACIÓN DE CARGA INTERNA**
+  // El loading principal ya se maneja en App.js
 
-  // ✅ Si no hay configuración, mostrar error
+  // ✅ Si no hay configuración, mostrar error mínimo
   if (!appConfig) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -714,6 +686,7 @@ const ClientInterface = ({ currentView, onViewChange, onShowLoginForm }) => {
     );
   }
 
+  // ✅ RENDERIZADO PRINCIPAL - SIN VERIFICACIONES DE LOADING
   return (
     <div className="client-interface">
       <Header
