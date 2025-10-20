@@ -27,7 +27,8 @@ const SearchBar = ({
           <div className="search-bar__location-info">
             <HiOutlineLocationMarker className="location-info__icon" />
             <span className="location-info__text">
-              {appConfig?.business_address || "Pinar del Río, Cuba"}
+              Pinar del Río, Cuba
+              {/* {appConfig?.business_address || "Pinar del Río, Cuba"} */}
             </span>
           </div>
         )}
