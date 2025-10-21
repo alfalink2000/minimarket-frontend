@@ -25,7 +25,7 @@ export const StartLogin = (username, password) => {
 
     try {
       const body = await fetchSinToken(
-        "api/auth",
+        "auth",
         {
           username,
           password_hash: password,
@@ -56,8 +56,8 @@ export const StartLogin = (username, password) => {
 
         dispatch(
           login({
-            uid: body.user.id, // ← CORREGIDO: usar body.user.id
-            name: body.user.username, // ← CORREGIDO: usar body.user.username
+            uid: body.id,
+            name: body.username,
           })
         );
       } else {
@@ -132,7 +132,7 @@ export const StartChecking = () => {
         return;
       }
 
-      const body = await fetchConToken("api/auth/renew");
+      const body = await fetchConToken("auth/renew");
 
       if (body && body.ok) {
         localStorage.setItem("token", body.token);
@@ -140,8 +140,8 @@ export const StartChecking = () => {
 
         dispatch(
           login({
-            uid: body.user.id, // ← CORREGIDO: usar body.user.id
-            name: body.user.username,
+            uid: body.uid || body.id,
+            name: body.name || body.username,
           })
         );
       } else {
