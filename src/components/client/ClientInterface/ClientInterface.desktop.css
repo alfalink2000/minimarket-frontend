@@ -280,7 +280,6 @@
   }
 
   .desktop-section-button:hover {
-    background: var(--gray-50);
     transform: translateX(4px);
   }
 
