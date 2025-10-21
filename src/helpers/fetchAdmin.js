@@ -1,7 +1,5 @@
 // ✅ CORREGIDO: MANTENER /api en la baseUrl - VERSIÓN UNIFICADA
-const baseUrl =
-  import.meta.env.VITE_API_URL ||
-  "https://wilful-daisey-alfalink2000-9e4a9993.koyeb.app/api";
+const baseUrl = "https://wilful-daisey-alfalink2000-9e4a9993.koyeb.app/api";
 //                                                              AGREGAR /api AQUÍ → ✅
 
 export const fetchSinToken = async (endpoint, data, method = "GET") => {
