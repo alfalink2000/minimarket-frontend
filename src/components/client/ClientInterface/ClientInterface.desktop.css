@@ -459,7 +459,7 @@
     font-size: 2rem;
     background: linear-gradient(
       135deg,
-      rgba(59, 130, 246, 0.9),
+      rgba(14, 85, 201, 0.9),
       rgba(16, 185, 129, 0.9)
     );
     -webkit-background-clip: text;
@@ -528,7 +528,7 @@
     align-items: center;
     gap: 0.875rem;
     font-weight: 600;
-    color: rgba(30, 41, 59, 0.9);
+    color: rgba(6, 55, 133, 0.9);
     font-size: 0.95rem;
     min-width: 140px;
     letter-spacing: -0.01em;
