@@ -1,9 +1,15 @@
-// ✅ CORREGIDO PARA VITE - usar variable directa con /api
+// ✅ CORREGIDO: QUITAR /api de la baseUrl
 const baseUrl =
-  (import.meta.env.VITE_API_URL || "http://localhost:4000") + "/api";
+  import.meta.env.VITE_API_URL ||
+  "https://wilful-daisey-alfalink2000-9e4a9993.koyeb.app";
+//                                                              QUITAR ESTE /api → 🚫
 
 export const fetchSinToken = async (endpoint, data, method = "GET") => {
-  const url = `${baseUrl}/${endpoint}`;
+  // ✅ Asegurar que el endpoint no empiece con /
+  const cleanEndpoint = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
+  const url = `${baseUrl}/${cleanEndpoint}`;
+
+  console.log("🌐 URL completa:", url);
 
   try {
     const response = await fetch(url, {
@@ -15,9 +21,8 @@ export const fetchSinToken = async (endpoint, data, method = "GET") => {
     });
 
     console.log("🔍 Response status:", response.status);
-    console.log("🔍 Response headers:", response.headers);
+    console.log("🔍 Response ok:", response.ok);
 
-    // ✅ LEER LA RESPUESTA COMO TEXTO PRIMERO PARA DEBUG
     const responseText = await response.text();
     console.log("🔍 Response text:", responseText);
 
@@ -30,8 +35,6 @@ export const fetchSinToken = async (endpoint, data, method = "GET") => {
     }
 
     console.log("🔍 Parsed body:", body);
-
-    // ✅ DEVOLVER EL BODY COMPLETO INCLUYENDO EL MENSAJE DE ERROR
     return body;
   } catch (error) {
     console.error("❌ Error en fetchSinToken:", error);
@@ -40,8 +43,12 @@ export const fetchSinToken = async (endpoint, data, method = "GET") => {
 };
 
 export const fetchConToken = async (endpoint, data, method = "GET") => {
-  const url = `${baseUrl}/${endpoint}`;
+  // ✅ Asegurar que el endpoint no empiece con /
+  const cleanEndpoint = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
+  const url = `${baseUrl}/${cleanEndpoint}`;
   const token = localStorage.getItem("token") || "";
+
+  console.log("🌐 URL completa (con token):", url);
 
   try {
     const response = await fetch(url, {
