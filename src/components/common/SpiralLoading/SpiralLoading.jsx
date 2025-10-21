@@ -5,8 +5,10 @@ import "./SpiralLoading.css";
 const SpiralLoading = ({ fadeOut = false }) => {
   // Obtener el nombre de la app desde el estado de Redux
   const appConfig = useSelector((state) => state.appConfig.config);
-  const appName = appConfig?.app_name || "Minimarket Digital";
-  const appDescription = appConfig?.app_description || "Tu tienda en línea";
+  const appName = appConfig?.app_name || "Cruz & Sabor";
+  const appDescription =
+    appConfig?.app_description ||
+    "🛒 Tu tienda de confianza y sabor, donde encuentras lo mejor para tu mesa.";
 
   return (
     <div className={`spiral-loading ${fadeOut ? "fade-out" : ""}`}>

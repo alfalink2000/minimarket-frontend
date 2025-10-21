@@ -149,6 +149,7 @@
 
   .header-title-with-icon {
     justify-content: flex-start;
+    width: 20vw;
   }
 
   .header-main-title {
