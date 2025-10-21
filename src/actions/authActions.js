@@ -1,4 +1,4 @@
-// actions/authActions.js - VERSIÓN MODIFICADA (usando types existentes)
+// actions/authActions.js - VERSIÓN CORREGIDA
 import { fetchConToken, fetchSinToken } from "../helpers/fetchAdmin";
 import { types } from "../types/types";
 import Swal from "sweetalert2";
@@ -7,12 +7,10 @@ export const checkingFinish = () => ({
   type: types.authCheckingFinish,
 });
 
-// ✅ USAR authStartLogin EN LUGAR DE authStartLoading
 export const startLoading = () => ({
   type: types.authStartLogin,
 });
 
-// ✅ USAR authCheckingFinish EN LUGAR DE authFinishLoading
 export const finishLoading = () => ({
   type: types.authCheckingFinish,
 });
@@ -24,8 +22,9 @@ export const StartLogin = (username, password) => {
     console.log("🔐 Enviando login:", { username });
 
     try {
+      // ✅ CORREGIDO: Cambiar "auth" por "api/auth"
       const body = await fetchSinToken(
-        "auth",
+        "api/auth", // ← AQUÍ ESTÁ EL CAMBIO
         {
           username,
           password_hash: password,
@@ -35,7 +34,6 @@ export const StartLogin = (username, password) => {
 
       console.log("📦 Body completo recibido:", body);
 
-      // ✅ VERIFICAR SI LA RESPUESTA ES VÁLIDA
       if (!body) {
         throw new Error("El servidor no respondió correctamente");
       }
@@ -56,22 +54,22 @@ export const StartLogin = (username, password) => {
 
         dispatch(
           login({
-            uid: body.id,
-            name: body.username,
+            uid: body.user.id, // ← CORREGIDO: usar body.user.id
+            name: body.user.username, // ← CORREGIDO: usar body.user.username
+            userData: body.user, // ← Agregar datos completos del usuario
           })
         );
       } else {
-        // ✅ MEJOR MANEJO DE ERRORES - EL BACKEND YA DEVUELVE body.msg
         let errorMessage = body.msg || "Credenciales incorrectas";
 
-        // Mapear mensajes del backend a mensajes más amigables
         const errorMessages = {
           "Usuario no encontrado": "El usuario no existe en el sistema",
           "Contraseña incorrecta": "La contraseña es incorrecta",
           "Usuario inactivo": "La cuenta está desactivada",
           "Credenciales inválidas": "Usuario o contraseña incorrectos",
           "Usuario y contraseña son requeridos": "Completa todos los campos",
-          "Usuario o contraseña incorrecta": "Usuario o contraseña incorrectos",
+          "Usuario o contraseña incorrectos":
+            "Usuario o contraseña incorrectos",
         };
 
         errorMessage = errorMessages[errorMessage] || errorMessage;
@@ -132,7 +130,8 @@ export const StartChecking = () => {
         return;
       }
 
-      const body = await fetchConToken("auth/renew");
+      // ✅ CORREGIDO: Cambiar "auth/renew" por "api/auth/renew"
+      const body = await fetchConToken("api/auth/renew"); // ← AQUÍ ESTÁ EL CAMBIO
 
       if (body && body.ok) {
         localStorage.setItem("token", body.token);
@@ -140,8 +139,9 @@ export const StartChecking = () => {
 
         dispatch(
           login({
-            uid: body.uid || body.id,
-            name: body.name || body.username,
+            uid: body.user.id, // ← CORREGIDO: usar body.user.id
+            name: body.user.username, // ← CORREGIDO: usar body.user.username
+            userData: body.user, // ← Agregar datos completos
           })
         );
       } else {
