@@ -1545,3 +1545,60 @@
   color: rgba(15, 23, 42, 1);
   font-weight: 600;
 }
+/* ===== CORRECCIÓN DE COLORES EN SECCIÓN CONTACTO ===== */
+
+/* Override específico para los labels de contacto */
+.contact-item .contact-label {
+  color: var(--gray-800) !important; /* Cambiar azul por gris oscuro */
+  font-weight: 600;
+}
+
+/* Override para iconos de contacto */
+.contact-item-icon {
+  color: var(--gray-700) !important; /* Color gris para iconos */
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
+  background-clip: unset !important;
+}
+
+/* Override específico para desktop */
+.desktop-main-content .contact-section .contact-label {
+  color: var(--gray-800) !important;
+}
+
+.desktop-main-content .contact-section .contact-item-icon {
+  color: var(--gray-700) !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
+}
+
+/* Eliminar gradientes problemáticos */
+.contact-section .contact-label,
+.desktop-main-content .contact-section .contact-label {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
+}
+
+/* Colores específicos para cada tipo de información */
+.contact-item .contact-label[class*="whatsapp"],
+.contact-item .contact-label:contains("WhatsApp") {
+  color: #25d366 !important; /* Verde de WhatsApp */
+}
+
+.contact-item .contact-label[class*="phone"],
+.contact-item .contact-label:contains("Teléfono") {
+  color: var(--primary-blue) !important; /* Azul para teléfono */
+}
+
+.contact-item .contact-label[class*="location"],
+.contact-item .contact-label:contains("Dirección") {
+  color: var(--accent-teal) !important; /* Verde azulado para ubicación */
+}
+
+.contact-item .contact-label[class*="clock"],
+.contact-item .contact-label:contains("Horario") {
+  color: var(--primary-orange) !important; /* Naranja para horario */
+}
