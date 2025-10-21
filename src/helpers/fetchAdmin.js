@@ -1,13 +1,9 @@
-// ✅ CORREGIDO: MANTENER /api en la baseUrl - VERSIÓN UNIFICADA
-const baseUrl = "https://wilful-daisey-alfalink2000-9e4a9993.koyeb.app/api";
-//                                                              AGREGAR /api AQUÍ → ✅
+// ✅ CORREGIDO PARA VITE - usar variable directa con /api
+const baseUrl =
+  (import.meta.env.VITE_API_URL || "http://localhost:4000") + "/api";
 
 export const fetchSinToken = async (endpoint, data, method = "GET") => {
-  // ✅ Asegurar que el endpoint no empiece con /
-  const cleanEndpoint = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
-  const url = `${baseUrl}/${cleanEndpoint}`;
-
-  console.log("🌐 URL completa fetchSinToken:", url);
+  const url = `${baseUrl}/${endpoint}`;
 
   try {
     const response = await fetch(url, {
@@ -19,12 +15,9 @@ export const fetchSinToken = async (endpoint, data, method = "GET") => {
     });
 
     console.log("🔍 Response status:", response.status);
-    console.log("🔍 Response ok:", response.ok);
+    console.log("🔍 Response headers:", response.headers);
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
+    // ✅ LEER LA RESPUESTA COMO TEXTO PRIMERO PARA DEBUG
     const responseText = await response.text();
     console.log("🔍 Response text:", responseText);
 
@@ -37,6 +30,8 @@ export const fetchSinToken = async (endpoint, data, method = "GET") => {
     }
 
     console.log("🔍 Parsed body:", body);
+
+    // ✅ DEVOLVER EL BODY COMPLETO INCLUYENDO EL MENSAJE DE ERROR
     return body;
   } catch (error) {
     console.error("❌ Error en fetchSinToken:", error);
@@ -45,12 +40,8 @@ export const fetchSinToken = async (endpoint, data, method = "GET") => {
 };
 
 export const fetchConToken = async (endpoint, data, method = "GET") => {
-  // ✅ Asegurar que el endpoint no empiece con /
-  const cleanEndpoint = endpoint.startsWith("/") ? endpoint.slice(1) : endpoint;
-  const url = `${baseUrl}/${cleanEndpoint}`;
+  const url = `${baseUrl}/${endpoint}`;
   const token = localStorage.getItem("token") || "";
-
-  console.log("🌐 URL completa fetchConToken:", url);
 
   try {
     const response = await fetch(url, {
@@ -63,10 +54,6 @@ export const fetchConToken = async (endpoint, data, method = "GET") => {
     });
 
     console.log("🔍 Response status (con token):", response.status);
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
 
     const responseText = await response.text();
     console.log("🔍 Response text (con token):", responseText);
@@ -83,71 +70,5 @@ export const fetchConToken = async (endpoint, data, method = "GET") => {
   } catch (error) {
     console.error("❌ Error en fetchConToken:", error);
     throw error;
-  }
-};
-
-// ✅ Función adicional para FormData (si la necesitas)
-export const fetchAPIConfig = (
-  endpoint,
-  data,
-  method = "GET",
-  isFormData = false
-) => {
-  const url = `${baseUrl}/${endpoint}`;
-  const token = localStorage.getItem("token") || "";
-
-  console.log("🌐 URL completa fetchAPIConfig:", url);
-
-  const config = {
-    method,
-    headers: {
-      "x-token": token,
-    },
-  };
-
-  // ✅ Timeout para producción
-  const timeout = 15000;
-
-  if (method === "GET") {
-    const fetchPromise = fetch(url, config);
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(
-        () => reject(new Error("Timeout: La petición tardó demasiado")),
-        timeout
-      )
-    );
-
-    return Promise.race([fetchPromise, timeoutPromise]).then(
-      async (response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return await response.json();
-      }
-    );
-  } else {
-    if (isFormData) {
-      config.body = data;
-    } else {
-      config.headers["Content-Type"] = "application/json";
-      config.body = JSON.stringify(data);
-    }
-
-    const fetchPromise = fetch(url, config);
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(
-        () => reject(new Error("Timeout: La petición tardó demasiado")),
-        timeout
-      )
-    );
-
-    return Promise.race([fetchPromise, timeoutPromise]).then(
-      async (response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return await response.json();
-      }
-    );
   }
 };
