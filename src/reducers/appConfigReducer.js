@@ -3,7 +3,7 @@ import { types } from "../types/types";
 
 const initialState = {
   config: {
-    app_name: "Cruz & Sabor",
+    app_name: "Cruz Market",
     app_description: "🛒 Tu tienda de confianza",
     theme: "blue",
     whatsapp_number: "+5491112345678",
