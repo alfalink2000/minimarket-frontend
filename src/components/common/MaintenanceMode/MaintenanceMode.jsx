@@ -3,6 +3,7 @@ import "./MaintenanceMode.css";
 
 const MaintenanceMode = ({ onRetry }) => {
   const [countdown, setCountdown] = useState(30);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -15,48 +16,92 @@ const MaintenanceMode = ({ onRetry }) => {
       });
     }, 1000);
 
-    return () => clearInterval(timer);
+    // Verificar estado de conexión
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
   }, []);
 
   const handleRetry = () => {
     if (countdown === 0) {
-      onRetry();
+      // Verificar conexión antes de reintentar
+      if (navigator.onLine) {
+        onRetry();
+      } else {
+        setIsOnline(false);
+        setCountdown(10); // Reiniciar countdown si sigue sin conexión
+      }
     }
   };
 
   return (
     <div className="maintenance-mode">
       <div className="maintenance-container">
-        {/* Icono animado */}
+        {/* Icono animado de conexión */}
         <div className="maintenance-icon">
-          <div className="icon-outer-ring"></div>
-          <div className="icon-inner-ring"></div>
-          <div className="icon-emoji">🔧</div>
+          <div className="wifi-icon">
+            <div className="wifi-signal signal-1"></div>
+            <div className="wifi-signal signal-2"></div>
+            <div className="wifi-signal signal-3"></div>
+            <div className="wifi-dot"></div>
+          </div>
+          <div className="maintenance-emoji">🌐</div>
+        </div>
+
+        {/* Código de error */}
+        <div className="maintenance-code">
+          <span className="code-4">4</span>
+          <span className="code-0">0</span>
+          <span className="code-4">4</span>
         </div>
 
         {/* Título y mensaje */}
-        <h1 className="maintenance-title">Sitio en Mantenimiento</h1>
+        <h1 className="maintenance-title">Error de Conexión</h1>
 
-        <p className="maintenance-subtitle">Estamos realizando mejoras</p>
+        <p className="maintenance-subtitle">
+          {isOnline
+            ? "No se pudo conectar con el servidor"
+            : "Sin conexión a internet"}
+        </p>
 
         <div className="maintenance-message">
           <p className="message-text">
-            Nuestra tienda estará en línea muy pronto. Estamos trabajando para
-            brindarte una mejor experiencia.
+            {isOnline
+              ? "El servidor no está respondiendo. Esto puede ser temporal."
+              : "Verifica tu conexión a internet e intenta nuevamente."}
           </p>
 
-          <div className="status-indicator">
-            <div className="status-pulse"></div>
-            <p className="status-text">Volveremos en breve</p>
+          <div className="connection-status">
+            <div
+              className={`status-indicator ${
+                isOnline ? "status-warning" : "status-error"
+              }`}
+            ></div>
+            <p className="status-text">
+              {isOnline ? "Servidor no disponible" : "Sin conexión a internet"}
+            </p>
           </div>
         </div>
 
-        {/* Información de contacto */}
-        <div className="contact-info">
-          <p className="contact-label">
-            Contacte con su proveedor de servicio:
-          </p>
-          <p className="contact-phone">Conectando...</p>
+        {/* Soluciones rápidas */}
+        <div className="troubleshooting-tips">
+          <h3 className="tips-title">Solución rápida:</h3>
+          <ul className="tips-list">
+            <li className="tip-item">
+              ✓ Verifica tu conexión Wi-Fi o datos móviles
+            </li>
+            <li className="tip-item">✓ Reinicia tu router/módem</li>
+            <li className="tip-item">✓ Desactiva temporalmente el VPN</li>
+            <li className="tip-item">✓ Verifica la señal de tu conexión</li>
+          </ul>
         </div>
 
         {/* Botón de reintento */}
@@ -88,9 +133,17 @@ const MaintenanceMode = ({ onRetry }) => {
           ></div>
         </div>
 
-        {/* Mensaje animado */}
-        <div className="thank-you-message">
-          <p className="thank-you-text">¡Gracias por tu paciencia!</p>
+        {/* Información de red */}
+        <div className="network-info">
+          <div className="network-status">
+            <span className="status-label">Estado de red:</span>
+            <span className={`status-value ${isOnline ? "online" : "offline"}`}>
+              {isOnline ? "Conectado" : "Desconectado"}
+            </span>
+          </div>
+          <p className="network-help">
+            Si el problema persiste, contacta a tu proveedor de internet
+          </p>
         </div>
       </div>
     </div>

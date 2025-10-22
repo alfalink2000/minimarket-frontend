@@ -1,7 +1,6 @@
-/* MaintenanceMode.css */
 .maintenance-mode {
   min-height: 100vh;
-  background: linear-gradient(135deg, #4c1d95 0%, #1e3a8a 50%, #3730a3 100%);
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 50%, #7f1d1d 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,50 +11,112 @@
 .maintenance-container {
   text-align: center;
   color: white;
-  max-width: 42rem;
+  max-width: 48rem;
   width: 100%;
 }
 
-/* Icono animado */
+/* Icono de WiFi animado */
 .maintenance-icon {
   position: relative;
   display: inline-block;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
-.icon-outer-ring {
+.wifi-icon {
+  position: relative;
   width: 6rem;
   height: 6rem;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  animation: spin 3s linear infinite;
+  margin: 0 auto;
 }
 
-.icon-inner-ring {
+.wifi-signal {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: transparent;
+  border-left-color: transparent;
+  border-radius: 50%;
+  animation: wifiPulse 2s ease-in-out infinite;
+}
+
+.signal-1 {
+  width: 6rem;
+  height: 6rem;
+  top: 0;
+  left: 0;
+  animation-delay: 0s;
+}
+
+.signal-2 {
   width: 4rem;
   height: 4rem;
-  border: 4px solid #fbbf24;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 1.5s linear infinite reverse;
+  top: 1rem;
+  left: 1rem;
+  animation-delay: 0.2s;
 }
 
-.icon-emoji {
+.signal-3 {
+  width: 2rem;
+  height: 2rem;
+  top: 2rem;
+  left: 2rem;
+  animation-delay: 0.4s;
+}
+
+.wifi-dot {
+  position: absolute;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #fbbf24;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+.maintenance-emoji {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 2.5rem;
+  font-size: 2rem;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Código de error */
+.maintenance-code {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 4rem;
+  font-weight: bold;
+}
+
+.code-4,
+.code-0 {
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  animation: numberFloat 3s ease-in-out infinite;
+}
+
+.code-4 {
+  color: #fbbf24;
+  animation-delay: 0s;
+}
+
+.code-0 {
+  color: #ffffff;
+  animation-delay: 0.5s;
+}
+
+.code-4:last-child {
+  animation-delay: 1s;
 }
 
 /* Títulos */
 .maintenance-title {
-  font-size: 2.25rem;
+  font-size: 2.5rem;
   font-weight: bold;
   margin-bottom: 1rem;
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
@@ -68,11 +129,11 @@
 .maintenance-subtitle {
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
-  color: #bfdbfe;
+  color: #fecaca;
   font-weight: 500;
 }
 
-/* Mensaje principal */
+/* Mensaje de error */
 .maintenance-message {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
@@ -85,50 +146,64 @@
 .message-text {
   font-size: 1.125rem;
   margin-bottom: 1rem;
-  color: #dbeafe;
+  color: #fecaca;
   line-height: 1.6;
 }
 
-.status-indicator {
+.connection-status {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  color: #fbbf24;
 }
 
-.status-pulse {
+.status-indicator {
   width: 0.75rem;
   height: 0.75rem;
-  background-color: #fbbf24;
   border-radius: 50%;
   animation: pulse 2s infinite;
+}
+
+.status-warning {
+  background-color: #fbbf24;
+}
+
+.status-error {
+  background-color: #ef4444;
 }
 
 .status-text {
   font-weight: 600;
   margin: 0;
+  color: #fbbf24;
 }
 
-/* Información de contacto */
-.contact-info {
+/* Tips de solución */
+.troubleshooting-tips {
   background: rgba(0, 0, 0, 0.3);
   border-radius: 0.75rem;
-  padding: 1rem;
+  padding: 1.5rem;
   margin-bottom: 2rem;
+  text-align: left;
 }
 
-.contact-label {
-  font-size: 0.875rem;
-  color: #bfdbfe;
-  margin-bottom: 0.5rem;
-}
-
-.contact-phone {
+.tips-title {
   color: #fbbf24;
-  font-weight: 600;
   font-size: 1.125rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.tips-list {
+  list-style: none;
+  padding: 0;
   margin: 0;
+}
+
+.tip-item {
+  padding: 0.5rem 0;
+  color: #fecaca;
+  font-size: 0.95rem;
 }
 
 /* Botón de reintento */
@@ -200,19 +275,87 @@
   transition: width 1s ease;
 }
 
-/* Mensaje de agradecimiento */
-.thank-you-message {
+/* Información de red */
+.network-info {
   margin-top: 2rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
 }
 
-.thank-you-text {
+.network-status {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.status-label {
   color: #bfdbfe;
   font-size: 0.875rem;
-  animation: pulse 2s infinite;
+}
+
+.status-value {
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.status-value.online {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+
+.status-value.offline {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.network-help {
+  color: #bfdbfe;
+  font-size: 0.875rem;
   margin: 0;
 }
 
 /* Animaciones */
+@keyframes wifiPulse {
+  0%,
+  100% {
+    border-color: rgba(255, 255, 255, 0.3);
+    border-top-color: transparent;
+    border-left-color: transparent;
+  }
+  50% {
+    border-color: #fbbf24;
+    border-top-color: transparent;
+    border-left-color: transparent;
+  }
+}
+
+@keyframes dotPulse {
+  0%,
+  100% {
+    background: #fbbf24;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    background: #f59e0b;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}
+
+@keyframes numberFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -242,6 +385,10 @@
     font-size: 1.875rem;
   }
 
+  .maintenance-code {
+    font-size: 5rem;
+  }
+
   .maintenance-message {
     padding: 2rem;
   }
@@ -254,18 +401,22 @@
 
 @media (max-width: 640px) {
   .maintenance-title {
-    font-size: 1.875rem;
+    font-size: 2rem;
   }
 
   .maintenance-subtitle {
     font-size: 1.25rem;
   }
 
+  .maintenance-code {
+    font-size: 3rem;
+  }
+
   .message-text {
     font-size: 1rem;
   }
 
-  .contact-phone {
-    font-size: 1rem;
+  .tips-list {
+    font-size: 0.9rem;
   }
 }

@@ -7,8 +7,7 @@ const SpiralLoading = ({ fadeOut = false }) => {
   const appConfig = useSelector((state) => state.appConfig.config);
   const appName = appConfig?.app_name || "Cruz & Sabor";
   const appDescription =
-    appConfig?.app_description ||
-    "🛒 Tu tienda de confianza y sabor, donde encuentras lo mejor para tu mesa.";
+    appConfig?.app_description || "🛒 Tu tienda de confianza";
 
   return (
     <div className={`spiral-loading ${fadeOut ? "fade-out" : ""}`}>
