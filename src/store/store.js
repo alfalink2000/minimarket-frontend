@@ -1,5 +1,8 @@
-// store/store.js - CON DEBUG EXTENDIDO
+// store/store.js - CON REDUX PERSIST
 import { createStore, combineReducers, applyMiddleware, compose } from "redux";
+import { persistStore, persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage";
+import autoMergeLevel2 from "redux-persist/lib/stateReconciler/autoMergeLevel2";
 import { thunk } from "redux-thunk";
 import { productsReducer } from "../reducers/productsReducer";
 import { categoriesReducer } from "../reducers/categoriesReducer";
@@ -17,21 +20,44 @@ const reducers = combineReducers({
   cart: cartReducer,
 });
 
-// ✅ MIDDLEWARE DE DEBUG PARA ENCONTRAR LA ACCIÓN PROBLEMÁTICA
-const debugMiddleware = (store) => (next) => (action) => {
-  // Capturar TODAS las acciones para debug
-  console.group("🔍 REDUX ACTION DISPATCHED");
-  console.log("Action Type:", action.type);
-  console.log("Action Payload:", action.payload);
-  console.trace("Stack trace:"); // Esto te dirá exactamente de dónde viene
-  console.groupEnd();
+// ✅ CONFIGURACIÓN DE PERSISTENCIA
+const persistConfig = {
+  key: "root",
+  storage,
+  stateReconciler: autoMergeLevel2,
+  whitelist: ["products", "categories", "appConfig", "cart"], // Qué datos persistir
+  timeout: 5000,
+  version: 1, // Versión para migraciones futuras
+};
 
-  try {
-    return next(action);
-  } catch (error) {
-    console.error("❌ ERROR en reducer para acción:", action.type, error);
-    throw error;
+const persistedReducer = persistReducer(persistConfig, reducers);
+
+// ✅ MIDDLEWARE DE DEBUG MEJORADO
+const debugMiddleware = (store) => (next) => (action) => {
+  // Solo log actions importantes para no saturar la consola
+  const importantActions = [
+    "LOAD_APP_CONFIG",
+    "GET_PRODUCTS",
+    "GET_CATEGORIES",
+    "LOAD_APP_CONFIG_SUCCESS",
+    "GET_PRODUCTS_SUCCESS",
+    "GET_CATEGORIES_SUCCESS",
+    "LOAD_APP_CONFIG_FAILURE",
+    "GET_PRODUCTS_FAILURE",
+    "GET_CATEGORIES_FAILURE",
+  ];
+
+  if (importantActions.includes(action.type)) {
+    console.group(`🔍 REDUX ACTION: ${action.type}`);
+    console.log("Payload:", action.payload);
+    console.log("State antes:", store.getState());
+    const result = next(action);
+    console.log("State después:", store.getState());
+    console.groupEnd();
+    return result;
   }
+
+  return next(action);
 };
 
 const composeEnhancers =
@@ -40,10 +66,14 @@ const composeEnhancers =
   compose;
 
 export const store = createStore(
-  reducers,
+  persistedReducer,
   composeEnhancers(applyMiddleware(thunk, debugMiddleware))
 );
 
+export const persistor = persistStore(store);
+
+// Para debug en desarrollo
 if (import.meta.env.MODE === "development") {
   window.store = store;
+  window.persistor = persistor;
 }
